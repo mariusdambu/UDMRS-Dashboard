@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UDMRS Dashboard - Command Reference</title>
+  <style>
+    :root { color-scheme: light; --ink:#17212f; --muted:#5f6f82; --line:#d8e0ea; --panel:#f7f9fc; --accent:#0f6db5; --warn:#a45b00; --danger:#b3261e; }
+    body { margin:0; font-family:"Segoe UI", Arial, sans-serif; color:var(--ink); background:#fff; line-height:1.45; }
+    header { padding:28px 34px; background:linear-gradient(135deg,#0f4c81,#0f766e); color:white; }
+    header h1 { margin:0 0 6px; font-size:28px; }
+    header p { margin:0; opacity:.92; }
+    main { max-width:1180px; margin:0 auto; padding:26px 28px 60px; }
+    nav { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 22px; }
+    nav a { color:var(--accent); border:1px solid var(--line); border-radius:8px; padding:7px 10px; text-decoration:none; background:#fff; }
+    section { border-top:1px solid var(--line); padding-top:22px; margin-top:26px; }
+    h2 { margin:0 0 12px; font-size:22px; }
+    h3 { margin:20px 0 8px; font-size:17px; }
+    .note, .warning, .danger { border-left:4px solid var(--accent); background:var(--panel); padding:10px 12px; margin:12px 0; }
+    .warning { border-left-color:var(--warn); }
+    .danger { border-left-color:var(--danger); }
+    code { font-family:Consolas, "Cascadia Mono", monospace; }
+    pre { background:#0f1720; color:#edf5ff; border-radius:8px; padding:13px 15px; overflow-x:auto; white-space:pre; }
+    table { border-collapse:collapse; width:100%; margin:12px 0; }
+    th, td { border:1px solid var(--line); padding:8px 10px; text-align:left; vertical-align:top; }
+    th { background:var(--panel); }
+    .safe { color:#0f766e; font-weight:600; }
+    .advanced { color:var(--warn); font-weight:600; }
+    .dangerText { color:var(--danger); font-weight:600; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>UDMRS Dashboard - Command Reference</h1>
+  <p>Paquete público UDMRS · Baseline 2026.05.30-SH-RC1 · Modelo único: Year / Quarter · Importar galería disponible.</p>
+</header>
+<main>
+  <nav>
+    <a href="#filosofia">Filosofía RC</a>
+    <a href="#dashboard">Dashboard</a>
+    <a href="#importar">Importar galería</a>
+    <a href="#exclusiones">Exclusiones</a>
+    <a href="#normal">Uso normal</a>
+    <a href="#mantenimiento">Mantenimiento</a>
+    <a href="#recuperacion">Recuperación</a>
+    <a href="#idioma">Idioma</a>
+    <a href="#diagnostico">Diagnóstico</a>
+    <a href="#logs">Logs / ETA</a>
+    <a href="#avanzado">Avanzados</a>
+  </nav>
+
+  <div class="note">
+    <strong>Rutas oficiales usadas en esta referencia</strong><br>
+    Script: <code>&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1</code><br>
+    Source: <code>%USERPROFILE%\OneDrive\Imágenes</code><br>
+    Destination: <code>%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas</code><br>
+    Language: <code>es</code>
+    <p>Si copias UDMRS Dashboard a otra carpeta, usa el <code>Start-PhotoOrganizer.cmd</code> de esa copia o reemplaza <code>&lt;CarpetaUDMRS&gt;</code> por la ruta de la copia. No reutilices shortcuts <code>.lnk</code> antiguos porque Windows guarda rutas absolutas dentro del acceso directo.</p>
+  </div>
+
+  <section id="filosofia">
+    <h2>Filosofía RC madura</h2>
+    <p>La estructura oficial única es <strong>Año / Trimestre</strong>. El perfil <code>QuarterlyFolders</code> es el único perfil válido. El modelo estructural anterior está retirado.</p>
+    <table>
+      <tr><th>Componente</th><th>Rol actual</th></tr>
+      <tr><td><code>Organize</code></td><td>Construye/reconstruye biblioteca, clasifica, deduplica, repara EXIF si se pide y registra el índice.</td></tr>
+      <tr><td><code>NormalizeExistingFolders</code></td><td>Reestructuración visual y limpieza: año/trimestre, carpetas vacías, junk-only y ramas residuales.</td></tr>
+      <tr><td><code>ReconcileProcessedDatabase</code></td><td>Herramienta principal para sincronizar/reparar <code>ProcessedFiles.json</code>.</td></tr>
+      <tr><td><code>PurgeMissingFromProcessedDatabase</code></td><td>Avanzado. Purga historial desaparecido después de revalidar.</td></tr>
+      <tr><td><code>DedupeCleanup</code></td><td>Duplicados por hash. No limpia carpetas vacías.</td></tr>
+    </table>
+    <div class="warning">
+      <strong><code>-KeepEmptyFolders</code> no limpia carpetas.</strong>
+      Hace lo contrario: conserva carpetas vacías. Para permitir limpieza durante Normalize usa <code>-KeepEmptyFolders:$false</code> o no pases el parámetro.
+    </div>
+  </section>
+
+  <section id="dashboard">
+    <h2>Acceso desde dashboard</h2>
+    <p>El flujo normal vive en <strong>Inicio</strong>: elegir origen/destino, revisar resumen dinámico y pulsar <strong>Ejecutar</strong>.</p>
+    <p>La entrada <strong>Importar galería</strong> vive como sección principal del dashboard. Úsala para exportaciones de proveedores con sidecars, JSON, álbumes, papelera o relaciones entre elementos. Para carpetas normales de fotos/vídeos usa <strong>Inicio</strong>.</p>
+    <p>En <strong>Ajustes</strong>, el botón <strong>Modo avanzado</strong> abre opciones avanzadas que antes requerían comandos PowerShell largos. No duplica acciones ya visibles como TestScan, Reconcile o Purge.</p>
+    <table>
+      <tr><th>Botón avanzado</th><th>Switch del motor</th><th>Resumen</th></tr>
+      <tr><td>Limpieza de retención</td><td><code>-RetentionCleanup</code></td><td>Limpia solo backups EXIF antiguos y duplicados confirmados antiguos. No limpia la galería normal ni carpetas vacías.</td></tr>
+      <tr><td>Recuperar duplicados mal movidos</td><td><code>-RecoverFromWrongDuplicateMove</code></td><td>Recuperación conservadora desde duplicados usando logs e índice.</td></tr>
+      <tr><td>Traducir carpetas existentes</td><td><code>-RenameExistingFoldersToCurrentLanguage</code></td><td>Traduce carpetas trimestrales existentes al idioma activo sin leer contenido.</td></tr>
+      <tr><td>Traducir carpetas internas</td><td><code>-RenameInternalFoldersToCurrentLanguage</code></td><td>Renombra o consolida contenedores internos conocidos al idioma activo sin leer fotos ni hidratar nube.</td></tr>
+      <tr><td>Normalizar estructura</td><td><code>-NormalizeExistingFolders</code></td><td>Reestructura visualmente a Año/Trimestre y limpia ramas vacías/junk/residuales.</td></tr>
+      <tr><td>Limpieza de duplicados</td><td><code>-DedupeCleanup</code></td><td>Duplicados exactos por SHA256; no limpia carpetas vacías.</td></tr>
+      <tr><td>Reparar EXIF in-place</td><td><code>-RepairOnlyExistingOrganizedLibrary -RepairExif</code></td><td>Reparación EXIF dentro de la biblioteca organizada; no mueve ni deduplica.</td></tr>
+      <tr><td>Migrar UDMRS a otro PC</td><td>Dashboard helper</td><td>Crea ZIP de instalación compartida, ZIP de estado de usuario y <code>MigrationGuide.txt</code>. No incluye logs ni runtime.</td></tr>
+    </table>
+    <div class="warning">Los botones avanzados respetan Simulación por defecto. Si activas Apply real, el dashboard pide confirmación específica y muestra los switches que va a lanzar.</div>
+    <div class="note">Las acciones de Modo avanzado se ejecutan en una consola técnica persistente por usuario. El dashboard abre una sola ventana <code>pwsh</code> / <code>powershell.exe</code>, la reutiliza para siguientes acciones y no la cierra al terminar cada acción, para conservar salida, errores y progreso visible. Al cerrar el dashboard, esa consola técnica controlada y su estado temporal se cierran también. La infraestructura runtime vive en <code>%APPDATA%\PhotoOrganizer\Runtime\TechnicalConsole</code>; los logs y progress de las acciones se escriben en <code>%APPDATA%\PhotoOrganizer\Logs</code>.</div>
+    <div class="note">Después de renames estructurales o Normalize Apply, Explorer y OneDrive pueden tardar unos minutos en refrescar, reindexar o sincronizar. Si el log confirma que no hubo content scan, EXIF, hash ni cloud traversal, ese estado temporal de Explorer no implica corrupción, hidratación masiva ni pérdida de datos. Espera antes de lanzar otra operación; si Explorer sigue bloqueado demasiado tiempo, reinicia Explorer o Windows.</div>
+    <div class="note"><strong>Migración a otro PC.</strong> El botón avanzado <strong>Migrar UDMRS a otro PC</strong> genera paquetes en <code>%USERPROFILE%\Downloads\UDMRS-MigrationPackages</code> y abre esa carpeta al terminar: un ZIP de la instalación actual, un ZIP del estado del usuario actual y una guía. El paquete de usuario incluye <code>ProcessedFiles.json</code>, <code>Config</code>, <code>IndexBackups</code> y ajustes; excluye <code>Logs</code>, <code>Runtime</code>, <code>*.progress.json</code>, colas, PID/status temporales y backups EXIF locales.</div>
+  </section>
+
+  <section id="importar">
+    <h2>Importar galería</h2>
+    <p>Esta entrada está pensada para exportaciones de proveedor, no para carpetas normales de archivos multimedia.</p>
+    <table>
+      <tr><th>Provider</th><th>Estado</th><th>Uso</th></tr>
+      <tr><td>Google Photos / Takeout</td><td class="safe">Disponible</td><td><code>-ImportProvider GoogleTakeout -ImportProviderPath &lt;RutaTakeout&gt;</code></td></tr>
+      <tr><td>Apple Photos / iCloud</td><td class="advanced">Próximamente · requiere muestra real</td><td>Deshabilitado en UI. No lanza proceso.</td></tr>
+      <tr><td>Samsung Gallery</td><td class="advanced">Próximamente · requiere muestra real</td><td>Deshabilitado en UI. No lanza proceso.</td></tr>
+      <tr><td>Immich</td><td class="advanced">Próximamente · requiere muestra/export</td><td>Deshabilitado en UI. No lanza proceso.</td></tr>
+      <tr><td>XMP / Sidecar Library</td><td class="safe">Disponible</td><td><code>-ImportProvider XmpSidecarLibrary -ImportProviderPath &lt;RutaGaleria&gt;</code></td></tr>
+    </table>
+    <div class="note"><strong>Google Takeout.</strong> La ruta de Takeout siempre la selecciona el usuario. No uses rutas fijas. En DryRun genera reporte sin copiar; en Apply copia assets limpios al destino y registra el índice común. Tras un Apply correcto, la carpeta Takeout seleccionada puede eliminarse solo si el usuario lo confirma explícitamente. La decisión queda registrada en log/reporte.</div>
+    <div class="note"><strong>XMP / Sidecar Library.</strong> La ruta siempre la selecciona el usuario. Intenta asociar media con sidecars <code>.xmp</code>, <code>.json</code>, <code>.yaml</code> o <code>.yml</code>. Si la relación es clara usa fecha, título, descripción, tags, rating o ubicación cuando existan. Si es ambigua, manda a revisión. Si no hay metadata útil, usa fallback clásico.</div>
+  </section>
+
+  <section id="exclusiones">
+    <h2>Carpetas excluidas / protegidas externas</h2>
+    <p>La aplicación separa carpetas internas propias de carpetas externas que el usuario decide proteger.</p>
+    <table>
+      <tr><th>Tipo</th><th>Significado</th></tr>
+      <tr><td><code>InternalProtectedFolders</code></td><td>Carpetas propias de la aplicación: logs, runtime, backups internos, revisión, duplicados y contenedores equivalentes.</td></tr>
+      <tr><td><code>UserExcludedFolders</code></td><td>Carpetas que el usuario declara intocables desde el dashboard.</td></tr>
+      <tr><td><code>VendorManagedFolders</code></td><td>Presets/ayudas para carpetas gestionadas por apps externas, por ejemplo Samsung Gallery o Camera Roll.</td></tr>
+    </table>
+    <p>El dashboard muestra en <strong>Inicio</strong> un resumen de carpetas protegidas activas, encontradas y no encontradas, con acceso directo para gestionarlas sin editar JSON. La fuente activa unica es la configuración de cada usuario en <code>%APPDATA%\PhotoOrganizer\Config\UserExcludedFolders.json</code>. Si no existe, UDMRS la crea automáticamente sin exclusiones activas. Las rutas pueden usar <code>%USERPROFILE%</code>, <code>&lt;SourcePath&gt;</code>, <code>&lt;DestinationPath&gt;</code> y rutas absolutas.</p>
+    <div class="warning">Una carpeta excluida es una zona protegida: no se organiza, no se normaliza, no se repara EXIF, no se deduplica, no se purga, no se limpia, no se calcula hash, no se lee EXIF y no se hidrata nube. Si la ruta no existe, la entrada se conserva y se muestra como no encontrada.</div>
+    <p><code>Samsung Gallery</code> se ofrece como preset sugerido, pero no se activa globalmente para todos los usuarios y no es un hardcode especial.</p>
+  </section>
+
+  <section id="normal">
+    <h2>Uso normal</h2>
+
+    <h3>1. TestScan</h3>
+    <p class="safe">Seguro. Escanea archivos compatibles, exclusiones y acceso. No lee EXIF, no calcula hashes, no mueve, no copia y no modifica datos.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -TestScan `
+  -Language es</code></pre>
+
+    <h3>2. Organize DryRun</h3>
+    <p class="safe">Simula organización. No mueve, no copia y no repara EXIF.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -Language es</code></pre>
+
+    <h3>3. Organize Apply</h3>
+    <p class="advanced">Aplica organización real. Mueve archivos salvo que uses <code>-CopyInsteadOfMove</code>.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -Language es `
+  -Apply</code></pre>
+
+    <h3>4. Organize Apply + RepairExif</h3>
+    <p class="advanced">Primera pasada real recomendada para bibliotecas grandes sin procesar. Puede reparar metadatos EXIF con confianza suficiente.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -Language es `
+  -Apply `
+  -RepairExif</code></pre>
+
+    <h3>Organize Apply copiando en vez de mover</h3>
+    <p class="advanced">Conserva originales y crea copias. Puede aumentar mucho el uso de disco/OneDrive.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -Language es `
+  -Apply `
+  -CopyInsteadOfMove</code></pre>
+
+    <h3>ImportProvider Google Takeout DryRun</h3>
+    <p class="safe">Analiza una exportación Google Takeout sin copiar nada. Revisa el reporte HTML/JSON antes de Apply.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -ImportProvider GoogleTakeout `
+  -ImportProviderPath "&lt;RutaSeleccionadaPorUsuario&gt;" `
+  -Language es</code></pre>
+
+    <h3>ImportProvider Google Takeout Apply</h3>
+    <p class="advanced">Copia assets limpios al destino Year/Quarter y registra el índice común. No mueve ni elimina la exportación Takeout.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -ImportProvider GoogleTakeout `
+  -ImportProviderPath "&lt;RutaSeleccionadaPorUsuario&gt;" `
+  -Language es `
+  -Apply</code></pre>
+
+    <h3>ImportProvider Google Takeout Apply + eliminar fuente temporal</h3>
+    <p class="dangerText">Solo para exportaciones temporales ya revisadas. Borra la carpeta Takeout seleccionada si el import termina correctamente y sin errores.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -ImportProvider GoogleTakeout `
+  -ImportProviderPath "&lt;RutaSeleccionadaPorUsuario&gt;" `
+  -Language es `
+  -Apply `
+  -DeleteImportProviderSourceAfterSuccess</code></pre>
+
+    <h3>ImportProvider XMP / Sidecar Library DryRun</h3>
+    <p class="safe">Analiza una galería/exportación desconocida con sidecars XMP, JSON o YAML. Si no encuentra metadata útil, usa fallback clásico.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -ImportProvider XmpSidecarLibrary `
+  -ImportProviderPath "&lt;RutaSeleccionadaPorUsuario&gt;" `
+  -Language es</code></pre>
+
+    <h3>ImportProvider XMP / Sidecar Library Apply</h3>
+    <p class="advanced">Copia assets al destino Year/Quarter usando metadata clara de sidecars cuando exista; relaciones ambiguas van a revisión.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -ImportProvider XmpSidecarLibrary `
+  -ImportProviderPath "&lt;RutaSeleccionadaPorUsuario&gt;" `
+  -Language es `
+  -Apply</code></pre>
+  </section>
+
+  <section id="mantenimiento">
+    <h2>Mantenimiento</h2>
+
+    <h3>5. NormalizeExistingFolders DryRun</h3>
+    <p class="safe">Simula reestructuración visual a año/trimestre y limpieza segura. No es el mantenedor principal del índice.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -NormalizeExistingFolders `
+  -KeepEmptyFolders:$false `
+  -Language es</code></pre>
+
+    <h3>6. NormalizeExistingFolders Apply</h3>
+    <p class="advanced">Reestructura visualmente, limpia carpetas vacías/junk/residuales y entra en validación/reconcile post-operación. En OneDrive u otros proveedores cloud-backed puede provocar reindexación visible de Explorer después de terminar.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -NormalizeExistingFolders `
+  -KeepEmptyFolders:$false `
+  -Language es `
+  -Apply</code></pre>
+
+    <h3>7. ReconcileProcessedDatabase DryRun</h3>
+    <p class="safe">Herramienta principal para sincronizar el índice. No mueve fotos, no modifica EXIF y no reorganiza carpetas.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -ReconcileProcessedDatabase `
+  -Language es</code></pre>
+
+    <h3>8. ReconcileProcessedDatabase Apply</h3>
+    <p class="advanced">Actualiza rutas del índice tras validar rutas y hashes. No mueve fotos.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -ReconcileProcessedDatabase `
+  -Language es `
+  -Apply</code></pre>
+  </section>
+
+  <section id="recuperacion">
+    <h2>Recuperación y operaciones avanzadas</h2>
+
+    <h3>9. PurgeMissingFromProcessedDatabase DryRun</h3>
+    <p class="safe">Revalida antes de purgar. Puede rescatar entradas si el archivo existe de nuevo.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -PurgeMissingFromProcessedDatabase `
+  -Language es</code></pre>
+
+    <h3>10. PurgeMissingFromProcessedDatabase Apply</h3>
+    <p class="dangerText">Avanzado. No borra fotos reales, pero sí puede borrar memoria histórica de entradas realmente desaparecidas.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -PurgeMissingFromProcessedDatabase `
+  -Language es `
+  -Apply</code></pre>
+
+    <h3>11. DedupeCleanup DryRun</h3>
+    <p class="safe">Analiza duplicados exactos por hash. No limpia carpetas vacías y no mueve nada sin <code>-Apply</code>.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -DedupeCleanup `
+  -Language es</code></pre>
+
+    <h3>12. DedupeCleanup Apply</h3>
+    <p class="dangerText">Avanzado. Mueve duplicados confirmados a cuarentena; no borra directamente.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -DedupeCleanup `
+  -Language es `
+  -Apply</code></pre>
+
+    <h3>13. RepairOnlyExistingOrganizedLibrary DryRun</h3>
+    <p class="safe">No modifica EXIF sin <code>-Apply</code>. Sirve para comprobar alcance.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -RepairOnlyExistingOrganizedLibrary `
+  -RepairExif `
+  -Language es</code></pre>
+
+    <h3>14. RepairOnlyExistingOrganizedLibrary Apply + RepairExif</h3>
+    <p class="dangerText">Repara EXIF in-place dentro de la biblioteca organizada. No organiza, no deduplica y no renombra.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -RepairOnlyExistingOrganizedLibrary `
+  -RepairExif `
+  -Language es `
+  -Apply</code></pre>
+
+    <h3>15. RecoverFromWrongDuplicateMove DryRun</h3>
+    <p class="safe">Recuperación específica para movimientos erróneos a duplicados. Primero siempre DryRun.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -RecoverFromWrongDuplicateMove `
+  -Language es</code></pre>
+
+    <h3>16. RecoverFromWrongDuplicateMove Apply</h3>
+    <p class="dangerText">Avanzado. Recupera archivos desde la carpeta de duplicados reconstruyendo rutas y evitando sobrescrituras.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -RecoverFromWrongDuplicateMove `
+  -Language es `
+  -Apply</code></pre>
+
+    <h3>17. RetentionCleanup DryRun</h3>
+    <p class="safe">Simula limpieza de retención. Solo revisa backups EXIF antiguos y cuarentena de duplicados confirmados. No limpia la galería normal, no limpia carpetas vacías, no reorganiza fotos y nunca toca <code>_Duplicados_Para_Revisar</code>.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -RetentionCleanup `
+  -Language es</code></pre>
+
+    <h3>18. RetentionCleanup Apply</h3>
+    <p class="dangerText">Avanzado. Borra solo contenido antiguo apto para retención; conserva la última ejecución válida y no toca duplicados pendientes de revisión. Si no han pasado los días de retención configurados, puede no borrar nada; eso es normal.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -RetentionCleanup `
+  -Language es `
+  -Apply</code></pre>
+    <div class="note">RetentionCleanup no es Normalize, no es Purge y no es limpieza general. Solo puede actuar sobre <code>%LOCALAPPDATA%\PhotoOrganizer\_Backup_Metadate</code> / aliases de metadata backup y sobre <code>_Carantina_Duplicate_Confirmate</code> / aliases de cuarentena confirmada. La carpeta de duplicados pendientes de revisión nunca se toca.</div>
+  </section>
+
+  <section id="idioma">
+    <h2>Idioma y nombres internos</h2>
+
+    <h3>19. RenameExistingFoldersToCurrentLanguage</h3>
+    <p class="advanced">Renombra carpetas trimestrales existentes al idioma activo cuando corresponda. Opera a nivel de carpeta: no lee EXIF, no calcula hashes y no inspecciona archivos internos. En bibliotecas cloud-backed renombra estructura sin hidratar contenido cloud-only; Explorer/OneDrive pueden tardar unos minutos en reflejar los cambios.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -RenameExistingFoldersToCurrentLanguage `
+  -Language es `
+  -Apply</code></pre>
+
+    <h3>20. RenameInternalFoldersToCurrentLanguage</h3>
+    <p class="advanced">Traduce contenedores internos conocidos por rol lógico: carpeta organizada, revisión manual, duplicados, cuarentena confirmada, Logs y backup de metadatos. Mantiene aliases históricos ES/RO/EN y consolida al nombre visible del idioma activo. En bibliotecas cloud-backed permite renombrar o consolidar el contenedor sin leer fotos ni hidratar contenido cloud-only. No renombra eventos ni trimestres. Tras la operación, Explorer/OneDrive pueden quedar temporalmente reindexando.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -RenameInternalFoldersToCurrentLanguage `
+  -Language es `
+  -Apply</code></pre>
+
+    <h3>Ejemplo rumano / Exemplu română</h3>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Poze_Organizate" `
+  -NormalizeExistingFolders `
+  -KeepEmptyFolders:$false `
+  -Language ro</code></pre>
+  </section>
+
+  <section id="diagnostico">
+    <h2>Diagnóstico</h2>
+
+    <h3>21. Organize con -Diagnostic</h3>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -Language es `
+  -Diagnostic</code></pre>
+
+    <h3>22. Normalize con -Diagnostic</h3>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -NormalizeExistingFolders `
+  -KeepEmptyFolders:$false `
+  -Language es `
+  -Diagnostic</code></pre>
+
+    <h3>23. Rendimiento opcional</h3>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -PerformanceMode HighPerformance `
+  -MaxParallelJobs 24 `
+  -Language es</code></pre>
+  </section>
+
+  <section id="logs">
+    <h2>Logs, ETA y progress</h2>
+    <div class="note">Al arrancar, el dashboard limpia automáticamente artefactos operativos antiguos en <code>%APPDATA%\PhotoOrganizer\Logs</code> con una retención aproximada de 7 días: <code>*.log</code>, <code>*.progress.json</code> y reportes HTML. No toca fotos, vídeos, <code>ProcessedFiles.json</code> real, backups EXIF, cuarentenas ni <code>%APPDATA%\PhotoOrganizer\Runtime\TechnicalConsole</code>. Los backups técnicos del índice viven separados en <code>%APPDATA%\PhotoOrganizer\IndexBackups</code>; se conserva siempre el más reciente, se conservan backups recientes hasta un máximo aproximado de 10 copias y se migran automáticamente backups antiguos desde <code>Logs\JsonBackups</code>.</div>
+
+    <h3>Ver último log</h3>
+<pre><code>Get-ChildItem -LiteralPath "%APPDATA%\PhotoOrganizer\Logs" -Filter "PhotoOrganizer-*.log" |
+  Sort-Object LastWriteTime -Descending |
+  Select-Object -First 1 |
+  Get-Content -Tail 80</code></pre>
+
+    <h3>Ver último progress.json</h3>
+<pre><code>Get-ChildItem -LiteralPath "%APPDATA%\PhotoOrganizer\Logs" -Filter "*.progress.json" |
+  Sort-Object LastWriteTime -Descending |
+  Select-Object -First 1 |
+  Get-Content -Raw</code></pre>
+
+    <h3>Buscar ETA operativo</h3>
+<pre><code>Select-String -Path "%APPDATA%\PhotoOrganizer\Logs\*.log" -Pattern "progress:","Current speed","Estimated remaining","Stage:"</code></pre>
+
+    <h3>Errores</h3>
+<pre><code>Select-String -Path "%APPDATA%\PhotoOrganizer\Logs\*.log" -Pattern "Fatal error","Error","failed","failed for"</code></pre>
+
+    <h3>EXIF lento</h3>
+<pre><code>Select-String -Path "%APPDATA%\PhotoOrganizer\Logs\*.log" -Pattern "Slow EXIF candidate","EXIF batch timeout","per-file mode"</code></pre>
+
+    <h3>DateInfo resolved</h3>
+<pre><code>Select-String -Path "%APPDATA%\PhotoOrganizer\Logs\*.log" -Pattern "DateInfo resolved"</code></pre>
+
+    <h3>Años sospechosos</h3>
+<pre><code>Select-String -Path "%APPDATA%\PhotoOrganizer\Logs\*.log" -Pattern "FinalDate=1905","FinalDate=1930","FinalDate=1932","FinalDate=1934","FinalDate=1945","FinalDate=1950"</code></pre>
+
+    <h3>JSON Missing/Stale y conflictos</h3>
+<pre><code>Select-String -Path "%APPDATA%\PhotoOrganizer\Logs\*.log" -Pattern "Missing/Stale","Stale JSON entry","Registered path no longer exists","Multiple current paths","JSON conflict"</code></pre>
+  </section>
+
+  <section id="avanzado">
+    <h2>Resumen de seguridad</h2>
+    <table>
+      <tr><th>Comando</th><th>Nivel</th><th>Qué toca</th></tr>
+      <tr><td><code>-TestScan</code></td><td class="safe">Seguro</td><td>Solo escaneo rápido.</td></tr>
+      <tr><td>Organize sin <code>-Apply</code></td><td class="safe">Seguro</td><td>Simulación.</td></tr>
+      <tr><td><code>-NormalizeExistingFolders</code> sin <code>-Apply</code></td><td class="safe">Seguro</td><td>Reporte DryRun.</td></tr>
+      <tr><td><code>-ReconcileProcessedDatabase</code></td><td class="safe">Seguro/medio</td><td>Sin Apply solo reporta; con Apply actualiza índice, no fotos.</td></tr>
+      <tr><td><code>-NormalizeExistingFolders -Apply</code></td><td class="advanced">Avanzado</td><td>Mueve/renombra estructura y limpia carpetas.</td></tr>
+      <tr><td><code>-DedupeCleanup -Apply</code></td><td class="dangerText">Avanzado</td><td>Mueve duplicados confirmados a cuarentena.</td></tr>
+      <tr><td><code>-PurgeMissingFromProcessedDatabase -Apply</code></td><td class="dangerText">Avanzado</td><td>Purga entradas missing del índice tras revalidar.</td></tr>
+      <tr><td><code>-RepairOnlyExistingOrganizedLibrary -RepairExif -Apply</code></td><td class="dangerText">Avanzado</td><td>Modifica EXIF in-place; no mueve ni organiza.</td></tr>
+      <tr><td><code>-RetentionCleanup -Apply</code></td><td class="dangerText">Avanzado</td><td>Limpia retención antigua de backups EXIF y cuarentena confirmada; no toca revisión pendiente.</td></tr>
+    </table>
+  </section>
+</main>
+</body>
+</html>
+
+
+
+
+
+

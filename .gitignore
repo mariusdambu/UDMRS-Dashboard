@@ -1,0 +1,70 @@
+# User data and runtime state
+Logs/
+Runtime/
+Temp/
+MigrationPackages/
+IndexBackups/
+JsonBackups/
+*.log
+*.progress.json
+*.status.json
+queue.jsonl
+technical-console.status.json
+ProcessedFiles.json
+ProcessedFiles.*.json
+
+# Media and archives
+*.jpg
+*.jpeg
+*.png
+*.heic
+*.webp
+*.gif
+*.tif
+*.tiff
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.zip
+*.7z
+*.rar
+
+# Keep project visual assets despite media ignore
+!App/Assets/*.png
+!App/Assets/*.ico
+
+# Provider exports and samples
+Takeout/
+Google Takeout/
+Google Photos/
+Google Foto/
+iCloud Photos/
+Samsung Gallery/
+Immich/
+
+# Quarantine / review / backups
+_NeedsReview/
+_NecesitaRevision/
+_De_Revizuit/
+_Duplicates_To_Review/
+_Duplicados_Para_Revisar/
+_Duplicate_De_Revizuit/
+_Confirmed_Duplicates_Quarantine/
+_Cuarentena_Duplicados_Confirmados/
+_Carantina_Duplicate_Confirmate/
+_MetadataBackup/
+_CopiaSeguridadMetadatos/
+_Backup_Metadate/
+
+# Third-party binaries should be installed by the user
+Tools/ExifTool/*
+!Tools/ExifTool/README.md
+
+# OS/editor
+Thumbs.db
+Desktop.ini
+.DS_Store
+.vscode/
+.idea/
+

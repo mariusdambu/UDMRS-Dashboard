@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UDMRS Dashboard - Mapa visual del sistema</title>
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #657085;
+      --line: #cfd7e6;
+      --paper: #f7f9fc;
+      --card: #ffffff;
+      --blue: #2f6fed;
+      --cyan: #158a9b;
+      --green: #1d8f59;
+      --amber: #b46b00;
+      --red: #bb3848;
+      --violet: #7559d9;
+      --gray: #e8edf6;
+      --shadow: 0 10px 28px rgba(24, 39, 75, .08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.45;
+    }
+
+    header {
+      color: #fff;
+      background:
+        linear-gradient(120deg, rgba(21, 80, 130, .92), rgba(33, 134, 120, .92)),
+        radial-gradient(circle at 80% 10%, rgba(255,255,255,.24), transparent 34%);
+      padding: 52px 6vw 44px;
+    }
+
+    header .eyebrow { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; opacity: .82; }
+    h1 { margin: 10px 0 6px; font-size: clamp(34px, 5vw, 58px); line-height: 1.02; }
+    header p { max-width: 880px; margin: 8px 0 0; font-size: 19px; opacity: .93; }
+
+    main {
+      width: min(1180px, calc(100% - 36px));
+      margin: 0 auto;
+      padding: 28px 0 54px;
+    }
+
+    section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      margin: 24px 0;
+      padding: 28px;
+      break-inside: avoid;
+    }
+
+    h2 { margin: 0 0 16px; font-size: 26px; }
+    h3 { margin: 18px 0 10px; font-size: 18px; }
+    .lead { color: var(--muted); max-width: 880px; margin: -4px 0 22px; }
+    .small { color: var(--muted); font-size: 13px; }
+    .mono { font-family: Consolas, "Cascadia Mono", monospace; }
+
+    .legend {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 14px 0 0;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: #fff;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .b-blue { background: var(--blue); }
+    .b-green { background: var(--green); }
+    .b-amber { background: var(--amber); }
+    .b-red { background: var(--red); }
+    .b-cyan { background: var(--cyan); }
+    .b-violet { background: var(--violet); }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      align-items: stretch;
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .node {
+      position: relative;
+      min-height: 82px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fff;
+    }
+
+    .node strong { display: block; font-size: 16px; margin-bottom: 4px; }
+    .node span { display: block; color: var(--muted); font-size: 13px; }
+    .node.blue { border-top: 4px solid var(--blue); }
+    .node.green { border-top: 4px solid var(--green); }
+    .node.amber { border-top: 4px solid var(--amber); }
+    .node.red { border-top: 4px solid var(--red); }
+    .node.cyan { border-top: 4px solid var(--cyan); }
+    .node.violet { border-top: 4px solid var(--violet); }
+    .node.gray { border-top: 4px solid #8491a5; }
+
+    .arrow-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin: 16px 0;
+    }
+
+    .decision {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) 84px minmax(220px, 1fr) 84px minmax(220px, 1fr);
+      gap: 12px;
+      align-items: center;
+    }
+
+    .diamond {
+      display: grid;
+      place-items: center;
+      width: 74px;
+      height: 74px;
+      margin: auto;
+      transform: rotate(45deg);
+      border: 1px solid var(--line);
+      background: #fff9ed;
+      color: var(--amber);
+      font-weight: 700;
+    }
+
+    .diamond span { transform: rotate(-45deg); text-align: center; font-size: 12px; line-height: 1.1; }
+
+    .stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    .lane {
+      display: grid;
+      grid-template-columns: 210px 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .bar {
+      height: 36px;
+      border-radius: 6px;
+      background: var(--gray);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .fill {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 10px;
+      color: #fff;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .w99 { width: 99%; background: var(--green); }
+    .w98 { width: 98%; background: #23986a; }
+    .w97 { width: 97%; background: var(--cyan); }
+    .w96 { width: 96%; background: #3d7ee8; }
+    .w90 { width: 90%; background: var(--amber); }
+    .w50 { width: 50%; background: #8c98aa; }
+
+    .matrix {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      font-size: 14px;
+    }
+
+    .matrix th,
+    .matrix td {
+      border: 1px solid var(--line);
+      padding: 10px;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .matrix th {
+      background: #eef3fb;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .matrix td:first-child,
+    .matrix th:first-child {
+      text-align: left;
+    }
+
+    .yes { color: var(--green); font-weight: 700; }
+    .no { color: var(--red); font-weight: 700; }
+    .maybe { color: var(--amber); font-weight: 700; }
+    .safe { background: #eefaf4; }
+    .warn { background: #fff7e8; }
+    .stop { background: #fff0f2; }
+
+    .folder-map {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .folder {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fff;
+    }
+
+    .folder .name { font-family: Consolas, "Cascadia Mono", monospace; font-weight: 700; }
+    .folder .role { color: var(--muted); font-size: 13px; margin-top: 6px; }
+
+    .split {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 16px;
+    }
+
+    .callout {
+      border-left: 4px solid var(--blue);
+      background: #f2f6ff;
+      padding: 12px 14px;
+      border-radius: 6px;
+      margin-top: 14px;
+    }
+
+    .danger { border-left-color: var(--red); background: #fff3f4; }
+    .ok { border-left-color: var(--green); background: #effaf4; }
+
+    .timeline {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .num {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--blue);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+    }
+
+    .tile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 12px;
+    }
+
+    .tile {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      min-height: 94px;
+    }
+
+    .tile strong { display: block; margin-bottom: 5px; }
+    .tile span { color: var(--muted); font-size: 13px; }
+
+    footer {
+      color: var(--muted);
+      font-size: 13px;
+      padding: 18px 0 0;
+      text-align: center;
+    }
+
+    @media (max-width: 860px) {
+      section { padding: 20px; }
+      .decision { grid-template-columns: 1fr; }
+      .diamond { transform: none; width: auto; height: auto; padding: 12px; }
+      .diamond span { transform: none; }
+      .lane { grid-template-columns: 1fr; }
+      .matrix { font-size: 12px; }
+      .matrix th, .matrix td { padding: 7px; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      header { padding: 28px; }
+      main { width: 100%; padding: 0 18px; }
+      section { box-shadow: none; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">UDMRS Dashboard</div>
+    <h1>Mapa visual del sistema</h1>
+    <p>Universal Digital Memory Recovery System · Recover · Repair · Organize · Preserve</p>
+    <p class="small">Estado RC actual: estructura oficial <span class="mono">Year\Quarter</span>, motor conservador, cloud-aware, carpetas protegidas por usuario y modo técnico separado.</p>
+  </header>
+
+  <main>
+    <section>
+      <h2>1. Vista general</h2>
+      <p class="lead">UDMRS Dashboard tiene una entrada humana, un motor central y varios modos especializados. Todos comparten el mismo destino organizado y el mismo indice de memoria.</p>
+      <div class="flow">
+        <div class="node blue"><strong>Usuario</strong><span>Elige carpetas, modo y nivel de riesgo.</span></div>
+        <div class="node cyan"><strong>Dashboard</strong><span>Flujo normal, ajustes, ayuda y Modo avanzado.</span></div>
+        <div class="node violet"><strong>PhotoOrganizer.ps1</strong><span>Motor unico: decisiones, logs, indice y seguridad.</span></div>
+        <div class="node green"><strong>Biblioteca final</strong><span><span class="mono">Fotos_Organizadas\Year\Quarter</span></span></div>
+      </div>
+      <div class="tile-grid">
+        <div class="tile"><strong>Organize</strong><span>Ingesta, clasifica, mueve/copia, deduplica e indexa.</span></div>
+        <div class="tile"><strong>Repair EXIF</strong><span>Escribe fechas solo con evidencia fuerte y backup previo.</span></div>
+        <div class="tile"><strong>Normalize</strong><span>Reestructura visualmente a Year\Quarter y limpia ramas residuales.</span></div>
+        <div class="tile"><strong>Dedupe</strong><span>Gestiona duplicados exactos y casos para revisar.</span></div>
+        <div class="tile"><strong>Reconcile</strong><span>Sincroniza el indice con rutas reales y movimientos manuales.</span></div>
+        <div class="tile"><strong>Recovery</strong><span>Rescata errores conservadores y evita perder trazabilidad.</span></div>
+        <div class="tile"><strong>Retention</strong><span>Limpia backups EXIF antiguos y cuarentena confirmada antigua.</span></div>
+        <div class="tile"><strong>Cloud-aware</strong><span>Procesa local, salta placeholders, no hidrata nube.</span></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>2. Como decide el sistema</h2>
+      <p class="lead">La decision no empieza por "mover". Empieza por territorio, disponibilidad, evidencia y riesgo.</p>
+      <div class="decision">
+        <div class="node gray"><strong>Archivo o carpeta encontrada</strong><span>Solo se considera si esta dentro del ambito seleccionado.</span></div>
+        <div class="diamond"><span>Territorio?</span></div>
+        <div class="node red"><strong>Protegido o excluido</strong><span>No hash, no EXIF, no mover, no limpiar, no hidratar.</span></div>
+        <div class="diamond"><span>Cloud?</span></div>
+        <div class="node amber"><strong>Placeholder cloud</strong><span>Visible pero no verificable. Se salta y se reporta.</span></div>
+      </div>
+      <div class="flow">
+        <div class="node cyan"><strong>Leer metadata segura</strong><span>EXIF, media metadata y nombre si el archivo es local.</span></div>
+        <div class="node blue"><strong>Resolver fecha</strong><span>Elige la mejor fuente por confianza.</span></div>
+        <div class="node violet"><strong>Calcular hash</strong><span>Solo local verificable. Base de duplicados exactos.</span></div>
+        <div class="node green"><strong>Decidir destino</strong><span>Organizar, NeedsReview, Duplicates o saltar.</span></div>
+      </div>
+      <div class="split">
+        <div class="callout ok"><strong>Seguro</strong><br>EXIF fuerte, nombre estructurado fiable, archivo local, sin conflictos, hash disponible.</div>
+        <div class="callout"><strong>Dudoso</strong><br>Fecha generica, ruta historica, metadata parcial, conflictos entre fuentes o nombre ambiguo.</div>
+        <div class="callout danger"><strong>Peligroso</strong><br>Cloud-only, carpeta protegida, archivo bloqueado, media corrupta, indice conflictivo o duplicado ambiguo.</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>3. Sistema de confianza de fechas</h2>
+      <p class="lead">La fecha final sale de la evidencia mas fuerte disponible. La misma fecha puede servir para organizar, pero no siempre para escribir EXIF.</p>
+      <div class="stack">
+        <div class="lane"><strong>DateTimeOriginal</strong><div class="bar"><div class="fill w99">99 · maxima confianza</div></div></div>
+        <div class="lane"><strong>CreateDate / MediaCreateDate</strong><div class="bar"><div class="fill w98">98 · metadata fuerte</div></div></div>
+        <div class="lane"><strong>ReliableFilenameDateTime</strong><div class="bar"><div class="fill w98">98 · nombre estructurado con hora</div></div></div>
+        <div class="lane"><strong>ReliableFilenameDateOnly</strong><div class="bar"><div class="fill w97">97 · fecha fiable, hora sintetica</div></div></div>
+        <div class="lane"><strong>GenericFilenameDate</strong><div class="bar"><div class="fill w96">96 · util para organizar</div></div></div>
+        <div class="lane"><strong>FolderInference</strong><div class="bar"><div class="fill w90">90 · contexto de carpeta</div></div></div>
+        <div class="lane"><strong>Filesystem</strong><div class="bar"><div class="fill w50">50 · ultimo recurso</div></div></div>
+      </div>
+      <table class="matrix">
+        <tr>
+          <th>Fuente</th>
+          <th>Organize</th>
+          <th>Repair EXIF</th>
+          <th>NeedsReview</th>
+        </tr>
+        <tr><td>DateTimeOriginal</td><td class="yes">Si</td><td class="no">No hace falta</td><td class="no">No</td></tr>
+        <tr><td>CreateDate / MediaCreateDate</td><td class="yes">Si</td><td class="maybe">Si falta DateTimeOriginal</td><td class="no">No</td></tr>
+        <tr><td>ReliableFilenameDateTime</td><td class="yes">Si</td><td class="yes">JPG/JPEG</td><td class="no">No</td></tr>
+        <tr><td>ReliableFilenameDateOnly</td><td class="yes">Si</td><td class="yes">JPG/JPEG con 12:00 sintetico</td><td class="no">No</td></tr>
+        <tr><td>GenericFilenameDate</td><td class="yes">Si</td><td class="maybe">Solo si hay apoyo adicional</td><td class="no">No</td></tr>
+        <tr><td>FolderInference</td><td class="maybe">Con cautela</td><td class="no">No</td><td class="maybe">Si es insuficiente</td></tr>
+        <tr><td>Filesystem</td><td class="no">No como fecha fiable</td><td class="no">No</td><td class="yes">Normalmente si</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>4. Territorios: que puede tocar y que no</h2>
+      <p class="lead">El motor separa carpetas propias, carpetas excluidas por usuario, presets vendor y contenido cloud-only. La regla practica: si es zona protegida, no se lee por dentro.</p>
+      <table class="matrix">
+        <tr>
+          <th>Territorio</th>
+          <th>Ejemplos</th>
+          <th>Organize</th>
+          <th>Repair EXIF</th>
+          <th>Normalize</th>
+          <th>Dedupe</th>
+          <th>Reconcile/Purge</th>
+          <th>Cleanup</th>
+        </tr>
+        <tr class="stop">
+          <td><strong>InternalProtected</strong></td>
+          <td><span class="mono">_NecesitaRevision</span>, logs, cuarentenas, backups</td>
+          <td class="no">No</td><td class="no">No</td><td class="maybe">Solo contenedor conocido</td><td class="no">No</td><td class="maybe">Preserva</td><td class="maybe">Solo reglas internas</td>
+        </tr>
+        <tr class="stop">
+          <td><strong>UserExcluded</strong></td>
+          <td>Carpetas que el usuario marca como intocables</td>
+          <td class="no">No</td><td class="no">No</td><td class="no">No</td><td class="no">No</td><td class="no">No profundo</td><td class="no">No</td>
+        </tr>
+        <tr class="warn">
+          <td><strong>VendorManaged</strong></td>
+          <td>Samsung Gallery, Camera Roll u otro preset confirmado</td>
+          <td class="no">No</td><td class="no">No</td><td class="no">No</td><td class="no">No</td><td class="no">No profundo</td><td class="no">No</td>
+        </tr>
+        <tr class="warn">
+          <td><strong>CloudPlaceholder</strong></td>
+          <td>Archivo visible pero no local</td>
+          <td class="no">Saltar</td><td class="no">No</td><td class="no">Saltar</td><td class="no">No confirmar</td><td class="maybe">No marcar missing</td><td class="no">No</td>
+        </tr>
+        <tr class="safe">
+          <td><strong>LocalVerified</strong></td>
+          <td>Archivo local accesible</td>
+          <td class="yes">Si</td><td class="maybe">Si procede</td><td class="yes">Si</td><td class="yes">Si</td><td class="yes">Si</td><td class="yes">Si</td>
+        </tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>5. Carpetas y flujos</h2>
+      <p class="lead">La biblioteca final es sencilla: <span class="mono">Year\Quarter</span>. Las carpetas auxiliares existen para conservar, revisar o recuperar, no para decorar.</p>
+      <div class="folder-map">
+        <div class="folder"><div class="name">Fotos_Organizadas\2026\Ene-Mar</div><div class="role">Destino principal. Archivos locales organizados por ano y trimestre.</div></div>
+        <div class="folder"><div class="name">_NecesitaRevision</div><div class="role">Casos ambiguos, baja confianza o problemas que requieren humano.</div></div>
+        <div class="folder"><div class="name">_Duplicados_Para_Revisar</div><div class="role">Duplicados probables o conflictos conservadores. No se purga automaticamente.</div></div>
+        <div class="folder"><div class="name">_Cuarentena_Duplicados_Confirmados</div><div class="role">Duplicados exactos confirmados por SHA256. Tiene retencion conservadora.</div></div>
+        <div class="folder"><div class="name">%LOCALAPPDATA%\PhotoOrganizer\_CopiaSeguridadMetadatos</div><div class="role">Backups EXIF temporales antes de modificar metadata.</div></div>
+        <div class="folder"><div class="name">%APPDATA%\PhotoOrganizer\Logs</div><div class="role">Logs, progress y reportes por usuario. Retencion automatica del dashboard.</div></div>
+        <div class="folder"><div class="name">%APPDATA%\PhotoOrganizer\IndexBackups</div><div class="role">Backups tecnicos del indice ProcessedFiles.json. Separados de logs normales.</div></div>
+        <div class="folder"><div class="name">%APPDATA%\PhotoOrganizer\Runtime\TechnicalConsole</div><div class="role">Infraestructura del modo avanzado. No es log borrable.</div></div>
+        <div class="folder"><div class="name">%APPDATA%\PhotoOrganizer\Config\UserExcludedFolders.json</div><div class="role">Lista de carpetas protegidas especifica de cada usuario.</div></div>
+      </div>
+      <div class="flow">
+        <div class="node blue"><strong>Archivo nuevo local</strong><span>Hash + metadata + fecha.</span></div>
+        <div class="node green"><strong>Fecha fiable</strong><span>Va a Year\Quarter.</span></div>
+        <div class="node amber"><strong>Ambiguo</strong><span>Va a NeedsReview.</span></div>
+        <div class="node violet"><strong>Duplicado exacto</strong><span>Se conserva/quarantina, no se borra a ciegas.</span></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>6. Recuperacion y mantenimiento</h2>
+      <p class="lead">UDMRS Dashboard asume que los usuarios pueden mover archivos, reiniciar el PC o cambiar carpetas fuera del flujo normal. Por eso incluye modos de mantenimiento y recuperación.</p>
+      <div class="timeline">
+        <div class="step"><div class="num">1</div><div><strong>ReconcileProcessedDatabase</strong><br><span class="small">Compara indice y disco. Actualiza rutas por hash cuando puede. Distingue Missing, Stale, ManualMoved y CloudPlaceholder.</span></div></div>
+        <div class="step"><div class="num">2</div><div><strong>PurgeMissingFromProcessedDatabase</strong><br><span class="small">Avanzado. Antes de purgar, revalida y rescata lo que siga vivo. Nunca debe borrar fotos.</span></div></div>
+        <div class="step"><div class="num">3</div><div><strong>RecoverFromWrongDuplicateMove</strong><br><span class="small">Usa logs e indice para rescatar archivos movidos erroneamente a zona de duplicados.</span></div></div>
+        <div class="step"><div class="num">4</div><div><strong>RetentionCleanup</strong><br><span class="small">Limpia backups EXIF antiguos y duplicados confirmados antiguos. No toca Duplicados_Para_Revisar.</span></div></div>
+      </div>
+      <div class="callout ok"><strong>Principio de recuperacion</strong><br>El indice se puede reparar. Los archivos reales no se borran por mantenimiento normal. Una sola operacion del motor a la vez.</div>
+    </section>
+
+    <section>
+      <h2>7. Dashboard actual</h2>
+      <p class="lead">La interfaz separa uso normal, importacion de proveedores y operaciones tecnicas. Lo normal esta a la vista; lo avanzado vive en Modo avanzado con consola tecnica persistente.</p>
+      <div class="split">
+        <div>
+          <h3>Flujo normal</h3>
+          <div class="flow">
+            <div class="node blue"><strong>Inicio</strong><span>Origen, destino, modo, resumen dinamico.</span></div>
+            <div class="node green"><strong>Ejecutar</strong><span>Organize DryRun/Apply segun seleccion.</span></div>
+            <div class="node cyan"><strong>Prueba de escaneo</strong><span>Seguro: cuenta archivos, accesos y exclusiones.</span></div>
+            <div class="node amber"><strong>Reconciliar indice</strong><span>Repara cambios manuales y rutas stale.</span></div>
+          </div>
+        </div>
+        <div>
+          <h3>Importar galeria</h3>
+          <div class="flow">
+            <div class="node cyan"><strong>Google Photos / Takeout</strong><span>Disponible: JSON, albumes, papelera y assets logicos.</span></div>
+            <div class="node amber"><strong>Apple / Samsung / Immich</strong><span>Proximamente: deshabilitados hasta muestras reales.</span></div>
+            <div class="node cyan"><strong>XMP / Sidecar</strong><span>Disponible: sidecars XMP/JSON/YAML y fallback clasico.</span></div>
+          </div>
+        </div>
+        <div>
+          <h3>Modo avanzado</h3>
+          <div class="flow">
+            <div class="node violet"><strong>RetentionCleanup</strong><span>Backups EXIF y cuarentena confirmada antigua.</span></div>
+            <div class="node violet"><strong>Normalize</strong><span>Reestructura visual y limpia ramas.</span></div>
+            <div class="node violet"><strong>DedupeCleanup</strong><span>Audita/promueve/gestiona duplicados.</span></div>
+            <div class="node violet"><strong>RepairOnly</strong><span>Repara EXIF en biblioteca ya organizada.</span></div>
+            <div class="node violet"><strong>Recovery</strong><span>Recupera movimientos erróneos a duplicados.</span></div>
+            <div class="node violet"><strong>Renombrar idioma</strong><span>Carpetas internas y trimestres conocidos.</span></div>
+            <div class="node violet"><strong>Migrar UDMRS</strong><span>Genera ZIP de instalación, ZIP de estado de usuario y guía.</span></div>
+          </div>
+        </div>
+      </div>
+      <table class="matrix">
+        <tr>
+          <th>Zona</th>
+          <th>Para quien</th>
+          <th>Que hace</th>
+          <th>Proteccion</th>
+        </tr>
+        <tr><td>Inicio</td><td>Uso diario</td><td>Organizar, cancelar, test scan, resumen</td><td>DryRun por defecto si esta marcado</td></tr>
+        <tr><td>Importar galeria</td><td>Exportaciones de proveedor</td><td>Google Takeout y XMP/Sidecar disponibles; otros providers planificados deshabilitados</td><td>DryRun recomendado y Apply con confirmacion</td></tr>
+        <tr><td>Progreso</td><td>Procesos largos</td><td>ETA, fase, velocidad, contadores</td><td>Una operacion a la vez</td></tr>
+        <tr><td>Registros y resumen</td><td>Seguimiento</td><td>Logs, resumen, abrir carpeta Logs</td><td>Lectura, no modifica galeria</td></tr>
+        <tr><td>Ajustes</td><td>Configuracion</td><td>Idioma, ayuda, salida, opciones avanzadas</td><td>Persistente y portable</td></tr>
+        <tr><td>Carpetas protegidas externas</td><td>Control de zonas protegidas</td><td>Añadir/quitar exclusiones y presets</td><td>Zona no procesable para el motor</td></tr>
+        <tr><td>Modo avanzado</td><td>Mantenimiento tecnico</td><td>Acciones avanzadas en consola persistente</td><td>Confirmacion antes de Apply</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>8. Filosofia operativa</h2>
+      <p class="lead">La meta no es ordenar rapido a cualquier precio. La meta es preservar memoria digital durante años sin depender de un proveedor, una app o una estructura opaca.</p>
+      <div class="tile-grid">
+        <div class="tile"><strong>Preservar recuerdos</strong><span>La foto real vale mas que una estructura perfecta.</span></div>
+        <div class="tile"><strong>Ser conservadora</strong><span>Cuando duda, revisa o salta. No inventa agresivamente.</span></div>
+        <div class="tile"><strong>No destruir informacion</strong><span>Backups, cuarentenas y logs existen para poder volver atras.</span></div>
+        <div class="tile"><strong>Evidencia fuerte</strong><span>EXIF, hash, filename fiable y rutas se ponderan por confianza.</span></div>
+        <div class="tile"><strong>Trazabilidad</strong><span>ProcessedFiles.json recuerda lo procesado y se puede reconciliar.</span></div>
+        <div class="tile"><strong>Cloud con respeto</strong><span>La nube puede ser contenedor, pero no fuente de hidratacion automatica.</span></div>
+        <div class="tile"><strong>Territorios claros</strong><span>Interno, excluido, vendor, cloud y local tienen reglas distintas.</span></div>
+        <div class="tile"><strong>Una sola alma</strong><span>Modelo oficial actual: <span class="mono">Year\Quarter</span>.</span></div>
+      </div>
+      <div class="callout">
+        <strong>Regla humana final</strong><br>
+        Si una persona abre este proyecto dentro de un año, debe poder saber: que puede tocar la herramienta, que nunca debe tocar, por que tomo una decision y como recuperarse si algo salio raro.
+      </div>
+    </section>
+
+    <footer>
+      Documento visual generado para la RC actual de UDMRS Dashboard / PhotoOrganizer. No cambia el motor ni ejecuta operaciones sobre galerias reales.
+    </footer>
+  </main>
+</body>
+</html>
+
+

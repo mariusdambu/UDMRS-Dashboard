@@ -1,0 +1,20 @@
+{
+  "es": {
+    "OrganizedFolder": "Fotos_Organizadas",
+    "NeedsReviewFolder": "_NecesitaRevision",
+    "DuplicatesFolder": "_Duplicados_Para_Revisar",
+    "ConfirmedDuplicatesQuarantineFolder": "_Cuarentena_Duplicados_Confirmados",
+    "MetadataBackupFolder": "_CopiaSeguridadMetadatos",
+    "LogsFolder": "Logs",
+    "MediaMetadataIssuesFolder": "MediaMetadataIssues"
+  },
+  "ro": {
+    "OrganizedFolder": "Poze_Organizate",
+    "NeedsReviewFolder": "_De_Revizuit",
+    "DuplicatesFolder": "_Duplicate_De_Revizuit",
+    "ConfirmedDuplicatesQuarantineFolder": "_Carantina_Duplicate_Confirmate",
+    "MetadataBackupFolder": "_Backup_Metadate",
+    "LogsFolder": "Logs",
+    "MediaMetadataIssuesFolder": "MediaMetadataIssues"
+  }
+}
