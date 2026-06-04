@@ -204,7 +204,4 @@ The included `.gitignore` is intentionally strict.
 
 ## License
 
-No open-source license has been selected in this prepared package.
-
-Before publishing publicly, choose and add a `LICENSE` file. Until then, the code should be treated as all rights reserved by the project owner.
-
+MIT License. See [LICENSE](LICENSE).
