@@ -131,17 +131,17 @@ Foloseste-l inainte de biblioteci mari pentru a confirma sursa.
 Disponibil:
 
 - `Google Photos / Takeout`: analizeaza o exportare Google Takeout aleasa de utilizator, interpreteaza sidecar-uri JSON, albume, cos, incredere metadata si duplicate fizice, apoi copiaza asset-uri curate in destinatia `An\Trimestru`.
+- `Apple Photos / iCloud`: analizeaza o exportare iCloud aleasa de utilizator, interpreteaza `Photo Details.csv`, CSV-uri de albume, marcaje de cos, date provider, video si candidati Live Photo, apoi copiaza asset-uri curate in destinatia `An\Trimestru`.
 - `XMP / Sidecar Library`: incearca sa interpreteze galerii necunoscute cu sidecar-uri XMP, JSON sau YAML. Daca relatia media/sidecar este clara foloseste metadata; daca este ambigua trimite la revizuire; fara metadata utila foloseste fallback clasic.
 
 Planificate si dezactivate:
 
-- `Apple Photos / iCloud`: necesita mostre reale.
 - `Samsung Gallery`: blocat pana exista o exportare reala.
 - `Immich`: necesita mostre/exporturi potrivite.
 
-Pentru Google Takeout, trateaza folderul exportat ca sursa temporara: ruleaza mai intai Simulare, verifica raportul HTML/JSON si apoi Apply. Dupa un Apply reusit, dashboard-ul poate cere confirmare pentru stergerea folderului Takeout selectat. Nu se sterge in Simulare si nu se sterge daca importul esueaza.
+Pentru orice provider, trateaza folderul exportat ca sursa temporara: ruleaza mai intai Simulare, verifica raportul HTML/JSON si apoi Apply. Dupa un Apply reusit, dashboard-ul poate cere confirmare pentru stergerea folderului de export selectat. Nu se sterge in Simulare si nu se sterge daca importul esueaza.
 
-Pentru XMP / Sidecar Library, sursa nu se sterge automat. Raportul arata media gasite, sidecar-uri gasite/folosite, sidecar-uri orfane, media fara sidecar, incredere High/Medium/Low, conflicte si fallback clasic.
+Pentru XMP / Sidecar Library, raportul arata media gasite, sidecar-uri gasite/folosite, sidecar-uri orfane, media fara sidecar, incredere High/Medium/Low, conflicte si fallback clasic.
 
 Pentru foldere normale cu poze si video foloseste `Pornire` / `Organize`.
 

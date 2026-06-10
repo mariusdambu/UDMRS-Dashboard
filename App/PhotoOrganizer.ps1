@@ -408,7 +408,7 @@ $ImportProviderTextByLanguage = @{
         MediumConfidence = 'Confianza media'
         LowConfidence = 'Confianza baja'
         ExifReadsSkipped = 'Lecturas EXIF omitidas'
-        TakeoutSourceDeletion = 'Eliminación fuente Takeout'
+        TakeoutSourceDeletion = 'Eliminación fuente ImportProvider'
         AssetsFirst500 = 'Assets (primeros 500)'
         Hash = 'Hash'
         Status = 'Estado'
@@ -430,23 +430,25 @@ $ImportProviderTextByLanguage = @{
         SidecarFields = 'Campos sidecar'
         ImportStarted = 'ImportProvider {0} iniciado. Modo: {1}. Raíz={2}'
         GoogleScan = 'ImportProvider Google Takeout scan: medios={0}; sidecars={1}; álbumes={2}; jsonRaíz={3}'
+        AppleScan = 'ImportProvider Apple Photos / iCloud scan: medios={0}; detallesCsv={1}; albumesCsv={2}; papelera={3}; livePhotoCandidatos={4}'
         XmpScan = 'ImportProvider XMP / Sidecar Library scan: medios={0}; sidecars={1}; metadataCarpeta={2}'
         ExifPlan = 'Plan de verificación EXIF ImportProvider {0}: leer={1}; omitidosPorConfianzaProvider={2}; diagnóstico={3}'
         ReportWritten = 'Reporte ImportProvider escrito: {0}'
         JsonReportWritten = 'Reporte JSON ImportProvider escrito: {0}'
-        SourceNotDeleted = 'Fuente Takeout no eliminada. Motivo=No solicitado. Ruta={0}'
-        SourceDeletionSkippedDryRun = 'Eliminación de fuente Takeout omitida. Motivo=DryRun. Ruta={0}'
-        SourceDeletionSkippedErrors = 'Eliminación de fuente Takeout omitida. Motivo=El import terminó con errores; Errores={0}. Ruta={1}'
-        SourceDeletionSkippedMissing = 'Eliminación de fuente Takeout omitida. Motivo=La ruta seleccionada ya no existe. Ruta={0}'
-        SourceDeletionBlockedRoot = 'Eliminación de fuente Takeout bloqueada. Motivo=La ruta seleccionada es una raíz de disco. Ruta={0}'
-        SourceDeletionBlockedReportInsideSource = 'Eliminación de fuente Takeout bloqueada. Motivo=La carpeta de logs/reportes está dentro de la fuente seleccionada; se conserva la evidencia. Ruta={0}; LogRoot={1}'
-        SourceDeleted = 'Fuente Takeout eliminada tras importación correcta: {0}'
-        SourceDeletionFailed = 'Error eliminando fuente Takeout: {0}. Error={1}'
-        SourceDeletionStatusLog = 'Estado de eliminación de fuente Takeout: {0}. Ruta={1}. Reporte={2}'
+        SourceNotDeleted = 'Fuente ImportProvider no eliminada. Motivo=No solicitado. Ruta={0}'
+        SourceDeletionSkippedDryRun = 'Eliminación de fuente ImportProvider omitida. Motivo=DryRun. Ruta={0}'
+        SourceDeletionSkippedErrors = 'Eliminación de fuente ImportProvider omitida. Motivo=El import terminó con errores; Errores={0}. Ruta={1}'
+        SourceDeletionSkippedMissing = 'Eliminación de fuente ImportProvider omitida. Motivo=La ruta seleccionada ya no existe. Ruta={0}'
+        SourceDeletionBlockedRoot = 'Eliminación de fuente ImportProvider bloqueada. Motivo=La ruta seleccionada es una raíz de disco. Ruta={0}'
+        SourceDeletionBlockedReportInsideSource = 'Eliminación de fuente ImportProvider bloqueada. Motivo=La carpeta de logs/reportes está dentro de la fuente seleccionada; se conserva la evidencia. Ruta={0}; LogRoot={1}'
+        SourceDeleted = 'Fuente ImportProvider eliminada tras importación correcta: {0}'
+        SourceDeletionFailed = 'Error eliminando fuente ImportProvider: {0}. Error={1}'
+        SourceDeletionStatusLog = 'Estado de eliminación de fuente ImportProvider: {0}. Ruta={1}. Reporte={2}'
         WouldImportAsset = 'Se importaría asset de provider: {0} -> {1}'
         ImportProviderHashFailed = 'Falló hash de ImportProvider: {0}. Error={1}'
         ImportProviderInaccessibleFolder = 'Carpeta inaccesible de ImportProvider omitida: {0} - {1}'
         GoogleSummary = 'Resumen ImportProvider Google Takeout: medios={0}; assetsLogicos={1}; ocurrencias={2}; albumes={3}; duplicadosInternos={4}; papelera={5}; videos={6}; importables={7}; conflictos={8}; confianzaAlta={9}; confianzaMedia={10}; confianzaBaja={11}; exifLeidos={12}; exifOmitidosPorConfianzaProvider={13}; sidecarsUsados={14}; sidecarsAmbiguos={15}; jsonHuerfanos={16}; mediaSinJson={17}; copiados={18}; reporte={19}'
+        AppleSummary = 'Resumen ImportProvider Apple Photos / iCloud: medios={0}; assetsLogicos={1}; albumesCsv={2}; referenciasAlbum={3}; papelera={4}; videos={5}; livePhotoCandidatos={6}; importables={7}; conflictos={8}; confianzaAlta={9}; confianzaMedia={10}; confianzaBaja={11}; exifLeidos={12}; exifOmitidosPorConfianzaProvider={13}; mediaSinDetalles={14}; copiados={15}; reporte={16}'
         XmpSummary = 'Resumen ImportProvider XMP / Sidecar Library: medios={0}; sidecars={1}; sidecarsUsados={2}; sidecarsHuerfanos={3}; mediaSinSidecar={4}; sidecarsAmbiguos={5}; fallbackClasico={6}; importables={7}; conflictos={8}; confianzaAlta={9}; confianzaMedia={10}; confianzaBaja={11}; exifLeidos={12}; exifOmitidosPorConfianzaProvider={13}; copiados={14}; reporte={15}'
     }
     ro = @{
@@ -463,7 +465,7 @@ $ImportProviderTextByLanguage = @{
         MediumConfidence = 'Încredere medie'
         LowConfidence = 'Încredere mică'
         ExifReadsSkipped = 'Citiri EXIF omise'
-        TakeoutSourceDeletion = 'Ștergere sursă Takeout'
+        TakeoutSourceDeletion = 'Ștergere sursă ImportProvider'
         AssetsFirst500 = 'Asset-uri (primele 500)'
         Hash = 'Hash'
         Status = 'Stare'
@@ -485,23 +487,25 @@ $ImportProviderTextByLanguage = @{
         SidecarFields = 'Câmpuri sidecar'
         ImportStarted = 'ImportProvider {0} pornit. Mod: {1}. Rădăcină={2}'
         GoogleScan = 'Scan ImportProvider Google Takeout: media={0}; sidecar-uri={1}; albume={2}; jsonRădăcină={3}'
+        AppleScan = 'Scan ImportProvider Apple Photos / iCloud: media={0}; detaliiCsv={1}; albumeCsv={2}; coș={3}; candidațiLivePhoto={4}'
         XmpScan = 'Scan ImportProvider XMP / Sidecar Library: media={0}; sidecar-uri={1}; metadataFolder={2}'
         ExifPlan = 'Plan verificare EXIF ImportProvider {0}: citire={1}; omisePrinÎncredereProvider={2}; diagnostic={3}'
         ReportWritten = 'Raport ImportProvider scris: {0}'
         JsonReportWritten = 'Raport JSON ImportProvider scris: {0}'
-        SourceNotDeleted = 'Sursa Takeout nu a fost ștearsă. Motiv=Nesolicitat. Cale={0}'
-        SourceDeletionSkippedDryRun = 'Ștergerea sursei Takeout omisă. Motiv=DryRun. Cale={0}'
-        SourceDeletionSkippedErrors = 'Ștergerea sursei Takeout omisă. Motiv=Importul s-a terminat cu erori; Erori={0}. Cale={1}'
-        SourceDeletionSkippedMissing = 'Ștergerea sursei Takeout omisă. Motiv=Calea selectată nu mai există. Cale={0}'
-        SourceDeletionBlockedRoot = 'Ștergerea sursei Takeout blocată. Motiv=Calea selectată este rădăcina unui disc. Cale={0}'
-        SourceDeletionBlockedReportInsideSource = 'Ștergerea sursei Takeout blocată. Motiv=Folderul de loguri/rapoarte este în sursa selectată; se păstrează evidența. Cale={0}; LogRoot={1}'
-        SourceDeleted = 'Sursa Takeout ștearsă după import reușit: {0}'
-        SourceDeletionFailed = 'Ștergerea sursei Takeout a eșuat: {0}. Eroare={1}'
-        SourceDeletionStatusLog = 'Stare ștergere sursă Takeout: {0}. Cale={1}. Raport={2}'
+        SourceNotDeleted = 'Sursa ImportProvider nu a fost ștearsă. Motiv=Nesolicitat. Cale={0}'
+        SourceDeletionSkippedDryRun = 'Ștergerea sursei ImportProvider omisă. Motiv=DryRun. Cale={0}'
+        SourceDeletionSkippedErrors = 'Ștergerea sursei ImportProvider omisă. Motiv=Importul s-a terminat cu erori; Erori={0}. Cale={1}'
+        SourceDeletionSkippedMissing = 'Ștergerea sursei ImportProvider omisă. Motiv=Calea selectată nu mai există. Cale={0}'
+        SourceDeletionBlockedRoot = 'Ștergerea sursei ImportProvider blocată. Motiv=Calea selectată este rădăcina unui disc. Cale={0}'
+        SourceDeletionBlockedReportInsideSource = 'Ștergerea sursei ImportProvider blocată. Motiv=Folderul de loguri/rapoarte este în sursa selectată; se păstrează evidența. Cale={0}; LogRoot={1}'
+        SourceDeleted = 'Sursa ImportProvider ștearsă după import reușit: {0}'
+        SourceDeletionFailed = 'Ștergerea sursei ImportProvider a eșuat: {0}. Eroare={1}'
+        SourceDeletionStatusLog = 'Stare ștergere sursă ImportProvider: {0}. Cale={1}. Raport={2}'
         WouldImportAsset = 'Asset-ul providerului ar fi importat: {0} -> {1}'
         ImportProviderHashFailed = 'Hash ImportProvider eșuat: {0}. Eroare={1}'
         ImportProviderInaccessibleFolder = 'Folder inaccesibil ImportProvider omis: {0} - {1}'
         GoogleSummary = 'Rezumat ImportProvider Google Takeout: media={0}; asset-uriLogice={1}; apariții={2}; albume={3}; duplicateInterne={4}; coș={5}; video={6}; importabile={7}; conflicte={8}; încredereMare={9}; încredereMedie={10}; încredereMică={11}; exifCitite={12}; exifOmisePrinÎncredereProvider={13}; sidecar-uriFolosite={14}; sidecar-uriAmbigue={15}; jsonOrfane={16}; mediaFărăJson={17}; copiate={18}; raport={19}'
+        AppleSummary = 'Rezumat ImportProvider Apple Photos / iCloud: media={0}; asset-uriLogice={1}; albumeCsv={2}; referințeAlbum={3}; coș={4}; video={5}; candidațiLivePhoto={6}; importabile={7}; conflicte={8}; încredereMare={9}; încredereMedie={10}; încredereMică={11}; exifCitite={12}; exifOmisePrinÎncredereProvider={13}; mediaFărăDetalii={14}; copiate={15}; raport={16}'
         XmpSummary = 'Rezumat ImportProvider XMP / Sidecar Library: media={0}; sidecar-uri={1}; sidecar-uriFolosite={2}; sidecar-uriOrfane={3}; mediaFărăSidecar={4}; sidecar-uriAmbigue={5}; fallbackClasic={6}; importabile={7}; conflicte={8}; încredereMare={9}; încredereMedie={10}; încredereMică={11}; exifCitite={12}; exifOmisePrinÎncredereProvider={13}; copiate={14}; raport={15}'
     }
     en = @{
@@ -518,7 +522,7 @@ $ImportProviderTextByLanguage = @{
         MediumConfidence = 'Medium confidence'
         LowConfidence = 'Low confidence'
         ExifReadsSkipped = 'EXIF reads skipped'
-        TakeoutSourceDeletion = 'Takeout source deletion'
+        TakeoutSourceDeletion = 'ImportProvider source deletion'
         AssetsFirst500 = 'Assets (first 500)'
         Hash = 'Hash'
         Status = 'Status'
@@ -540,23 +544,25 @@ $ImportProviderTextByLanguage = @{
         SidecarFields = 'Sidecar fields'
         ImportStarted = 'ImportProvider {0} started. Mode: {1}. Root={2}'
         GoogleScan = 'ImportProvider Google Takeout scan: media={0}; sidecars={1}; albums={2}; rootJson={3}'
+        AppleScan = 'ImportProvider Apple Photos / iCloud scan: media={0}; detailsCsv={1}; albumCsv={2}; trash={3}; livePhotoCandidates={4}'
         XmpScan = 'ImportProvider XMP / Sidecar Library scan: media={0}; sidecars={1}; folderMetadata={2}'
         ExifPlan = 'ImportProvider {0} EXIF verification plan: read={1}; skippedProviderTrusted={2}; diagnostic={3}'
         ReportWritten = 'ImportProvider report written: {0}'
         JsonReportWritten = 'ImportProvider JSON report written: {0}'
-        SourceNotDeleted = 'Takeout source not deleted. Reason=Not requested. Path={0}'
-        SourceDeletionSkippedDryRun = 'Takeout source deletion skipped. Reason=DryRun. Path={0}'
-        SourceDeletionSkippedErrors = 'Takeout source deletion skipped. Reason=Import completed with errors; Errors={0}. Path={1}'
-        SourceDeletionSkippedMissing = 'Takeout source deletion skipped. Reason=Selected path no longer exists. Path={0}'
-        SourceDeletionBlockedRoot = 'Takeout source deletion blocked. Reason=Selected path is a filesystem root. Path={0}'
-        SourceDeletionBlockedReportInsideSource = 'Takeout source deletion blocked. Reason=Log/report folder is inside the selected Takeout source; preserving evidence. Path={0}; LogRoot={1}'
-        SourceDeleted = 'Takeout source deleted after successful import: {0}'
-        SourceDeletionFailed = 'Takeout source deletion failed: {0}. Error={1}'
-        SourceDeletionStatusLog = 'ImportProvider Google Takeout source deletion status: {0}. Path={1}. Report={2}'
+        SourceNotDeleted = 'ImportProvider source not deleted. Reason=Not requested. Path={0}'
+        SourceDeletionSkippedDryRun = 'ImportProvider source deletion skipped. Reason=DryRun. Path={0}'
+        SourceDeletionSkippedErrors = 'ImportProvider source deletion skipped. Reason=Import completed with errors; Errors={0}. Path={1}'
+        SourceDeletionSkippedMissing = 'ImportProvider source deletion skipped. Reason=Selected path no longer exists. Path={0}'
+        SourceDeletionBlockedRoot = 'ImportProvider source deletion blocked. Reason=Selected path is a filesystem root. Path={0}'
+        SourceDeletionBlockedReportInsideSource = 'ImportProvider source deletion blocked. Reason=Log/report folder is inside the selected source; preserving evidence. Path={0}; LogRoot={1}'
+        SourceDeleted = 'ImportProvider source deleted after successful import: {0}'
+        SourceDeletionFailed = 'ImportProvider source deletion failed: {0}. Error={1}'
+        SourceDeletionStatusLog = 'ImportProvider source deletion status: {0}. Path={1}. Report={2}'
         WouldImportAsset = 'Would import provider asset: {0} -> {1}'
         ImportProviderHashFailed = 'ImportProvider hash failed: {0}. Error={1}'
         ImportProviderInaccessibleFolder = 'ImportProvider inaccessible folder skipped: {0} - {1}'
         GoogleSummary = 'ImportProvider Google Takeout summary: media={0}; logicalAssets={1}; occurrences={2}; albums={3}; internalDuplicateOccurrences={4}; trashOccurrences={5}; videos={6}; importable={7}; conflicts={8}; confidenceHigh={9}; confidenceMedium={10}; confidenceLow={11}; exifRead={12}; exifSkippedProviderTrusted={13}; sidecarsUsed={14}; sidecarsAmbiguous={15}; jsonOrphans={16}; mediaWithoutJson={17}; copied={18}; report={19}'
+        AppleSummary = 'ImportProvider Apple Photos / iCloud summary: media={0}; logicalAssets={1}; albumCsv={2}; albumReferences={3}; trash={4}; videos={5}; livePhotoCandidates={6}; importable={7}; conflicts={8}; confidenceHigh={9}; confidenceMedium={10}; confidenceLow={11}; exifRead={12}; exifSkippedProviderTrusted={13}; mediaWithoutDetails={14}; copied={15}; report={16}'
         XmpSummary = 'ImportProvider XMP / Sidecar Library summary: media={0}; sidecars={1}; sidecarsUsed={2}; orphanSidecars={3}; mediaWithoutSidecar={4}; ambiguousSidecars={5}; fallbackClassic={6}; importable={7}; conflicts={8}; confidenceHigh={9}; confidenceMedium={10}; confidenceLow={11}; exifRead={12}; exifSkippedProviderTrusted={13}; copied={14}; report={15}'
     }
 }
@@ -5469,10 +5475,10 @@ function Get-ImportProviderRegistry {
             Id = 'ApplePhotos'
             Aliases = @('ApplePhotos', 'ICloudPhotos', 'iCloudPhotos', 'iCloud', 'Apple')
             DisplayName = 'Apple Photos / iCloud Photos'
-            Status = 'Planned'
-            Gate = 'SampleRequired'
-            SemanticSignals = @('Live Photos image/video pairs', 'HEIC/MOV originals', 'optional XMP/IPTC sidecars', 'edited/original variants')
-            Notes = 'Requires real exports before implementation.'
+            Status = 'Available'
+            Gate = 'Implemented'
+            SemanticSignals = @('Photo Details CSV', 'album CSV references', 'deleted flag', 'provider timestamps', 'Live Photo pair candidates')
+            Notes = 'Conservative importer based on real iCloud Photos export structure.'
         },
         [pscustomobject]@{
             Id = 'SamsungGallery'
@@ -6020,6 +6026,335 @@ function Copy-ProviderAssetToDestination {
     return $resolved.Path
 }
 
+function Convert-AppleDateTimeToDateTime {
+    param([object]$Value)
+
+    if ($null -eq $Value) { return $null }
+    $text = ([string]$Value).Trim()
+    if ([string]::IsNullOrWhiteSpace($text)) { return $null }
+
+    $styles = [System.Globalization.DateTimeStyles]::AllowWhiteSpaces -bor [System.Globalization.DateTimeStyles]::AssumeUniversal
+    $result = [DateTime]::MinValue
+    foreach ($culture in @([System.Globalization.CultureInfo]::InvariantCulture, [System.Globalization.CultureInfo]::CurrentCulture)) {
+        if ([DateTime]::TryParse($text, $culture, $styles, [ref]$result)) {
+            return $result
+        }
+    }
+    return $null
+}
+
+function Find-ApplePhotoDetailsCsv {
+    param([string]$RootPath)
+
+    $csvFiles = @(Get-ChildItem -LiteralPath $RootPath -File -Filter '*.csv' -Recurse -Force -ErrorAction SilentlyContinue)
+    foreach ($csv in $csvFiles) {
+        try {
+            $header = Get-Content -LiteralPath $csv.FullName -TotalCount 1 -ErrorAction Stop
+            $required = @('imgName', 'fileChecksum', 'favorite', 'hidden', 'deleted', 'originalCreationDate', 'importDate')
+            $matchCount = 0
+            foreach ($name in $required) {
+                if ($header -match "(^|,)$([regex]::Escape($name))($|,)") { $matchCount++ }
+            }
+            if ($matchCount -ge 5) { return $csv }
+        }
+        catch {
+            Write-Log -Message ((Get-ImportProviderText -Key 'ImportProviderInaccessibleFolder') -f $csv.FullName, $_.Exception.Message) -Phase 'ImportProvider' -Status 'Warning'
+        }
+    }
+    return $null
+}
+
+function Resolve-ApplePhotosRoot {
+    param([string]$RootPath)
+
+    $resolved = Resolve-FullPath $RootPath
+    if (-not (Test-Path -LiteralPath $resolved -PathType Container)) {
+        Stop-WithError "ImportProviderPath does not exist: $resolved"
+    }
+
+    $detailsCsv = Find-ApplePhotoDetailsCsv -RootPath $resolved
+    if (-not $detailsCsv) {
+        Stop-WithError "Apple Photos / iCloud export was not detected under: $resolved. Expected a CSV with iCloud photo detail columns."
+    }
+
+    $photosDir = $detailsCsv.DirectoryName
+    $root = Split-Path -Parent $photosDir
+    if ([string]::IsNullOrWhiteSpace($root)) { $root = $resolved }
+    if (-not (Test-IsChildPath -Path $photosDir -ParentPath $resolved) -and -not $photosDir.Equals($resolved, [StringComparison]::OrdinalIgnoreCase)) {
+        $root = $resolved
+    }
+
+    return [pscustomobject]@{
+        Root = (Resolve-FullPath $root)
+        PhotosDirectory = (Resolve-FullPath $photosDir)
+        DetailsCsv = $detailsCsv.FullName
+    }
+}
+
+function Read-ApplePhotoDetails {
+    param([string]$CsvPath)
+
+    $records = @{}
+    $rows = @(Import-Csv -LiteralPath $CsvPath)
+    foreach ($row in $rows) {
+        $name = [string]$row.imgName
+        if ([string]::IsNullOrWhiteSpace($name)) { continue }
+        if (-not $records.ContainsKey($name)) {
+            $records[$name] = New-Object System.Collections.Generic.List[object]
+        }
+        $records[$name].Add([pscustomobject]@{
+            Name = $name
+            FileChecksum = [string]$row.fileChecksum
+            Favorite = ([string]$row.favorite).Equals('yes', [StringComparison]::OrdinalIgnoreCase)
+            Hidden = ([string]$row.hidden).Equals('yes', [StringComparison]::OrdinalIgnoreCase)
+            Deleted = ([string]$row.deleted).Equals('yes', [StringComparison]::OrdinalIgnoreCase)
+            OriginalCreationDate = Convert-AppleDateTimeToDateTime $row.originalCreationDate
+            ImportDate = Convert-AppleDateTimeToDateTime $row.importDate
+            Raw = $row
+            Used = $false
+        })
+    }
+    return $records
+}
+
+function Get-AppleAlbumReferences {
+    param(
+        [string]$RootPath,
+        [string]$DetailsCsvPath,
+        [hashtable]$MediaNames
+    )
+
+    $albumFiles = @(Get-ChildItem -LiteralPath $RootPath -File -Filter '*.csv' -Recurse -Force -ErrorAction SilentlyContinue | Where-Object {
+        -not $_.FullName.Equals($DetailsCsvPath, [StringComparison]::OrdinalIgnoreCase)
+    })
+    $referencesByName = @{}
+    $usedAlbumFiles = New-Object System.Collections.Generic.List[object]
+    $referenceCount = 0
+
+    foreach ($albumFile in $albumFiles) {
+        try {
+            $rows = @(Import-Csv -LiteralPath $albumFile.FullName)
+            $matched = 0
+            foreach ($row in $rows) {
+                $values = @($row.PSObject.Properties | ForEach-Object { [string]$_.Value })
+                foreach ($value in $values) {
+                    $name = $value.Trim('"').Trim()
+                    if ([string]::IsNullOrWhiteSpace($name)) { continue }
+                    if (-not $MediaNames.ContainsKey($name)) { continue }
+                    if (-not $referencesByName.ContainsKey($name)) {
+                        $referencesByName[$name] = New-Object System.Collections.Generic.List[string]
+                    }
+                    $albumName = $albumFile.BaseName
+                    if (-not @($referencesByName[$name].ToArray()).Contains($albumName)) {
+                        $referencesByName[$name].Add($albumName)
+                        $referenceCount++
+                    }
+                    $matched++
+                }
+            }
+            if ($matched -gt 0) { $usedAlbumFiles.Add($albumFile) }
+        }
+        catch {
+            Write-Log -Message ((Get-ImportProviderText -Key 'ImportProviderInaccessibleFolder') -f $albumFile.FullName, $_.Exception.Message) -Phase 'ImportProvider' -Status 'Warning'
+        }
+    }
+
+    return [pscustomobject]@{
+        AlbumFiles = @($usedAlbumFiles.ToArray())
+        ReferencesByName = $referencesByName
+        ReferenceCount = $referenceCount
+    }
+}
+
+function Get-ApplePhotosImportDateInfo {
+    param(
+        [pscustomobject]$Asset,
+        [pscustomobject]$Metadata,
+        [bool]$EmbeddedMetadataRead
+    )
+
+    $providerDate = $Asset.ProviderDate
+    $exifDate = ConvertTo-MediaDate $Metadata.DateTimeOriginal
+    if (-not $exifDate) { $exifDate = ConvertTo-MediaDate $Metadata.CreateDate }
+    if (-not $exifDate -and $Asset.IsVideo) { $exifDate = ConvertTo-MediaDate $Metadata.MediaCreateDate }
+
+    if ($providerDate -and $exifDate) {
+        if ([math]::Abs(($providerDate.Date - $exifDate.Date).TotalDays) -le 1) {
+            return [pscustomobject]@{
+                Date = $exifDate
+                Confidence = 99
+                Source = 'ApplePhotos'
+                Sources = @('ApplePhotos', 'EXIF')
+                Detail = 'Provider originalCreationDate agrees with embedded metadata'
+                ProviderExifConflict = $false
+                MetadataConfidence = 'HighConfidence'
+                ExifVerification = 'Read'
+            }
+        }
+        return [pscustomobject]@{
+            Date = $providerDate
+            Confidence = 20
+            Source = 'ApplePhotos'
+            Sources = @('ApplePhotos', 'EXIF')
+            Detail = ("Provider/EXIF date conflict. Provider={0:yyyy-MM-dd}; EXIF={1:yyyy-MM-dd}" -f $providerDate, $exifDate)
+            ProviderExifConflict = $true
+            MetadataConfidence = 'LowConfidence'
+            ExifVerification = 'Read'
+        }
+    }
+
+    if ($providerDate) {
+        return [pscustomobject]@{
+            Date = $providerDate
+            Confidence = 98
+            Source = 'ApplePhotos'
+            Sources = @('ApplePhotos')
+            Detail = if ($EmbeddedMetadataRead) { 'Provider originalCreationDate used because embedded metadata is absent or incomplete' } else { 'Provider originalCreationDate used; embedded metadata verification skipped for trusted iCloud CSV row' }
+            ProviderExifConflict = $false
+            MetadataConfidence = 'MediumConfidence'
+            ExifVerification = if ($EmbeddedMetadataRead) { 'Read' } else { 'SkippedProviderTrusted' }
+        }
+    }
+
+    $item = [pscustomobject]@{
+        File = $Asset.PrimaryOccurrence.File
+        Metadata = $Metadata
+    }
+    $dateInfo = Get-PrimaryDate -Item $item -IsVideo $Asset.IsVideo
+    $dateInfo | Add-Member -NotePropertyName MetadataConfidence -NotePropertyValue 'LowConfidence' -Force
+    $dateInfo | Add-Member -NotePropertyName ExifVerification -NotePropertyValue $(if ($EmbeddedMetadataRead) { 'Read' } else { 'SkippedNoProviderDate' }) -Force
+    return $dateInfo
+}
+
+function Test-ApplePhotosAssetNeedsExifVerification {
+    param([pscustomobject]$Asset)
+
+    if ($Diagnostic) { return $true }
+    if (-not $Asset -or -not $Asset.ProviderDate) { return $true }
+    if ($Asset.IsVideo) { return $true }
+    if (@($Asset.Warnings | Where-Object { $_ -eq 'Media without Photo Details row' -or $_ -eq 'Ambiguous Photo Details row' }).Count -gt 0) { return $true }
+    return $false
+}
+
+function Write-ApplePhotosImportReport {
+    param(
+        [pscustomobject]$Summary,
+        [object[]]$Assets,
+        [object[]]$AlbumFiles
+    )
+
+    if (-not (Test-Path -LiteralPath $LogRoot -PathType Container)) {
+        New-Item -ItemType Directory -Path $LogRoot -Force | Out-Null
+    }
+
+    $htmlPath = Join-Path $LogRoot ("ImportProvider-ApplePhotos-{0}.html" -f $script:RunId)
+    $jsonPath = Join-Path $LogRoot ("ImportProvider-ApplePhotos-{0}.json" -f $script:RunId)
+    $modeLabel = Get-ImportProviderText -Key 'Mode'
+    $mediaFilesLabel = Get-ImportProviderText -Key 'MediaFiles'
+    $logicalAssetsLabel = Get-ImportProviderText -Key 'LogicalAssets'
+    $albumsLabel = Get-ImportProviderText -Key 'Albums'
+    $trashOccurrencesLabel = Get-ImportProviderText -Key 'TrashOccurrences'
+    $videosLabel = Get-ImportProviderText -Key 'Videos'
+    $conflictsLabel = Get-ImportProviderText -Key 'Conflicts'
+    $highConfidenceLabel = Get-ImportProviderText -Key 'HighConfidence'
+    $mediumConfidenceLabel = Get-ImportProviderText -Key 'MediumConfidence'
+    $lowConfidenceLabel = Get-ImportProviderText -Key 'LowConfidence'
+    $exifSkippedLabel = Get-ImportProviderText -Key 'ExifReadsSkipped'
+    $copiedLabel = Get-ImportProviderText -Key 'Copied'
+    $assetsLabel = Get-ImportProviderText -Key 'AssetsFirst500'
+    $hashLabel = Get-ImportProviderText -Key 'Hash'
+    $statusLabel = Get-ImportProviderText -Key 'Status'
+    $pathLabel = Get-ImportProviderText -Key 'Path'
+    $dateSourceLabel = Get-ImportProviderText -Key 'DateSource'
+    $confidenceLabel = Get-ImportProviderText -Key 'Confidence'
+    $exifVerificationLabel = Get-ImportProviderText -Key 'ExifVerification'
+    $warningsLabel = Get-ImportProviderText -Key 'Warnings'
+
+    $assetRows = New-Object System.Text.StringBuilder
+    foreach ($asset in @($Assets | Select-Object -First 500)) {
+        $albums = (@($asset.AlbumNames) -join ', ')
+        $warnings = (@($asset.Warnings) -join '; ')
+        [void]$assetRows.AppendLine(("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td><td>{6}</td><td>{7}</td><td>{8}</td></tr>" -f
+            (ConvertTo-HtmlText $asset.Hash.Substring(0, [math]::Min(12, $asset.Hash.Length))),
+            (ConvertTo-HtmlText $asset.Status),
+            (ConvertTo-HtmlText $asset.PrimaryPath),
+            (ConvertTo-HtmlText $asset.ProviderChecksum),
+            (ConvertTo-HtmlText $albums),
+            (ConvertTo-HtmlText $asset.DateSource),
+            (ConvertTo-HtmlText $asset.MetadataConfidence),
+            (ConvertTo-HtmlText $asset.ExifVerification),
+            (ConvertTo-HtmlText $warnings)))
+    }
+
+    $html = @"
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ImportProvider Apple Photos / iCloud</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; margin: 24px; color: #1f2937; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #d1d5db; padding: 6px 8px; text-align: left; vertical-align: top; }
+    th { background: #f3f4f6; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin: 16px 0; }
+    .card { background: #f8fafc; border: 1px solid #dbe3ef; border-radius: 8px; padding: 10px; }
+    .num { font-size: 24px; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <h1>ImportProvider Apple Photos / iCloud</h1>
+  <p>${modeLabel}: $($Summary.Mode)</p>
+  <div class="grid">
+    <div class="card"><div class="num">$($Summary.MediaFiles)</div><div>$mediaFilesLabel</div></div>
+    <div class="card"><div class="num">$($Summary.LogicalAssets)</div><div>$logicalAssetsLabel</div></div>
+    <div class="card"><div class="num">$($Summary.AlbumCsv)</div><div>$albumsLabel CSV</div></div>
+    <div class="card"><div class="num">$($Summary.TrashOccurrences)</div><div>$trashOccurrencesLabel</div></div>
+    <div class="card"><div class="num">$($Summary.Videos)</div><div>$videosLabel</div></div>
+    <div class="card"><div class="num">$($Summary.LivePhotoCandidates)</div><div>Live Photo candidates</div></div>
+    <div class="card"><div class="num">$($Summary.Conflicts)</div><div>$conflictsLabel</div></div>
+    <div class="card"><div class="num">$($Summary.HighConfidenceAssets)</div><div>$highConfidenceLabel</div></div>
+    <div class="card"><div class="num">$($Summary.MediumConfidenceAssets)</div><div>$mediumConfidenceLabel</div></div>
+    <div class="card"><div class="num">$($Summary.LowConfidenceAssets)</div><div>$lowConfidenceLabel</div></div>
+    <div class="card"><div class="num">$($Summary.ExifVerificationSkippedProviderTrusted)</div><div>$exifSkippedLabel</div></div>
+    <div class="card"><div class="num">$($Summary.FilesCopied)</div><div>$copiedLabel</div></div>
+  </div>
+  <p><strong>$(Get-ImportProviderText -Key 'TakeoutSourceDeletion'):</strong> $($Summary.SourceDeletionStatus) · $([System.Net.WebUtility]::HtmlEncode([string]$Summary.SourceDeletionPath))</p>
+  <h2>$assetsLabel</h2>
+  <table>
+    <tr><th>$hashLabel</th><th>$statusLabel</th><th>$pathLabel</th><th>Apple checksum</th><th>$albumsLabel</th><th>$dateSourceLabel</th><th>$confidenceLabel</th><th>$exifVerificationLabel</th><th>$warningsLabel</th></tr>
+    $assetRows
+  </table>
+</body>
+</html>
+"@
+    $html | Set-Content -LiteralPath $htmlPath -Encoding UTF8
+
+    [pscustomobject]@{
+        Language = $Language
+        Summary = $Summary
+        Assets = @($Assets | ForEach-Object {
+            [pscustomobject]@{
+                Hash = [string]$_.Hash
+                ProviderChecksum = [string]$_.ProviderChecksum
+                Status = [string]$_.Status
+                PrimaryPath = [string]$_.PrimaryPath
+                TargetPath = [string]$_.TargetPath
+                AlbumNames = @($_.AlbumNames)
+                DateSource = [string]$_.DateSource
+                MetadataConfidence = [string]$_.MetadataConfidence
+                ExifVerification = [string]$_.ExifVerification
+                Warnings = @($_.Warnings)
+            }
+        })
+        AlbumFiles = @($AlbumFiles | ForEach-Object { $_.FullName })
+    } | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $jsonPath -Encoding UTF8
+
+    Write-Log -Message ((Get-ImportProviderText -Key 'ReportWritten') -f $htmlPath) -Phase 'ImportProvider'
+    Write-Log -Message ((Get-ImportProviderText -Key 'JsonReportWritten') -f $jsonPath) -Phase 'ImportProvider'
+    return [pscustomobject]@{ HtmlPath = $htmlPath; JsonPath = $jsonPath }
+}
+
 function Resolve-XmpSidecarLibraryRoot {
     param([string]$RootPath)
 
@@ -6357,6 +6692,7 @@ function Write-XmpSidecarLibraryImportReport {
     <div class="card"><div class="num">$($Summary.Conflicts)</div><div>$conflictsLabel</div></div>
     <div class="card"><div class="num">$($Summary.FilesCopied)</div><div>$copiedLabel</div></div>
   </div>
+  <p><strong>$(Get-ImportProviderText -Key 'TakeoutSourceDeletion'):</strong> $($Summary.SourceDeletionStatus) · $([System.Net.WebUtility]::HtmlEncode([string]$Summary.SourceDeletionPath))</p>
   <h2>$assetsLabel</h2>
   <table>
     <tr><th>$statusLabel</th><th>$pathLabel</th><th>$sidecarLabel</th><th>$dateSourceLabel</th><th>$confidenceLabel</th><th>$exifVerificationLabel</th><th>$sidecarFieldsLabel</th><th>$warningsLabel</th></tr>
@@ -6406,6 +6742,250 @@ function Write-XmpSidecarLibraryImportReport {
     Write-Log -Message ((Get-ImportProviderText -Key 'ReportWritten') -f $htmlPath) -Phase 'ImportProvider'
     Write-Log -Message ((Get-ImportProviderText -Key 'JsonReportWritten') -f $jsonPath) -Phase 'ImportProvider'
     return [pscustomobject]@{ HtmlPath = $htmlPath; JsonPath = $jsonPath }
+}
+
+function Invoke-ImportProviderApplePhotos {
+    param([string]$ProviderRootPath)
+
+    $providerName = 'ApplePhotos'
+    $displayName = Get-ImportProviderDisplayName -Provider $providerName
+    $resolved = Resolve-ApplePhotosRoot -RootPath $ProviderRootPath
+    Write-Log -Message ((Get-ImportProviderText -Key 'ImportStarted') -f $displayName, $(if ($Apply) { 'APPLY' } else { 'DRY RUN' }), $resolved.Root) -Phase 'ImportProvider'
+
+    $mediaExts = @($ImageExtensions + $VideoExtensions)
+    $allFiles = @(Get-ChildItem -LiteralPath $resolved.Root -File -Recurse -Force -ErrorAction SilentlyContinue)
+    $mediaFiles = @($allFiles | Where-Object { $mediaExts -contains $_.Extension.ToLowerInvariant() })
+    $detailsByName = Read-ApplePhotoDetails -CsvPath $resolved.DetailsCsv
+    $mediaNames = @{}
+    foreach ($file in $mediaFiles) {
+        if (-not $mediaNames.ContainsKey($file.Name)) { $mediaNames[$file.Name] = $true }
+    }
+    $albumInfo = Get-AppleAlbumReferences -RootPath $resolved.Root -DetailsCsvPath $resolved.DetailsCsv -MediaNames $mediaNames
+
+    $livePhotoBaseNames = @{}
+    foreach ($group in @($mediaFiles | Group-Object BaseName)) {
+        $images = @($group.Group | Where-Object { $ImageExtensions -contains $_.Extension.ToLowerInvariant() })
+        $videos = @($group.Group | Where-Object { $VideoExtensions -contains $_.Extension.ToLowerInvariant() })
+        if ($images.Count -gt 0 -and $videos.Count -gt 0) {
+            $livePhotoBaseNames[[string]$group.Name] = $true
+        }
+    }
+
+    $deletedCount = 0
+    foreach ($list in $detailsByName.Values) {
+        foreach ($entry in @($list.ToArray())) {
+            if ($entry.Deleted) { $deletedCount++ }
+        }
+    }
+
+    $Stats.FilesFound = $mediaFiles.Count
+    $Stats.LocalFilesDetected = $mediaFiles.Count
+    $Stats.FilesAnalyzed = 0
+    Write-Log -Message ((Get-ImportProviderText -Key 'AppleScan') -f $mediaFiles.Count, 1, $albumInfo.AlbumFiles.Count, $deletedCount, $livePhotoBaseNames.Count) -Phase 'ImportProvider'
+
+    $hashMap = Get-Sha256Batch -Files $mediaFiles
+    $occurrences = New-Object System.Collections.Generic.List[object]
+    $mediaWithoutDetails = New-Object System.Collections.Generic.List[object]
+
+    foreach ($file in $mediaFiles) {
+        $Stats.FilesAnalyzed++
+        $hashResult = if ($hashMap.ContainsKey($file.FullName)) { $hashMap[$file.FullName] } else { $null }
+        if (-not $hashResult -or [string]::IsNullOrWhiteSpace($hashResult.Hash)) {
+            $Stats.Errors++
+            Write-Log -Message ((Get-ImportProviderText -Key 'ImportProviderHashFailed') -f $file.FullName, $hashResult.Error) -Phase 'ImportProvider' -Status 'Warning'
+            continue
+        }
+
+        $details = @()
+        if ($detailsByName.ContainsKey($file.Name)) {
+            $details = @($detailsByName[$file.Name].ToArray())
+            foreach ($detail in $details) { $detail.Used = $true }
+        }
+        else {
+            $mediaWithoutDetails.Add($file)
+        }
+
+        $detail = if ($details.Count -gt 0) { $details[0] } else { $null }
+        $albums = if ($albumInfo.ReferencesByName.ContainsKey($file.Name)) { @($albumInfo.ReferencesByName[$file.Name].ToArray()) } else { @() }
+        $isVideo = $VideoExtensions -contains $file.Extension.ToLowerInvariant()
+        $warnings = New-Object System.Collections.Generic.List[string]
+        if (@($details).Count -eq 0) { $warnings.Add('Media without Photo Details row') }
+        if (@($details).Count -gt 1) { $warnings.Add('Ambiguous Photo Details row') }
+        if (@($albums).Count -gt 0) { $warnings.Add('Album reference') }
+        if ($livePhotoBaseNames.ContainsKey($file.BaseName)) { $warnings.Add('Live Photo pair candidate') }
+
+        $occurrences.Add([pscustomobject]@{
+            File = $file
+            Hash = $hashResult.Hash.ToUpperInvariant()
+            ProviderChecksum = if ($detail) { [string]$detail.FileChecksum } else { '' }
+            Detail = $detail
+            ProviderDate = if ($detail) { $detail.OriginalCreationDate } else { $null }
+            IsTrash = if ($detail) { [bool]$detail.Deleted } else { $false }
+            IsHidden = if ($detail) { [bool]$detail.Hidden } else { $false }
+            IsFavorite = if ($detail) { [bool]$detail.Favorite } else { $false }
+            IsVideo = $isVideo
+            AlbumNames = @($albums)
+            Warnings = $warnings
+        })
+    }
+
+    $assets = New-Object System.Collections.Generic.List[object]
+    foreach ($group in @($occurrences.ToArray() | Group-Object Hash)) {
+        $groupOccurrences = @($group.Group)
+        $primary = @($groupOccurrences | Where-Object { -not $_.IsTrash } | Sort-Object @{ Expression = { $_.File.FullName.Length } } | Select-Object -First 1)
+        if (@($primary).Count -eq 0) { $primary = @($groupOccurrences | Sort-Object @{ Expression = { $_.File.FullName.Length } } | Select-Object -First 1) }
+        $primary = @($primary)[0]
+        $albumNames = @($groupOccurrences | ForEach-Object { $_.AlbumNames } | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) } | Select-Object -Unique)
+        $warnings = New-Object System.Collections.Generic.List[string]
+        foreach ($occurrence in $groupOccurrences) {
+            foreach ($warning in @($occurrence.Warnings)) {
+                if (-not @($warnings.ToArray()).Contains([string]$warning)) { $warnings.Add([string]$warning) }
+            }
+        }
+        if (@($groupOccurrences | Where-Object { $_.IsTrash }).Count -gt 0) { $warnings.Add('Trash occurrence') }
+        if (@($groupOccurrences | Where-Object { $_.IsHidden }).Count -gt 0) { $warnings.Add('Hidden asset') }
+        if (@($groupOccurrences | Where-Object { $_.IsFavorite }).Count -gt 0) { $warnings.Add('Favorite asset') }
+
+        $assets.Add([pscustomobject]@{
+            Hash = [string]$group.Name
+            Occurrences = @($groupOccurrences)
+            OccurrenceCount = @($groupOccurrences).Count
+            PrimaryOccurrence = $primary
+            PrimaryPath = $primary.File.FullName
+            ProviderChecksum = [string]$primary.ProviderChecksum
+            ProviderDate = $primary.ProviderDate
+            IsVideo = [bool]$primary.IsVideo
+            AlbumNames = @($albumNames)
+            Warnings = $warnings
+            Status = 'Pending'
+            DateSource = ''
+            MetadataConfidence = 'Pending'
+            ExifVerification = 'Pending'
+            TargetPath = ''
+        })
+    }
+
+    $metadataFiles = New-Object System.Collections.Generic.List[object]
+    foreach ($asset in @($assets.ToArray())) {
+        if (Test-ApplePhotosAssetNeedsExifVerification -Asset $asset) {
+            $asset.ExifVerification = 'Queued'
+            $metadataFiles.Add($asset.PrimaryOccurrence.File)
+        }
+        else {
+            $asset.ExifVerification = 'SkippedProviderTrusted'
+        }
+    }
+    $metadataSkipped = @($assets.ToArray() | Where-Object { $_.ExifVerification -eq 'SkippedProviderTrusted' }).Count
+    Write-Log -Message ((Get-ImportProviderText -Key 'ExifPlan') -f 'Apple Photos / iCloud', $metadataFiles.Count, $metadataSkipped, $Diagnostic) -Phase 'ImportProvider'
+    $metadataMap = Get-ExifMetadataBatch -Files @($metadataFiles.ToArray()) -ExifToolAvailable $ExifToolAvailable
+    Load-ProcessedIndexLight
+    if ($Apply) { Initialize-DestinationStructure }
+
+    $importable = 0
+    $conflicts = 0
+    $trashOnly = 0
+    $duplicateInIndex = 0
+    foreach ($asset in @($assets.ToArray())) {
+        $primary = $asset.PrimaryOccurrence
+        $metadata = if ($metadataMap.ContainsKey($primary.File.FullName)) { $metadataMap[$primary.File.FullName] } else { New-EmptyMetadata }
+        $embeddedMetadataRead = $metadataMap.ContainsKey($primary.File.FullName)
+        $dateInfo = Get-ApplePhotosImportDateInfo -Asset $asset -Metadata $metadata -EmbeddedMetadataRead $embeddedMetadataRead
+        $asset.DateSource = [string]$dateInfo.Source
+        if ($dateInfo.PSObject.Properties.Name -contains 'MetadataConfidence') { $asset.MetadataConfidence = [string]$dateInfo.MetadataConfidence }
+        if ($dateInfo.PSObject.Properties.Name -contains 'ExifVerification') { $asset.ExifVerification = [string]$dateInfo.ExifVerification }
+        if ($dateInfo.PSObject.Properties.Name -contains 'Detail' -and $dateInfo.Detail) { $asset.Warnings.Add([string]$dateInfo.Detail) }
+
+        if (@($asset.Occurrences | Where-Object { -not $_.IsTrash }).Count -eq 0) {
+            $asset.Status = 'TrashOnlySkipped'
+            $trashOnly++
+            continue
+        }
+        if ($dateInfo.PSObject.Properties.Name -contains 'ProviderExifConflict' -and [bool]$dateInfo.ProviderExifConflict) {
+            $asset.Status = 'ConflictNeedsReview'
+            $conflicts++
+        }
+        elseif ($script:ProcessedByHash.ContainsKey($asset.Hash)) {
+            $asset.Status = 'ExistingDuplicateSkipped'
+            $duplicateInIndex++
+            $Stats.ExactDuplicatesFound++
+            continue
+        }
+        else {
+            $asset.Status = 'Importable'
+        }
+
+        $item = [pscustomobject]@{
+            File = $primary.File
+            Extension = $primary.File.Extension.ToLowerInvariant()
+            IsVideo = [bool]$primary.IsVideo
+            IsRaw = $false
+            Metadata = $metadata
+            DateInfo = $dateInfo
+            Sha256 = $asset.Hash
+            GlobalDuplicate = $false
+            PerceptualHash = $null
+            Width = if ($metadata.ImageWidth) { [int]$metadata.ImageWidth } else { 0 }
+            Height = if ($metadata.ImageHeight) { [int]$metadata.ImageHeight } else { 0 }
+            DuplicateHandled = $false
+            ProviderOccurrenceCount = $asset.OccurrenceCount
+            ProviderAlbumNames = @($asset.AlbumNames)
+            ProviderMetadataConfidence = $asset.MetadataConfidence
+            ProviderExifVerification = $asset.ExifVerification
+        }
+
+        if ($asset.Status -eq 'ConflictNeedsReview') {
+            $Stats.NeedsReview++
+            $target = Copy-ProviderAssetToDestination -Item $item -DestinationDirectory $NeedsReviewRoot -ProviderName $providerName -ProviderRootPath $resolved.Root -Reason 'Apple Photos provider conflict'
+            $asset.TargetPath = $target
+            continue
+        }
+
+        $destinationDirectory = Get-DestinationPath -Item $item -RootPath $resolved.Root -OrganizedRoot $OrganizedRoot
+        $targetPath = Copy-ProviderAssetToDestination -Item $item -DestinationDirectory $destinationDirectory -ProviderName $providerName -ProviderRootPath $resolved.Root -Reason 'Apple Photos import'
+        $asset.TargetPath = $targetPath
+        $importable++
+    }
+
+    if ($Apply) {
+        Save-ProcessedDatabase
+    }
+
+    $summary = [pscustomobject]@{
+        Mode = if ($Apply) { 'APPLY' } else { 'DRY RUN' }
+        Provider = $providerName
+        Root = $resolved.Root
+        DetailsCsv = $resolved.DetailsCsv
+        MediaFiles = $mediaFiles.Count
+        Videos = @($occurrences.ToArray() | Where-Object { $_.IsVideo }).Count
+        AlbumCsv = @($albumInfo.AlbumFiles).Count
+        AlbumReferences = $albumInfo.ReferenceCount
+        LogicalAssets = @($assets.ToArray()).Count
+        Occurrences = @($occurrences.ToArray()).Count
+        InternalDuplicateOccurrences = [math]::Max(0, @($occurrences.ToArray()).Count - @($assets.ToArray()).Count)
+        TrashOccurrences = @($occurrences.ToArray() | Where-Object { $_.IsTrash }).Count
+        TrashOnlyAssets = $trashOnly
+        LivePhotoCandidates = $livePhotoBaseNames.Count
+        ImportableAssets = $importable
+        ExistingDuplicates = $duplicateInIndex
+        Conflicts = $conflicts
+        HighConfidenceAssets = @($assets.ToArray() | Where-Object { $_.MetadataConfidence -eq 'HighConfidence' }).Count
+        MediumConfidenceAssets = @($assets.ToArray() | Where-Object { $_.MetadataConfidence -eq 'MediumConfidence' }).Count
+        LowConfidenceAssets = @($assets.ToArray() | Where-Object { $_.MetadataConfidence -eq 'LowConfidence' }).Count
+        ExifVerificationRead = @($assets.ToArray() | Where-Object { $_.ExifVerification -eq 'Read' }).Count
+        ExifVerificationSkippedProviderTrusted = @($assets.ToArray() | Where-Object { $_.ExifVerification -eq 'SkippedProviderTrusted' }).Count
+        MediaWithoutDetails = $mediaWithoutDetails.Count
+        FilesCopied = $Stats.FilesCopied
+        DryRunActions = $Stats.DryRunActions
+        Errors = $Stats.Errors
+        SourceDeletionStatus = if ($DeleteImportProviderSourceAfterSuccess) { 'RequestedPending' } elseif ($Apply) { 'NotRequested' } else { 'NotRequested' }
+        SourceDeletionPath = Resolve-FullPath $ProviderRootPath
+    }
+    $reports = Write-ApplePhotosImportReport -Summary $summary -Assets @($assets.ToArray()) -AlbumFiles @($albumInfo.AlbumFiles)
+    Write-Log -Message ((Get-ImportProviderText -Key 'AppleSummary') -f $summary.MediaFiles, $summary.LogicalAssets, $summary.AlbumCsv, $summary.AlbumReferences, $summary.TrashOccurrences, $summary.Videos, $summary.LivePhotoCandidates, $summary.ImportableAssets, $summary.Conflicts, $summary.HighConfidenceAssets, $summary.MediumConfidenceAssets, $summary.LowConfidenceAssets, $summary.ExifVerificationRead, $summary.ExifVerificationSkippedProviderTrusted, $summary.MediaWithoutDetails, $summary.FilesCopied, $reports.HtmlPath) -Phase 'Complete' -Status 'Completed'
+
+    Invoke-ImportProviderSourceDeletion -SelectedProviderPath $ProviderRootPath -Summary $summary
+    $reports = Write-ApplePhotosImportReport -Summary $summary -Assets @($assets.ToArray()) -AlbumFiles @($albumInfo.AlbumFiles)
+    Write-Log -Message ((Get-ImportProviderText -Key 'SourceDeletionStatusLog') -f $summary.SourceDeletionStatus, $summary.SourceDeletionPath, $reports.HtmlPath) -Phase 'Complete' -Status 'Completed'
 }
 
 function Invoke-ImportProviderXmpSidecarLibrary {
@@ -6654,10 +7234,16 @@ function Invoke-ImportProviderXmpSidecarLibrary {
         FilesCopied = $Stats.FilesCopied
         DryRunActions = $Stats.DryRunActions
         Errors = $Stats.Errors
+        SourceDeletionStatus = if ($DeleteImportProviderSourceAfterSuccess) { 'RequestedPending' } elseif ($Apply) { 'NotRequested' } else { 'NotRequested' }
+        SourceDeletionPath = Resolve-FullPath $ProviderRootPath
     }
 
     $reports = Write-XmpSidecarLibraryImportReport -Summary $summary -Assets @($assets.ToArray()) -OrphanSidecars $orphanSidecars -FolderMetadata $folderMetadataFiles
     Write-Log -Message ((Get-ImportProviderText -Key 'XmpSummary') -f $summary.MediaFiles, $summary.SidecarsFound, $summary.SidecarsUsed, $summary.OrphanSidecars, $summary.MediaWithoutSidecar, $summary.AmbiguousSidecars, $summary.FallbackClassicAssets, $summary.ImportableAssets, $summary.Conflicts, $summary.HighConfidenceAssets, $summary.MediumConfidenceAssets, $summary.LowConfidenceAssets, $summary.ExifVerificationRead, $summary.ExifVerificationSkippedProviderTrusted, $summary.FilesCopied, $reports.HtmlPath) -Phase 'Complete' -Status 'Completed'
+
+    Invoke-ImportProviderSourceDeletion -SelectedProviderPath $ProviderRootPath -Summary $summary
+    $reports = Write-XmpSidecarLibraryImportReport -Summary $summary -Assets @($assets.ToArray()) -OrphanSidecars $orphanSidecars -FolderMetadata $folderMetadataFiles
+    Write-Log -Message ((Get-ImportProviderText -Key 'SourceDeletionStatusLog') -f $summary.SourceDeletionStatus, $summary.SourceDeletionPath, $reports.HtmlPath) -Phase 'Complete' -Status 'Completed'
 }
 
 function Invoke-ImportProviderGoogleTakeout {
@@ -8604,6 +9190,7 @@ if (-not [string]::IsNullOrWhiteSpace($ImportProvider)) {
     $importProviderSpec = Assert-ImportProviderAvailable -Provider $ImportProvider
     switch ([string]$importProviderSpec.Id) {
         'GoogleTakeout' { Invoke-ImportProviderGoogleTakeout -ProviderRootPath $ImportProviderPath }
+        'ApplePhotos' { Invoke-ImportProviderApplePhotos -ProviderRootPath $ImportProviderPath }
         'XmpSidecarLibrary' { Invoke-ImportProviderXmpSidecarLibrary -ProviderRootPath $ImportProviderPath }
         default { Stop-WithError "ImportProvider $($importProviderSpec.DisplayName) is registered but has no executable implementation yet." }
     }

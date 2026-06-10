@@ -1,6 +1,6 @@
 # UDMRS Dashboard - nota futura: Import Providers
 
-Estado: arquitectura futura documentada, con Google Takeout y XMP / Sidecar Library disponibles.  
+Estado: arquitectura futura documentada, con Google Takeout, Apple Photos / iCloud y XMP / Sidecar Library disponibles.  
 La build estable RC1 sigue congelada como referencia single-head; la segunda entrada no cambia el flujo clasico `Organize`.
 
 ## Objetivo
@@ -54,7 +54,7 @@ Para esos casos se usa `Organize` clasico.
 | Provider | Estado | Gate | Justificacion |
 |---|---|---|---|
 | `GoogleTakeout` | Available | Implemented | Sidecars JSON, albumes, papelera, timestamps provider y duplicados fisicos por album. |
-| `ApplePhotos` | Planned | SampleRequired | Live Photos como pares imagen/video, originales HEIC/MOV, variantes editadas y XMP/IPTC opcional. |
+| `ApplePhotos` | Available | Implemented | Exportaciones iCloud con Photo Details CSV, CSV de albumes, papelera, fechas provider, videos y candidatos Live Photo. |
 | `SamsungGallery` | Planned | SampleGated | Adopcion enorme y posible semantica de albumes/stories/trash, pero requiere exportacion real antes de implementar. |
 | `Immich` | Planned | SampleRequired | XMP sidecars, tags, ratings, descripciones, albumes y metadata de biblioteca. |
 | `XmpSidecarLibrary` | Available | Implemented | Provider generico y conservador para bibliotecas desconocidas con sidecars XMP/JSON/YAML. |

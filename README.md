@@ -33,6 +33,7 @@ UDMRS is intentionally conservative, but no media organizer can guarantee safety
 - Reconciles the index after manual moves or renamed folders.
 - Handles cloud placeholders conservatively: visible cloud-only files are skipped, not hydrated automatically.
 - Supports Google Photos / Google Takeout imports.
+- Supports Apple Photos / iCloud Photos imports.
 - Supports generic XMP / JSON / YAML sidecar imports.
 
 ## What It Does Not Do
@@ -55,6 +56,7 @@ UDMRS Build 2026.05.30-SH-RC1
 with later provider-import hardening for:
 
 - Google Photos / Google Takeout
+- Apple Photos / iCloud Photos
 - XMP / Sidecar Library
 
 The classic organizing flow remains the primary stable path. Provider import is available for exports with sidecars or provider metadata.
@@ -120,11 +122,11 @@ Use this for provider exports or sidecar-rich libraries.
 Available providers:
 
 - Google Photos / Takeout
+- Apple Photos / iCloud
 - XMP / Sidecar Library
 
 Planned / sample-gated providers:
 
-- Apple Photos / iCloud
 - Samsung Gallery
 - Immich
 

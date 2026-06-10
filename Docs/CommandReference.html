@@ -103,13 +103,14 @@
     <table>
       <tr><th>Provider</th><th>Estado</th><th>Uso</th></tr>
       <tr><td>Google Photos / Takeout</td><td class="safe">Disponible</td><td><code>-ImportProvider GoogleTakeout -ImportProviderPath &lt;RutaTakeout&gt;</code></td></tr>
-      <tr><td>Apple Photos / iCloud</td><td class="advanced">Próximamente · requiere muestra real</td><td>Deshabilitado en UI. No lanza proceso.</td></tr>
+      <tr><td>Apple Photos / iCloud</td><td class="safe">Disponible</td><td><code>-ImportProvider ApplePhotos -ImportProviderPath &lt;RutaICloudExport&gt;</code></td></tr>
       <tr><td>Samsung Gallery</td><td class="advanced">Próximamente · requiere muestra real</td><td>Deshabilitado en UI. No lanza proceso.</td></tr>
       <tr><td>Immich</td><td class="advanced">Próximamente · requiere muestra/export</td><td>Deshabilitado en UI. No lanza proceso.</td></tr>
       <tr><td>XMP / Sidecar Library</td><td class="safe">Disponible</td><td><code>-ImportProvider XmpSidecarLibrary -ImportProviderPath &lt;RutaGaleria&gt;</code></td></tr>
     </table>
-    <div class="note"><strong>Google Takeout.</strong> La ruta de Takeout siempre la selecciona el usuario. No uses rutas fijas. En DryRun genera reporte sin copiar; en Apply copia assets limpios al destino y registra el índice común. Tras un Apply correcto, la carpeta Takeout seleccionada puede eliminarse solo si el usuario lo confirma explícitamente. La decisión queda registrada en log/reporte.</div>
-    <div class="note"><strong>XMP / Sidecar Library.</strong> La ruta siempre la selecciona el usuario. Intenta asociar media con sidecars <code>.xmp</code>, <code>.json</code>, <code>.yaml</code> o <code>.yml</code>. Si la relación es clara usa fecha, título, descripción, tags, rating o ubicación cuando existan. Si es ambigua, manda a revisión. Si no hay metadata útil, usa fallback clásico.</div>
+    <div class="note"><strong>Fuentes ImportProvider.</strong> La ruta siempre la selecciona el usuario. No uses rutas fijas. En DryRun genera reporte sin copiar; en Apply copia assets limpios al destino y registra el índice común. Tras un Apply correcto, la carpeta de exportación seleccionada puede eliminarse solo si el usuario lo confirma explícitamente. La decisión queda registrada en log/reporte.</div>
+    <div class="note"><strong>Apple Photos / iCloud.</strong> Interpreta exportaciones iCloud con <code>Photo Details.csv</code>, CSV de álbumes, flags de papelera, fechas de proveedor, vídeos y candidatos Live Photo. No depende del nombre visible de la carpeta raíz.</div>
+    <div class="note"><strong>XMP / Sidecar Library.</strong> Intenta asociar media con sidecars <code>.xmp</code>, <code>.json</code>, <code>.yaml</code> o <code>.yml</code>. Si la relación es clara usa fecha, título, descripción, tags, rating o ubicación cuando existan. Si es ambigua, manda a revisión. Si no hay metadata útil, usa fallback clásico.</div>
   </section>
 
   <section id="exclusiones">
@@ -190,11 +191,41 @@
   -Apply</code></pre>
 
     <h3>ImportProvider Google Takeout Apply + eliminar fuente temporal</h3>
-    <p class="dangerText">Solo para exportaciones temporales ya revisadas. Borra la carpeta Takeout seleccionada si el import termina correctamente y sin errores.</p>
+    <p class="dangerText">Solo para exportaciones temporales ya revisadas. Borra la carpeta seleccionada si el import termina correctamente y sin errores.</p>
 <pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
   -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
   -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
   -ImportProvider GoogleTakeout `
+  -ImportProviderPath "&lt;RutaSeleccionadaPorUsuario&gt;" `
+  -Language es `
+  -Apply `
+  -DeleteImportProviderSourceAfterSuccess</code></pre>
+
+    <h3>ImportProvider Apple Photos / iCloud DryRun</h3>
+    <p class="safe">Analiza una exportación iCloud sin copiar nada. Revisa el reporte HTML/JSON antes de Apply.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -ImportProvider ApplePhotos `
+  -ImportProviderPath "&lt;RutaSeleccionadaPorUsuario&gt;" `
+  -Language es</code></pre>
+
+    <h3>ImportProvider Apple Photos / iCloud Apply</h3>
+    <p class="advanced">Copia assets limpios al destino Year/Quarter usando Photo Details CSV, álbumes CSV y flags de papelera.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -ImportProvider ApplePhotos `
+  -ImportProviderPath "&lt;RutaSeleccionadaPorUsuario&gt;" `
+  -Language es `
+  -Apply</code></pre>
+
+    <h3>ImportProvider Apply + eliminar fuente temporal</h3>
+    <p class="dangerText">Válido para proveedores disponibles. Borra la carpeta de exportación seleccionada solo si Apply termina correctamente y sin errores.</p>
+<pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -ImportProvider ApplePhotos `
   -ImportProviderPath "&lt;RutaSeleccionadaPorUsuario&gt;" `
   -Language es `
   -Apply `

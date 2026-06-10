@@ -38,7 +38,7 @@ This package prepares UDMRS Dashboard for GitHub publication with the stable cla
 - ExifTool must be installed separately for full metadata repair workflows.
 - Provider imports depend on export quality and sidecar metadata.
 - Cloud-only files are intentionally skipped until local.
-- Apple Photos, Samsung Gallery and Immich providers are planned but not active.
+- Apple Photos / iCloud is available. Samsung Gallery and Immich providers are planned but not active.
 - A public license still needs to be chosen before formal open-source publication.
 
 ## Validation Performed
@@ -47,4 +47,3 @@ This package prepares UDMRS Dashboard for GitHub publication with the stable cla
 - Read-only Google Takeout audit on a larger sample.
 - Synthetic XMP provider localization smoke tests.
 - Publication package scan for private path patterns outside ignored runtime/temp areas.
-

@@ -129,17 +129,17 @@ No hace:
 Disponible:
 
 - `Google Photos / Takeout`: analiza una exportación Google Takeout seleccionada por el usuario, interpreta sidecars JSON, álbumes, papelera, confianza de metadata y duplicados físicos, y copia assets limpios al destino `Año\Trimestre`.
+- `Apple Photos / iCloud`: analiza una exportación iCloud seleccionada por el usuario, interpreta `Photo Details.csv`, CSV de álbumes, flags de papelera, fechas de proveedor, vídeos y candidatos Live Photo, y copia assets limpios al destino `Año\Trimestre`.
 - `XMP / Sidecar Library`: intenta interpretar galerías desconocidas con sidecars XMP, JSON o YAML. Si la relación media/sidecar es clara usa metadata; si es ambigua manda a revisión; si no hay metadata útil usa fallback clásico.
 
 Planificados y deshabilitados:
 
-- `Apple Photos / iCloud`: requiere muestras reales.
 - `Samsung Gallery`: bloqueado hasta disponer de exportación real.
 - `Immich`: requiere muestras/export adecuados.
 
-Para Google Takeout, trata la carpeta exportada como fuente temporal: primero ejecuta Simulación, revisa el reporte HTML/JSON y después Apply. Al terminar un Apply correcto, el dashboard puede pedir confirmación para eliminar la carpeta Takeout seleccionada. No se elimina en Simulación ni si el import falla.
+Para cualquier provider, trata la carpeta exportada como fuente temporal: primero ejecuta Simulación, revisa el reporte HTML/JSON y después Apply. Al terminar un Apply correcto, el dashboard puede pedir confirmación para eliminar la carpeta de exportación seleccionada. No se elimina en Simulación ni si el import falla.
 
-Para XMP / Sidecar Library, la fuente no se elimina automáticamente. El reporte muestra media encontrados, sidecars encontrados/usados, sidecars huérfanos, media sin sidecar, confianza High/Medium/Low, conflictos y fallback clásico.
+Para XMP / Sidecar Library, el reporte muestra media encontrados, sidecars encontrados/usados, sidecars huérfanos, media sin sidecar, confianza High/Medium/Low, conflictos y fallback clásico.
 
 Para carpetas normales con fotos y vídeos usa `Inicio` / `Organize`.
 

@@ -37,6 +37,6 @@ Build baseline: UDMRS Build 2026.05.30-SH-RC1
 Paquete publico: flujo clasico estable + Importar galeria
 ```
 
-Esta identidad de release no cambia nombres tecnicos internos. `Google Photos / Takeout` y `XMP / Sidecar Library` pueden presentarse como providers disponibles; Apple Photos, Samsung Gallery e Immich siguen como planificados/deshabilitados hasta disponer de evidencia suficiente.
+Esta identidad de release no cambia nombres tecnicos internos. `Google Photos / Takeout`, `Apple Photos / iCloud` y `XMP / Sidecar Library` pueden presentarse como providers disponibles; Samsung Gallery e Immich siguen como planificados/deshabilitados hasta disponer de evidencia suficiente.
 
 

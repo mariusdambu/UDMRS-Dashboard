@@ -1752,8 +1752,11 @@ function Start-AdvancedDashboardRun {
     }
 
     foreach ($extraSwitch in @($Switches)) {
-        if (-not [string]::IsNullOrWhiteSpace($extraSwitch)) {
-            $engineArguments += $extraSwitch
+        foreach ($switchPart in @($extraSwitch)) {
+            $switchText = [string]$switchPart
+            if (-not [string]::IsNullOrWhiteSpace($switchText)) {
+                $engineArguments += $switchText
+            }
         }
     }
     if ($effectiveApply) { $engineArguments += '-Apply' }
@@ -1855,19 +1858,27 @@ function Start-GoogleTakeoutImportWizard {
     if ([string]::IsNullOrWhiteSpace($chosen)) { return }
 
     $switches = @('-ImportProvider', 'GoogleTakeout', '-ImportProviderPath', $chosen)
-    if ($script:chkApply.Checked -and -not $script:chkDryRun.Checked) {
-        $answer = [System.Windows.Forms.MessageBox]::Show((UT 'confirm_google_takeout_apply_msg'), (T 'warning_title'), 'YesNo', 'Warning')
-        if ($answer -ne 'Yes') { return }
-
-        $deleteAnswer = [System.Windows.Forms.MessageBox]::Show(((UT 'confirm_google_takeout_delete_source_msg') -f $chosen), (T 'warning_title'), 'YesNo', 'Warning')
-        if ($deleteAnswer -eq 'Yes') {
-            $switches += '-DeleteImportProviderSourceAfterSuccess'
-        }
-    }
+    $switches = @(Confirm-ImportProviderApplyOptions -Switches $switches -ProviderLabelKey 'import_provider_google' -ProviderPath $chosen)
+    if (-not $switches -or $switches.Count -eq 0) { return }
 
     Start-AdvancedDashboardRun `
         -ActionKey 'import_provider_google' `
         -LabelKey 'import_provider_google' `
+        -Switches $switches
+}
+
+function Start-ApplePhotosImportWizard {
+    Set-SelectedActionHint -ActionKey 'import_provider_apple'
+    $chosen = Choose-Folder -InitialPath $script:txtSource.Text -Description (UT 'select_apple_photos')
+    if ([string]::IsNullOrWhiteSpace($chosen)) { return }
+
+    $switches = @('-ImportProvider', 'ApplePhotos', '-ImportProviderPath', $chosen)
+    $switches = @(Confirm-ImportProviderApplyOptions -Switches $switches -ProviderLabelKey 'import_provider_apple' -ProviderPath $chosen)
+    if (-not $switches -or $switches.Count -eq 0) { return }
+
+    Start-AdvancedDashboardRun `
+        -ActionKey 'import_provider_apple' `
+        -LabelKey 'import_provider_apple' `
         -Switches $switches
 }
 
@@ -1876,10 +1887,35 @@ function Start-XmpSidecarImportWizard {
     $chosen = Choose-Folder -InitialPath $script:txtSource.Text -Description (UT 'select_xmp_sidecar_library')
     if ([string]::IsNullOrWhiteSpace($chosen)) { return }
 
+    $switches = @('-ImportProvider', 'XmpSidecarLibrary', '-ImportProviderPath', $chosen)
+    $switches = @(Confirm-ImportProviderApplyOptions -Switches $switches -ProviderLabelKey 'import_provider_xmp' -ProviderPath $chosen)
+    if (-not $switches -or $switches.Count -eq 0) { return }
+
     Start-AdvancedDashboardRun `
         -ActionKey 'import_provider_xmp' `
         -LabelKey 'import_provider_xmp' `
-        -Switches @('-ImportProvider', 'XmpSidecarLibrary', '-ImportProviderPath', $chosen)
+        -Switches $switches
+}
+
+function Confirm-ImportProviderApplyOptions {
+    param(
+        [string[]]$Switches,
+        [string]$ProviderLabelKey,
+        [string]$ProviderPath
+    )
+
+    if ($script:chkApply.Checked -and -not $script:chkDryRun.Checked) {
+        $provider = UT $ProviderLabelKey
+        $answer = [System.Windows.Forms.MessageBox]::Show(((UT 'confirm_import_provider_apply_msg') -f $provider), (T 'warning_title'), 'YesNo', 'Warning')
+        if ($answer -ne 'Yes') { return $null }
+
+        $deleteAnswer = [System.Windows.Forms.MessageBox]::Show(((UT 'confirm_import_provider_delete_source_msg') -f $provider, $ProviderPath), (T 'warning_title'), 'YesNo', 'Warning')
+        if ($deleteAnswer -eq 'Yes') {
+            $Switches += '-DeleteImportProviderSourceAfterSuccess'
+        }
+    }
+
+    return @($Switches)
 }
 
 function Show-PlannedImportProviderNotice {
@@ -2577,7 +2613,7 @@ function Build-ResponsiveLayout {
     $script:ImportProviderDescriptionLabels = @{}
     $importProviderRows = @(
         @($script:btnImportGoogleTakeout, 'import_provider_google_desc', 'import_provider_status_available'),
-        @($script:btnImportApplePhotos, 'import_provider_apple_desc', 'import_provider_status_coming_sample'),
+        @($script:btnImportApplePhotos, 'import_provider_apple_desc', 'import_provider_status_available'),
         @($script:btnImportSamsungGallery, 'import_provider_samsung_desc', 'import_provider_status_coming_sample'),
         @($script:btnImportImmich, 'import_provider_immich_desc', 'import_provider_status_coming_sample'),
         @($script:btnImportXmpSidecar, 'import_provider_xmp_desc', 'import_provider_status_available')
@@ -3259,7 +3295,7 @@ $script:btnImportApplePhotos = New-Object System.Windows.Forms.Button
 $script:btnImportApplePhotos.AutoSize = $true
 $script:btnImportApplePhotos.MinimumSize = New-Object System.Drawing.Size(220, 40)
 $script:btnImportApplePhotos.Add_Click({
-    Show-PlannedImportProviderNotice -ProviderLabelKey 'import_provider_apple' -StatusKey 'import_provider_status_coming_sample'
+    Start-ApplePhotosImportWizard
 })
 
 $script:btnImportSamsungGallery = New-Object System.Windows.Forms.Button
@@ -3299,7 +3335,7 @@ foreach ($binding in @(
     @($script:btnDedupeCleanup, 'advanced_dedupe_cleanup'),
     @($script:btnRepairOnlyLibrary, 'advanced_repair_only_library'),
     @($script:btnImportGoogleTakeout, 'import_provider_google'),
-    @($script:btnImportApplePhotos, 'import_gallery_coming'),
+    @($script:btnImportApplePhotos, 'import_provider_apple'),
     @($script:btnImportSamsungGallery, 'import_gallery_coming'),
     @($script:btnImportImmich, 'import_gallery_coming'),
     @($script:btnImportXmpSidecar, 'import_provider_xmp'),

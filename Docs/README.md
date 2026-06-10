@@ -14,7 +14,7 @@ Validacion final: `16/16 PASS`, `FAIL_COUNT = 0`.
 
 Esta baseline congela el flujo clasico estable. El paquete publico actual tambien incluye la entrada `Importar galeria` para proveedores soportados.
 
-Estado actual: `Google Photos / Takeout` y `XMP / Sidecar Library` estan disponibles. `Apple Photos / iCloud`, `Samsung Gallery` e `Immich` aparecen como providers planificados y deshabilitados hasta disponer de muestras reales.
+Estado actual: `Google Photos / Takeout`, `Apple Photos / iCloud` y `XMP / Sidecar Library` estan disponibles. `Samsung Gallery` e `Immich` aparecen como providers planificados y deshabilitados hasta disponer de muestras reales.
 
 ## Branding visual
 
@@ -71,7 +71,7 @@ Incluye Test Scan, Organize, Normalize, Reconcile, Purge, DedupeCleanup, RepairO
 - Română: `Docs\Manuals\Manual_RO.md`
 - Arquitectura futura: `Docs\Future\UDMRS-Future-ImportProviders.md`
 
-Roadmap de la segunda entrada: `GoogleTakeout` y `XmpSidecarLibrary` disponibles; `ApplePhotos`, `SamsungGallery` e `Immich` definidos como planned/sample-gated. Servicios que solo entregan carpetas normales de archivos multimedia siguen usando `Organize`.
+Roadmap de la segunda entrada: `GoogleTakeout`, `ApplePhotos` y `XmpSidecarLibrary` disponibles; `SamsungGallery` e `Immich` definidos como planned/sample-gated. Servicios que solo entregan carpetas normales de archivos multimedia siguen usando `Organize`.
 
 `README-OrganizePhotoLibrary.md` pertenece al script antiguo `Organize-PhotoLibrary.ps1` y no describe el flujo actual.
 
@@ -106,15 +106,15 @@ La pestaña `Importar galería` es la entrada para exportaciones de proveedores 
 Disponible actualmente:
 
 - `Google Photos / Takeout`: analiza una exportación Google Takeout seleccionada por el usuario, usa sidecars JSON, álbumes, papelera, confianza de metadata y deduplicación por assets lógicos, y copia assets limpios al destino `Year\Quarter`.
+- `Apple Photos / iCloud`: analiza una exportación iCloud seleccionada por el usuario, usa `Photo Details.csv`, CSV de álbumes, flags de papelera, fechas de proveedor, vídeos y candidatos Live Photo, y copia assets limpios al destino `Year\Quarter`.
 - `XMP / Sidecar Library`: intenta interpretar galerías desconocidas con sidecars XMP, JSON o YAML. Si la relación media/sidecar es clara usa metadata; si es ambigua manda a revisión; si no hay metadata útil usa fallback clásico.
 
 Planificados y deshabilitados:
 
-- `Apple Photos / iCloud`: requiere muestras reales.
 - `Samsung Gallery`: sample-gated hasta disponer de exportación real.
 - `Immich`: requiere muestras/export adecuados.
 
-Google Takeout se considera una fuente temporal extraída de un ZIP. Tras un `Apply` correcto, el dashboard puede preguntar si quieres eliminar la carpeta Takeout seleccionada. Esa eliminación es opcional, requiere confirmación explícita, nunca ocurre en DryRun y queda registrada en log/reporte.
+Las exportaciones de provider se consideran fuentes temporales. Tras un `Apply` correcto, el dashboard puede preguntar si quieres eliminar la carpeta de exportación seleccionada. Esa eliminación es opcional, requiere confirmación explícita, nunca ocurre en DryRun y queda registrada en log/reporte.
 
 Para carpetas normales con JPG/PNG/HEIC/MP4/MOV sin semántica adicional usa `Inicio` / `Organize`.
 
