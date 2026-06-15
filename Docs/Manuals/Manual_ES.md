@@ -8,7 +8,7 @@ Build: `UDMRS Build 2026.05.30-SH-RC1`.
 
 Validacion final: `16/16 PASS`, `FAIL_COUNT = 0`.
 
-Estado público actual: el flujo clásico estable sigue siendo la entrada principal para carpetas normales. `Importar galería` está disponible para `Google Photos / Takeout` y `XMP / Sidecar Library`.
+Estado público actual: el flujo clásico estable sigue siendo la entrada principal para carpetas normales. `Importar galería` está disponible para `Google Photos / Takeout`, `Apple Photos / iCloud` y `XMP / Sidecar Library`.
 
 ## 1. Qué es cada pieza
 
@@ -158,6 +158,8 @@ Herramientas disponibles:
 - `Normalizar estructura`: reestructura visualmente a `Año\Trimestre` y limpia ramas vacías/junk/residuales.
 - `Limpieza de duplicados`: analiza duplicados exactos por hash y en Apply mueve confirmados a cuarentena.
 - `Reparar EXIF in-place`: repara EXIF dentro de la biblioteca organizada sin mover, deduplicar ni renombrar.
+- `Auditar fechas visibles`: detecta archivos con fecha fiable conocida pero metadata visible o fechas de sistema pendientes. Siempre es simulaci├│n.
+- `Reparar fechas visibles`: escribe metadata visible y fechas de sistema cuando falta una fecha de captura ├║til. Requiere Apply y confirmaci├│n espec├¡fica.
 - `Migrar UDMRS a otro PC`: crea los ZIP necesarios para mover la instalación compartida y el estado del usuario actual a otro equipo. No migra logs ni runtime.
 
 Todas respetan `Simulación` por defecto. Si activas `Aplicar cambios reales`, el dashboard pide confirmación específica y muestra los switches que va a ejecutar.
@@ -370,6 +372,54 @@ Siempre revisa primero el reporte `DryRun` antes de aplicar Normalize.
 
 En bibliotecas OneDrive u otros proveedores cloud-backed, `NormalizeExistingFolders -Apply` puede provocar mucha actividad de Explorer/sincronización porque mueve y renombra estructura. Si Explorer queda temporalmente sin refrescar o `No responde`, normalmente está reindexando cambios. El motor no debe leer EXIF ni calcular hashes extra solo por esa espera visual. Deja terminar la sincronización antes de iniciar otra operación.
 
+
+## 11.1 Fechas visibles: MetadataAudit y MetadataRepair
+
+`NormalizeExistingFolders` arregla estructura. `MetadataRepair` arregla la fecha visible dentro del archivo.
+
+UDMRS puede conocer una fecha fiable por EXIF, provider, sidecar o patrón de nombre. Esa fecha debe ser coherente en:
+
+- ruta/carpeta
+- nombre final
+- metadata embebida cuando el formato lo permite
+- `CreationTime` / `LastWriteTime` cuando son fechas accidentales
+- `ProcessedFiles.json` y reportes
+
+`MetadataAudit` revisa la biblioteca organizada y genera un CSV con candidatos. No modifica nada, incluso si el dashboard estuviera en Apply. Úsalo para saber cuántos archivos tienen fecha fiable conocida pero no visible para Windows, OneDrive o Microsoft Photos.
+
+`MetadataRepair` actúa solo sobre candidatos seguros. Crea backup, escribe metadata embebida según formato, sincroniza fechas de sistema si procede, recalcula hash y actualiza el índice.
+
+Formatos cubiertos por política de materialización: JPG/JPEG, HEIC/HEIF, MP4/MOV/M4V/3GP, PNG, TIFF, WEBP y GIF cuando exista forma segura de escribir metadata útil. Si el formato no permite escribir la fecha esperada o existe conflicto con metadata válida, el log/report debe dejarlo como `DateKnownButMetadataNotWritten` o warning equivalente.
+
+Reglas importantes:
+
+- no sobrescribe metadata válida existente
+- no resuelve conflictos automáticamente
+- no mueve ni reorganiza carpetas
+- no deduplica
+- no sustituye a Reconcile
+- puede tardar mucho en bibliotecas grandes porque lee metadata in-place
+
+Ejemplo DryRun:
+
+``powershell
+pwsh -ExecutionPolicy Bypass -NoProfile -File "<CarpetaUDMRS>\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -MetadataAudit `
+  -Language es
+``
+
+Ejemplo Apply:
+
+``powershell
+pwsh -ExecutionPolicy Bypass -NoProfile -File "<CarpetaUDMRS>\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
+  -MetadataRepair `
+  -Language es `
+  -Apply
+``
 ## 12. ProcessedFiles.json
 
 Ruta habitual:
@@ -701,6 +751,8 @@ Select-String -Path "%APPDATA%\PhotoOrganizer\Logs\*.log" -Pattern "Error","Slow
 ```
 
 Los comandos Apply completos están en `Docs\CommandReference.html`. Revisa siempre DryRun y reportes HTML antes de aplicar cambios reales.
+
+
 
 
 

@@ -243,5 +243,12 @@
   "tip_test_scan": "Test scan: scans compatible files and validates access and exclusions. It does not read EXIF, calculate hashes, create destination folders, move, copy, or modify files.",
   "tip_reconcile_index": "Detects old paths in ProcessedFiles.json, searches for the same hash in current locations, and in Apply updates paths or marks entries as missing. It does not move photos, touch EXIF, or reorganize.",
   "tip_purge_missing": "Purges only index entries already marked as missing. It does not delete photos or change folders.",
-  "tip_logs": "Opens the folder where logs and progress.json are saved."
+  "tip_logs": "Opens the folder where logs and progress.json are saved.",
+  "advanced_metadata_repair": "Repair visible dates",
+  "action_hint_advanced_metadata_audit": "Visible date audit: finds media with a reliable known date, missing embedded visible metadata, or incoherent filesystem dates. It does not write metadata or change dates and produces a CSV report.",
+  "action_hint_advanced_metadata_repair": "MetadataRepair: fixes already organized files that UDMRS can date confidently. In Simulation it reports only; in Apply it writes visible metadata, syncs CreationTime/LastWriteTime, recalculates hash, and updates ProcessedFiles.json.",
+  "advanced_metadata_audit": "Audit visible dates",
+  "advanced_metadata_audit_desc": "Scans the organized library and writes a CSV of files with a reliable known date but pending visible metadata or filesystem date materialization. Always runs as simulation; it does not modify files.",
+  "advanced_metadata_repair_desc": "Materializes reliable dates into embedded metadata and filesystem dates when they are missing or accidental. Creates backup, recalculates hash, and updates the index.",
+  "external_run_active_msg": "A UDMRS operation is already active for this same library. Wait for it to finish before starting another operation."
 }

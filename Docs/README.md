@@ -63,7 +63,7 @@ Destination: %USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas
 Language: es
 ```
 
-Incluye Test Scan, Organize, Normalize, Reconcile, Purge, DedupeCleanup, RepairOnly, Recovery, traducción de carpetas internas, comandos con `-Diagnostic`, ETA/progress y búsquedas útiles en logs.
+Incluye Test Scan, Organize, Normalize, Reconcile, Purge, DedupeCleanup, RepairOnly, MetadataAudit, MetadataRepair, Recovery, traducción de carpetas internas, comandos con `-Diagnostic`, ETA/progress y búsquedas útiles en logs.
 
 ## Manuales vivos
 
@@ -131,6 +131,8 @@ Ese panel expone modos del motor que antes requerían comandos PowerShell largos
 - `NormalizeExistingFolders`: reestructuración visual a año/trimestre y limpieza segura.
 - `DedupeCleanup`: duplicados exactos por hash; no limpia carpetas vacías.
 - `RepairOnlyExistingOrganizedLibrary`: reparación EXIF in-place dentro de la biblioteca organizada.
+- `MetadataAudit`: auditor├¡a segura de fechas visibles. Genera reporte CSV; no escribe metadata aunque el dashboard est├® en Apply.
+- `MetadataRepair`: materializa fechas fiables en metadata embebida y fechas de sistema. Crea backup, recalcula hash y actualiza el ├¡ndice.
 - `Migrar UDMRS a otro PC`: crea un paquete con ZIP de instalación compartida, ZIP de estado del usuario actual y una guía de migración. No incluye logs ni runtime.
 
 Los botones avanzados respetan `Simulación` por defecto. Si activas `Aplicar cambios reales`, el dashboard pide confirmación específica y muestra los switches que lanzará.
@@ -147,6 +149,27 @@ Esto es normal durante unos minutos en bibliotecas grandes o cloud-backed. No si
 
 Recomendación: espera unos minutos y deja que Explorer/OneDrive reindexen. Evita lanzar otra operación inmediatamente. Si Explorer sigue bloqueado demasiado tiempo, reinicia Explorer o Windows.
 
+
+## Fechas visibles y CaptureDateMaterialization
+
+UDMRS distingue tres decisiones que antes podían parecer una sola:
+
+``text
+resolver fecha fiable
+↓
+organizar ruta/nombre
+↓
+materializar fecha visible
+``
+
+`CaptureDateMaterialization` es la capa común que usa esa fecha fiable para escribir metadata visible cuando el formato lo permite y cuando no existe una fecha embebida válida en conflicto. También puede sincronizar `CreationTime` y `LastWriteTime` si esas fechas parecen accidentales.
+
+- `MetadataAudit`: revisa la biblioteca organizada y genera un CSV con candidatos. Siempre es auditoría; no escribe metadata ni cambia fechas de sistema.
+- `MetadataRepair`: actúa solo sobre candidatos seguros. Escribe metadata embebida, sincroniza fechas de sistema, crea backup, recalcula hash y actualiza `ProcessedFiles.json`.
+- `NormalizeExistingFolders`: no sustituye a MetadataRepair. Normalize arregla estructura; MetadataRepair arregla visibilidad temporal dentro del archivo.
+- `RepairExif`: sigue existiendo como opción de organización/reparación, pero la política madura de fechas visibles se centraliza en CaptureDateMaterialization.
+
+Este flujo ayuda especialmente cuando Microsoft Photos, OneDrive o Windows muestran recuerdos antiguos en una fecha de sistema reciente porque el archivo no contiene una fecha de captura visible.
 ## Arquitectura RC madura
 
 La estructura oficial única es:
@@ -306,6 +329,7 @@ La aplicación puede convivir con bibliotecas sincronizadas, pero debe existir u
 - Para galerías grandes, marca la biblioteca como disponible sin conexión, por ejemplo `Always keep on this device`, antes de Organize/Repair/Normalize masivos.
 - No ejecutes dos dashboards, dos consolas técnicas o dos comandos manuales contra la misma biblioteca al mismo tiempo.
 - No lances una acción normal mientras `Modo avanzado` ejecuta otra acción avanzada.
+
 
 
 

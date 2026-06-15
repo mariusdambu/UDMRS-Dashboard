@@ -725,7 +725,43 @@ function Stop-TechnicalConsoleSession {
     Clear-TechnicalConsoleState
 }
 
+
+function Get-ExternalEngineRunForCurrentGallery {
+    $source = $script:txtSource.Text.Trim()
+    $destination = $script:txtDestination.Text.Trim()
+    if ([string]::IsNullOrWhiteSpace($source) -and [string]::IsNullOrWhiteSpace($destination)) { return $null }
+
+    $ownPid = [System.Diagnostics.Process]::GetCurrentProcess().Id
+    $needles = @()
+    foreach ($path in @($source, $destination)) {
+        if (-not [string]::IsNullOrWhiteSpace($path)) {
+            try { $needles += [System.IO.Path]::GetFullPath($path).TrimEnd('\').ToLowerInvariant() }
+            catch { $needles += $path.TrimEnd('\').ToLowerInvariant() }
+        }
+    }
+
+    try {
+        $processes = Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object {
+            $_.ProcessId -ne $ownPid -and
+            $_.CommandLine -and
+            $_.CommandLine -match 'PhotoOrganizer\.ps1'
+        }
+        foreach ($proc in $processes) {
+            $cmd = $proc.CommandLine.ToLowerInvariant()
+            foreach ($needle in $needles) {
+                if ($needle -and $cmd.Contains($needle)) { return $proc }
+            }
+        }
+    }
+    catch {
+    }
+    return $null
+}
 function Assert-CanStartNormalEngineRun {
+    if (Get-ExternalEngineRunForCurrentGallery) {
+        [System.Windows.Forms.MessageBox]::Show((UT 'external_run_active_msg'), (T 'warning_title'), 'OK', 'Warning') | Out-Null
+        return $false
+    }
     if (Test-AdvancedRunActive) {
         [System.Windows.Forms.MessageBox]::Show((UT 'advanced_run_active_msg'), (T 'warning_title'), 'OK', 'Warning') | Out-Null
         return $false
@@ -734,6 +770,10 @@ function Assert-CanStartNormalEngineRun {
 }
 
 function Assert-CanStartAdvancedEngineRun {
+    if (Get-ExternalEngineRunForCurrentGallery) {
+        [System.Windows.Forms.MessageBox]::Show((UT 'external_run_active_msg'), (T 'warning_title'), 'OK', 'Warning') | Out-Null
+        return $false
+    }
     if ($script:CurrentProcess -and -not $script:CurrentProcess.HasExited) {
         [System.Windows.Forms.MessageBox]::Show((UT 'normal_run_active_msg'), (T 'warning_title'), 'OK', 'Warning') | Out-Null
         return $false
@@ -1241,7 +1281,7 @@ function Update-RunState {
     $script:btnTestScan.Enabled = -not $blockNormalLaunch
     if ($script:btnReconcile) { $script:btnReconcile.Enabled = -not $blockNormalLaunch }
     if ($script:btnPurgeMissing) { $script:btnPurgeMissing.Enabled = -not $blockNormalLaunch }
-    foreach ($button in @($script:btnAdvancedModes, $script:btnRetentionCleanup, $script:btnRecoverWrongDuplicateMove, $script:btnRenameExistingFolders, $script:btnRenameInternalFolders, $script:btnNormalizeExistingFolders, $script:btnDedupeCleanup, $script:btnRepairOnlyLibrary, $script:btnMigrateUdmrs, $script:btnImportGoogleTakeout, $script:btnImportApplePhotos, $script:btnImportSamsungGallery, $script:btnImportImmich, $script:btnImportXmpSidecar)) {
+    foreach ($button in @($script:btnAdvancedModes, $script:btnRetentionCleanup, $script:btnRecoverWrongDuplicateMove, $script:btnRenameExistingFolders, $script:btnRenameInternalFolders, $script:btnNormalizeExistingFolders, $script:btnDedupeCleanup, $script:btnRepairOnlyLibrary, $script:btnMetadataAudit, $script:btnMetadataRepair, $script:btnMigrateUdmrs, $script:btnImportGoogleTakeout, $script:btnImportApplePhotos, $script:btnImportSamsungGallery, $script:btnImportImmich, $script:btnImportXmpSidecar)) {
         if ($button) { $button.Enabled = -not $blockAdvancedLaunch }
     }
     $script:btnCancel.Enabled = $Running
@@ -1554,10 +1594,11 @@ function Confirm-AdvancedAction {
     param(
         [string]$ActionLabel,
         [string[]]$Switches,
-        [bool]$UseRepairExif = $false
+        [bool]$UseRepairExif = $false,
+        [bool]$ForceDryRun = $false
     )
 
-    $effectiveApply = $script:chkApply.Checked -and -not $script:chkDryRun.Checked
+    $effectiveApply = $script:chkApply.Checked -and -not $script:chkDryRun.Checked -and -not $ForceDryRun
     if (-not $effectiveApply) { return $true }
 
     $switchText = ($Switches -join ' ')
@@ -1711,20 +1752,21 @@ function Start-AdvancedDashboardRun {
         [string]$LabelKey,
         [string[]]$Switches,
         [bool]$UseRepairExif = $false,
-        [bool]$AllowKeepEmptyFolders = $false
+        [bool]$AllowKeepEmptyFolders = $false,
+        [bool]$ForceDryRun = $false
     )
 
     Set-SelectedActionHint -ActionKey $ActionKey
     if (-not (Assert-CanStartAdvancedEngineRun)) { return }
     $label = UT $LabelKey
-    if (-not (Confirm-AdvancedAction -ActionLabel $label -Switches $Switches -UseRepairExif:$UseRepairExif)) { return }
+    if (-not (Confirm-AdvancedAction -ActionLabel $label -Switches $Switches -UseRepairExif:$UseRepairExif -ForceDryRun:$ForceDryRun)) { return }
 
     if (-not (Validate-Inputs)) { return }
     if (-not (Test-Path -LiteralPath $script:LogRoot)) {
         New-Item -ItemType Directory -Path $script:LogRoot -Force | Out-Null
     }
 
-    $effectiveApply = $script:chkApply.Checked -and -not $script:chkDryRun.Checked
+    $effectiveApply = $script:chkApply.Checked -and -not $script:chkDryRun.Checked -and -not $ForceDryRun
     $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
     $advancedRunId = "Advanced-$timestamp"
     $logPath = Join-Path $script:LogRoot ("PhotoOrganizer-$advancedRunId.log")
@@ -2796,6 +2838,8 @@ function Build-ResponsiveLayout {
         @($script:btnNormalizeExistingFolders, 'advanced_normalize_existing_folders_desc'),
         @($script:btnDedupeCleanup, 'advanced_dedupe_cleanup_desc'),
         @($script:btnRepairOnlyLibrary, 'advanced_repair_only_library_desc'),
+        @($script:btnMetadataAudit, 'advanced_metadata_audit_desc'),
+        @($script:btnMetadataRepair, 'advanced_metadata_repair_desc'),
         @($script:btnMigrateUdmrs, 'advanced_migrate_udmrs_desc')
     )
     foreach ($row in $advancedModeRows) {
@@ -2875,6 +2919,8 @@ function Update-Texts {
     if ($script:btnNormalizeExistingFolders) { $script:btnNormalizeExistingFolders.Text = UT 'advanced_normalize_existing_folders' }
     if ($script:btnDedupeCleanup) { $script:btnDedupeCleanup.Text = UT 'advanced_dedupe_cleanup' }
     if ($script:btnRepairOnlyLibrary) { $script:btnRepairOnlyLibrary.Text = UT 'advanced_repair_only_library' }
+    if ($script:btnMetadataAudit) { $script:btnMetadataAudit.Text = UT 'advanced_metadata_audit' }
+    if ($script:btnMetadataRepair) { $script:btnMetadataRepair.Text = UT 'advanced_metadata_repair' }
     if ($script:btnImportGoogleTakeout) { $script:btnImportGoogleTakeout.Text = UT 'import_provider_google' }
     if ($script:btnImportApplePhotos) { $script:btnImportApplePhotos.Text = UT 'import_provider_apple' }
     if ($script:btnImportSamsungGallery) { $script:btnImportSamsungGallery.Text = UT 'import_provider_samsung' }
@@ -2967,6 +3013,8 @@ function Apply-OptionTooltips {
     Set-ControlTooltip -Control $script:btnNormalizeExistingFolders -Text (UT 'advanced_normalize_existing_folders_desc')
     Set-ControlTooltip -Control $script:btnDedupeCleanup -Text (UT 'advanced_dedupe_cleanup_desc')
     Set-ControlTooltip -Control $script:btnRepairOnlyLibrary -Text (UT 'advanced_repair_only_library_desc')
+    Set-ControlTooltip -Control $script:btnMetadataAudit -Text (UT 'advanced_metadata_audit_desc')
+    Set-ControlTooltip -Control $script:btnMetadataRepair -Text (UT 'advanced_metadata_repair_desc')
     Set-ControlTooltip -Control $script:btnImportGoogleTakeout -Text (UT 'import_provider_google_desc')
     Set-ControlTooltip -Control $script:btnImportApplePhotos -Text (UT 'import_provider_apple_desc')
     Set-ControlTooltip -Control $script:btnImportSamsungGallery -Text (UT 'import_provider_samsung_desc')
@@ -3284,6 +3332,20 @@ $script:btnRepairOnlyLibrary.Add_Click({
     Start-AdvancedDashboardRun -ActionKey 'advanced_repair_only_library' -LabelKey 'advanced_repair_only_library' -Switches @('-RepairOnlyExistingOrganizedLibrary') -UseRepairExif $true
 })
 
+$script:btnMetadataAudit = New-Object System.Windows.Forms.Button
+$script:btnMetadataAudit.AutoSize = $true
+$script:btnMetadataAudit.MinimumSize = New-Object System.Drawing.Size(220, 40)
+$script:btnMetadataAudit.Add_Click({
+    Start-AdvancedDashboardRun -ActionKey 'advanced_metadata_audit' -LabelKey 'advanced_metadata_audit' -Switches @('-MetadataAudit') -ForceDryRun $true
+})
+
+$script:btnMetadataRepair = New-Object System.Windows.Forms.Button
+$script:btnMetadataRepair.AutoSize = $true
+$script:btnMetadataRepair.MinimumSize = New-Object System.Drawing.Size(220, 40)
+$script:btnMetadataRepair.Add_Click({
+    Start-AdvancedDashboardRun -ActionKey 'advanced_metadata_repair' -LabelKey 'advanced_metadata_repair' -Switches @('-MetadataRepair')
+})
+
 $script:btnImportGoogleTakeout = New-Object System.Windows.Forms.Button
 $script:btnImportGoogleTakeout.AutoSize = $true
 $script:btnImportGoogleTakeout.MinimumSize = New-Object System.Drawing.Size(220, 40)
@@ -3334,6 +3396,8 @@ foreach ($binding in @(
     @($script:btnNormalizeExistingFolders, 'advanced_normalize_existing_folders'),
     @($script:btnDedupeCleanup, 'advanced_dedupe_cleanup'),
     @($script:btnRepairOnlyLibrary, 'advanced_repair_only_library'),
+    @($script:btnMetadataAudit, 'advanced_metadata_audit'),
+    @($script:btnMetadataRepair, 'advanced_metadata_repair'),
     @($script:btnImportGoogleTakeout, 'import_provider_google'),
     @($script:btnImportApplePhotos, 'import_provider_apple'),
     @($script:btnImportSamsungGallery, 'import_gallery_coming'),
@@ -3690,4 +3754,9 @@ $script:form.Add_FormClosing({
 })
 
 [System.Windows.Forms.Application]::Run($script:form)
+
+
+
+
+
 

@@ -344,6 +344,7 @@
       <div class="tile-grid">
         <div class="tile"><strong>Organize</strong><span>Ingesta, clasifica, mueve/copia, deduplica e indexa.</span></div>
         <div class="tile"><strong>Repair EXIF</strong><span>Escribe fechas solo con evidencia fuerte y backup previo.</span></div>
+        <div class="tile"><strong>CaptureDateMaterialization</strong><span>Hace visible la fecha fiable en metadata, fechas de sistema, indice y reportes.</span></div>
         <div class="tile"><strong>Normalize</strong><span>Reestructura visualmente a Year\Quarter y limpia ramas residuales.</span></div>
         <div class="tile"><strong>Dedupe</strong><span>Gestiona duplicados exactos y casos para revisar.</span></div>
         <div class="tile"><strong>Reconcile</strong><span>Sincroniza el indice con rutas reales y movimientos manuales.</span></div>
@@ -378,7 +379,7 @@
 
     <section>
       <h2>3. Sistema de confianza de fechas</h2>
-      <p class="lead">La fecha final sale de la evidencia mas fuerte disponible. La misma fecha puede servir para organizar, pero no siempre para escribir EXIF.</p>
+      <p class="lead">La fecha final sale de la evidencia mas fuerte disponible. La capa CaptureDateMaterialization separa resolver fecha, organizar y hacer esa fecha visible para Windows, OneDrive y visores.</p>
       <div class="stack">
         <div class="lane"><strong>DateTimeOriginal</strong><div class="bar"><div class="fill w99">99 · maxima confianza</div></div></div>
         <div class="lane"><strong>CreateDate / MediaCreateDate</strong><div class="bar"><div class="fill w98">98 · metadata fuerte</div></div></div>
@@ -476,7 +477,8 @@
         <div class="step"><div class="num">1</div><div><strong>ReconcileProcessedDatabase</strong><br><span class="small">Compara indice y disco. Actualiza rutas por hash cuando puede. Distingue Missing, Stale, ManualMoved y CloudPlaceholder.</span></div></div>
         <div class="step"><div class="num">2</div><div><strong>PurgeMissingFromProcessedDatabase</strong><br><span class="small">Avanzado. Antes de purgar, revalida y rescata lo que siga vivo. Nunca debe borrar fotos.</span></div></div>
         <div class="step"><div class="num">3</div><div><strong>RecoverFromWrongDuplicateMove</strong><br><span class="small">Usa logs e indice para rescatar archivos movidos erroneamente a zona de duplicados.</span></div></div>
-        <div class="step"><div class="num">4</div><div><strong>RetentionCleanup</strong><br><span class="small">Limpia backups EXIF antiguos y duplicados confirmados antiguos. No toca Duplicados_Para_Revisar.</span></div></div>
+        <div class="step"><div class="num">4</div><div><strong>MetadataAudit / MetadataRepair</strong><br><span class="small">Detecta y materializa fechas fiables que no son visibles para Windows, OneDrive o visores.</span></div></div>
+        <div class="step"><div class="num">5</div><div><strong>RetentionCleanup</strong><br><span class="small">Limpia backups EXIF antiguos y duplicados confirmados antiguos. No toca Duplicados_Para_Revisar.</span></div></div>
       </div>
       <div class="callout ok"><strong>Principio de recuperacion</strong><br>El indice se puede reparar. Los archivos reales no se borran por mantenimiento normal. Una sola operacion del motor a la vez.</div>
     </section>
@@ -509,6 +511,8 @@
             <div class="node violet"><strong>Normalize</strong><span>Reestructura visual y limpia ramas.</span></div>
             <div class="node violet"><strong>DedupeCleanup</strong><span>Audita/promueve/gestiona duplicados.</span></div>
             <div class="node violet"><strong>RepairOnly</strong><span>Repara EXIF en biblioteca ya organizada.</span></div>
+            <div class="node violet"><strong>MetadataAudit</strong><span>Audita fechas visibles sin escribir cambios.</span></div>
+            <div class="node violet"><strong>MetadataRepair</strong><span>Materializa fechas fiables en metadata y fechas de sistema.</span></div>
             <div class="node violet"><strong>Recovery</strong><span>Recupera movimientos erróneos a duplicados.</span></div>
             <div class="node violet"><strong>Renombrar idioma</strong><span>Carpetas internas y trimestres conocidos.</span></div>
             <div class="node violet"><strong>Migrar UDMRS</strong><span>Genera ZIP de instalación, ZIP de estado de usuario y guía.</span></div>
@@ -557,5 +561,6 @@
   </main>
 </body>
 </html>
+
 
 

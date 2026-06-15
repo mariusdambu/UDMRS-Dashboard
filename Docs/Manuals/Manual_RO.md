@@ -160,6 +160,8 @@ Instrumente disponibile:
 - `Normalizeaza structura`: restructureaza vizual la `An\Trimestru` si curata ramuri goale/junk/reziduale.
 - `Curatare duplicate`: analizeaza duplicate exacte dupa hash si in Apply muta confirmatele in carantina.
 - `Repara EXIF in-place`: repara EXIF in biblioteca organizata fara sa mute, deduplice sau redenumeasca.
+- `Auditeaza datele vizibile`: detecteaza fisiere cu data fiabila cunoscuta, dar metadate vizibile sau date de sistem lipsa/incoerente. Este intotdeauna simulare.
+- `Repara datele vizibile`: scrie metadate vizibile si date de sistem atunci cand lipseste o data de captura utila. Necesita Apply si confirmare specifica.
 - `Migreaza UDMRS pe alt PC`: creeaza ZIP-urile necesare pentru a muta instalarea partajata si starea utilizatorului curent pe alt calculator. Nu migreaza loguri sau runtime.
 
 Toate respecta `Simulare` implicit. Daca activezi modificari reale, dashboard-ul cere confirmare specifica si arata switch-urile care vor fi lansate.
@@ -367,6 +369,54 @@ Ruleaza intotdeauna mai intai `DryRun` si verifica raportul.
 
 In biblioteci OneDrive sau alti furnizori cloud-backed, `NormalizeExistingFolders -Apply` poate produce multa activitate Explorer/sincronizare deoarece muta si redenumeste structura. Daca Explorer ramane temporar fara refresh sau `Nu raspunde`, de obicei reindexeaza schimbarile. Motorul nu trebuie sa citeasca EXIF sau sa calculeze hash-uri suplimentare doar din cauza acestei asteptari vizuale. Lasa sincronizarea sa se stabilizeze inainte de o alta operatie.
 
+
+## 11.1 Date vizibile: MetadataAudit si MetadataRepair
+
+`NormalizeExistingFolders` repara structura. `MetadataRepair` repara data vizibila din fisier.
+
+UDMRS poate cunoaste o data fiabila din EXIF, provider, sidecar sau model de nume. Acea data trebuie sa fie coerenta in:
+
+- ruta/folder
+- numele final
+- metadata incorporata atunci cand formatul permite
+- `CreationTime` / `LastWriteTime` cand sunt date accidentale
+- `ProcessedFiles.json` si rapoarte
+
+`MetadataAudit` verifica biblioteca organizata si genereaza un CSV cu candidati. Nu modifica nimic, chiar daca dashboard-ul este in Apply. Foloseste-l ca sa vezi cate fisiere au data fiabila cunoscuta, dar nu vizibila pentru Windows, OneDrive sau Microsoft Photos.
+
+`MetadataRepair` actioneaza doar asupra candidatilor siguri. Creeaza backup, scrie metadata incorporata in functie de format, sincronizeaza datele de sistem cand este cazul, recalculeaza hash-ul si actualizeaza indexul.
+
+Formate acoperite de politica de materializare: JPG/JPEG, HEIC/HEIF, MP4/MOV/M4V/3GP, PNG, TIFF, WEBP si GIF atunci cand exista o metoda sigura de scriere a datei utile. Daca formatul nu permite data asteptata sau exista conflict cu metadata valida, logul/raportul trebuie sa marcheze `DateKnownButMetadataNotWritten` sau un warning echivalent.
+
+Reguli importante:
+
+- nu suprascrie metadata valida existenta
+- nu rezolva automat conflicte
+- nu muta si nu reorganizeaza foldere
+- nu deduplica
+- nu inlocuieste Reconcile
+- poate dura mult in biblioteci mari deoarece citeste metadata in-place
+
+Exemplu DryRun:
+
+``powershell
+pwsh -ExecutionPolicy Bypass -NoProfile -File "<CarpetaUDMRS>\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Poze_Organizate" `
+  -MetadataAudit `
+  -Language ro
+``
+
+Exemplu Apply:
+
+``powershell
+pwsh -ExecutionPolicy Bypass -NoProfile -File "<CarpetaUDMRS>\App\PhotoOrganizer.ps1" `
+  -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
+  -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Poze_Organizate" `
+  -MetadataRepair `
+  -Language ro `
+  -Apply
+``
 ## 12. ProcessedFiles.json
 
 Ruta obisnuita:
@@ -700,6 +750,8 @@ Select-String -Path "%APPDATA%\PhotoOrganizer\Logs\*.log" -Pattern "Error","Slow
 ```
 
 Comenzile Apply complete sunt in `Docs\CommandReference.html`. Verifica intotdeauna DryRun si rapoartele HTML inainte de modificari reale.
+
+
 
 
 

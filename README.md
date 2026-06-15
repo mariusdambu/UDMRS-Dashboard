@@ -139,6 +139,8 @@ Advanced operations include:
 - NormalizeExistingFolders
 - DedupeCleanup
 - RepairOnlyExistingOrganizedLibrary
+- MetadataAudit
+- MetadataRepair
 - RetentionCleanup
 
 Use these only after reading the manuals.
@@ -207,3 +209,5 @@ The included `.gitignore` is intentionally strict.
 ## License
 
 MIT License. See [LICENSE](LICENSE).
+
+

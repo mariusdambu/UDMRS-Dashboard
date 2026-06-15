@@ -243,5 +243,12 @@
   "tip_test_scan": "Prueba de escaneo: escanea archivos compatibles y valida acceso y exclusiones. No lee EXIF, no calcula hashes, no crea carpetas destino, no mueve, no copia y no modifica archivos.",
   "tip_reconcile_index": "Detecta rutas antiguas en ProcessedFiles.json, busca el mismo hash en ubicaciones actuales y en Apply actualiza rutas o marca entradas como desaparecidas. No mueve fotos, no toca EXIF y no reorganiza.",
   "tip_purge_missing": "Purga del índice solo entradas ya marcadas como desaparecidas. No borra fotos ni cambia carpetas.",
-  "tip_logs": "Abre la carpeta donde se guardan los registros y progress.json."
+  "tip_logs": "Abre la carpeta donde se guardan los registros y progress.json.",
+  "advanced_metadata_repair": "Reparar fechas visibles",
+  "action_hint_advanced_metadata_audit": "Auditoría de fechas visibles: detecta medios con fecha fiable conocida, metadata embebida ausente o fechas de sistema incoherentes. No escribe metadata, no cambia fechas y genera reporte CSV.",
+  "action_hint_advanced_metadata_repair": "MetadataRepair: corrige archivos ya organizados que UDMRS puede fechar con confianza. En Simulación informa; en Apply escribe metadata visible, sincroniza CreationTime/LastWriteTime, recalcula hash y actualiza ProcessedFiles.json.",
+  "advanced_metadata_audit": "Auditar fechas visibles",
+  "advanced_metadata_audit_desc": "Revisa la biblioteca organizada y genera un CSV con archivos que tienen fecha fiable pero metadata visible o fechas de sistema pendientes. Siempre es simulación; no modifica archivos.",
+  "advanced_metadata_repair_desc": "Materializa fechas fiables en metadata embebida y fechas de sistema cuando faltan o son accidentales. Crea backup, recalcula hash y actualiza el índice.",
+  "external_run_active_msg": "Ya hay una operación de UDMRS activa sobre esta misma biblioteca. Espera a que termine antes de lanzar otra operación."
 }
