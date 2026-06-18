@@ -1247,7 +1247,7 @@ function Invoke-IndexBackupRetentionCleanup {
     return [pscustomobject]@{ Deleted = $deleted; RecoveredBytes = $recoveredBytes }
 }
 
-function Invoke-AutomaticLogRetentionCleanup {
+function Invoke-DashboardRetentionCleanup {
     $deleted = 0
     $recoveredBytes = [int64]0
     $now = Get-Date
@@ -1277,7 +1277,13 @@ function Invoke-AutomaticLogRetentionCleanup {
     $deleted += [int]$indexResult.Deleted
     $recoveredBytes += [int64]$indexResult.RecoveredBytes
 
-    $script:LastLogRetentionCleanupSummary = 'Log retention cleanup completed. Deleted {0} files. Recovered {1} MB. Migrated index backups: {2}.' -f $deleted, ([math]::Round($recoveredBytes / 1MB, 2)), $migratedIndexBackups
+    $recoveredMb = [math]::Round($recoveredBytes / 1MB, 2)
+    $script:LastLogRetentionCleanupSummary = (UT 'dashboard_retention_cleanup_completed') -f $deleted, $recoveredMb, $migratedIndexBackups
+    return [pscustomobject]@{
+        Deleted = $deleted
+        RecoveredMB = $recoveredMb
+        MigratedIndexBackups = $migratedIndexBackups
+    }
 }
 
 function Get-DestinationBase {
@@ -1427,20 +1433,6 @@ function Complete-Run {
 
     if (-not [string]::IsNullOrWhiteSpace($script:CurrentLogPath)) {
         Append-LogLine -Line ("Status: " + $Status)
-    }
-
-    if ($script:txtResults) {
-        $script:txtResults.Text = @(
-            ((T 'status') + ': ' + $Status),
-            ((T 'last_message') + ': ' + $Message),
-            ((T 'files_analyzed') + ': ' + $script:txtAnalyzed.Text),
-            ((T 'duplicates_found') + ': ' + $script:txtDuplicates.Text),
-            ((T 'exif_repaired') + ': ' + $script:txtExif.Text),
-            ((T 'files_moved') + ': ' + $script:txtMoved.Text),
-            ((T 'files_copied') + ': ' + $script:txtCopied.Text),
-            ((T 'needs_review') + ': ' + $script:txtNeedsReview.Text),
-            ((T 'log_location') + ': ' + $script:txtLogPath.Text)
-        ) -join [Environment]::NewLine
     }
 
     if ($script:chkOpenOutput.Checked) { Open-Folder -Path $script:txtDestination.Text.Trim() }
@@ -1772,7 +1764,8 @@ function Start-AdvancedDashboardRun {
         [string[]]$Switches,
         [bool]$UseRepairExif = $false,
         [bool]$AllowKeepEmptyFolders = $false,
-        [bool]$ForceDryRun = $false
+        [bool]$ForceDryRun = $false,
+        [bool]$RunDashboardRetentionCleanup = $false
     )
 
     Set-SelectedActionHint -ActionKey $ActionKey
@@ -1826,6 +1819,27 @@ function Start-AdvancedDashboardRun {
     if ($AllowKeepEmptyFolders -and $script:chkKeepEmpty.Checked) { $engineArguments += '-KeepEmptyFolders' }
 
     try {
+        $script:CurrentLogPath = $logPath
+        $script:CurrentProgressPath = $progressPath
+        if ($script:txtLogPath) { $script:txtLogPath.Text = $logPath }
+
+        if ($RunDashboardRetentionCleanup) {
+            if ($effectiveApply) {
+                try {
+                    Invoke-DashboardRetentionCleanup | Out-Null
+                    if ($script:txtSummary -and -not [string]::IsNullOrWhiteSpace($script:LastLogRetentionCleanupSummary)) {
+                        $script:txtSummary.AppendText($script:LastLogRetentionCleanupSummary + [Environment]::NewLine)
+                    }
+                }
+                catch {
+                    $script:LastLogRetentionCleanupSummary = ''
+                }
+            }
+            elseif ($script:txtSummary) {
+                $script:txtSummary.AppendText((UT 'dashboard_retention_cleanup_dryrun_skipped') + [Environment]::NewLine)
+            }
+        }
+
         Ensure-TechnicalConsole | Out-Null
         $job = [pscustomobject]@{
             RunId = $advancedRunId
@@ -1839,9 +1853,6 @@ function Start-AdvancedDashboardRun {
         $line = $job | ConvertTo-Json -Compress -Depth 5
         Add-Content -LiteralPath $script:TechnicalConsoleQueuePath -Value $line -Encoding UTF8
 
-        $script:CurrentLogPath = $logPath
-        $script:CurrentProgressPath = $progressPath
-        if ($script:txtLogPath) { $script:txtLogPath.Text = $logPath }
         if ($script:lblStatusValue) { $script:lblStatusValue.Text = T 'ready' }
         if ($script:txtLastMessage) { $script:txtLastMessage.Text = (UT 'technical_console_queued') -f $label }
         if ($script:txtSummary) {
@@ -2469,9 +2480,8 @@ function Build-ResponsiveLayout {
     $script:tabExecution = New-Object System.Windows.Forms.TabPage
     $script:tabProgress = New-Object System.Windows.Forms.TabPage
     $script:tabLogs = New-Object System.Windows.Forms.TabPage
-    $script:tabResults = New-Object System.Windows.Forms.TabPage
 
-    $tabs.TabPages.AddRange(@($script:tabConfiguration, $script:tabImportGallery, $script:tabProgress, $script:tabLogs, $script:tabResults, $script:tabExecution))
+    $tabs.TabPages.AddRange(@($script:tabConfiguration, $script:tabImportGallery, $script:tabProgress, $script:tabLogs, $script:tabExecution))
     $rootLayout.Controls.Add($tabs, 0, 0)
     if ($script:statusStripInfo) {
         $script:statusStripInfo.Dock = 'Fill'
@@ -2833,28 +2843,6 @@ function Build-ResponsiveLayout {
     $script:grpSummary.Controls.Add($script:txtSummary)
     $logsTable.Controls.Add($script:grpSummary, 0, 1)
 
-    $resultsPanel = New-ResponsivePanel
-    $script:tabResults.Controls.Add($resultsPanel)
-    $resultsTable = New-Object System.Windows.Forms.TableLayoutPanel
-    $resultsTable.Dock = 'Fill'
-    $resultsTable.ColumnCount = 1
-    $resultsTable.RowCount = 3
-    $resultsTable.RowStyles.Add((New-Object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::AutoSize))) | Out-Null
-    $resultsTable.RowStyles.Add((New-Object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::AutoSize))) | Out-Null
-    $resultsTable.RowStyles.Add((New-Object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent, 100))) | Out-Null
-    $resultsPanel.Controls.Add($resultsTable)
-
-    $script:lblLogPath.Dock = 'Top'
-    $script:txtLogPath.Dock = 'Top'
-    $script:txtLogPath.Margin = New-Object System.Windows.Forms.Padding(6)
-    $resultsTable.Controls.Add($script:lblLogPath, 0, 0)
-    $resultsTable.Controls.Add($script:txtLogPath, 0, 1)
-    $script:txtResults = New-Object System.Windows.Forms.TextBox
-    $script:txtResults.Dock = 'Fill'
-    Set-LogTextBoxStyle -TextBox $script:txtResults
-    $script:txtResults.Margin = New-Object System.Windows.Forms.Padding(6)
-    $resultsTable.Controls.Add($script:txtResults, 0, 2)
-
     $settingsPanel = New-ResponsivePanel
     $script:tabExecution.Controls.Add($settingsPanel)
     $settingsTable = New-Object System.Windows.Forms.TableLayoutPanel
@@ -2946,7 +2934,6 @@ function Update-Texts {
     if ($script:tabExecution) { $script:tabExecution.Text = UT 'tab_settings' }
     if ($script:tabProgress) { $script:tabProgress.Text = T 'tab_progress' }
     if ($script:tabLogs) { $script:tabLogs.Text = UT 'tab_logs_summary' }
-    if ($script:tabResults) { $script:tabResults.Text = T 'tab_results' }
     $script:lblSource.Text = T 'source_folder'
     $script:lblDestination.Text = T 'destination_folder'
     $script:btnBrowseSource.Text = T 'browse'
@@ -3109,13 +3096,6 @@ else {
     Load-Language -Code 'es'
     Show-LanguageSelector
     Load-Language -Code $script:CurrentLanguageCode
-}
-
-try {
-    Invoke-AutomaticLogRetentionCleanup
-}
-catch {
-    $script:LastLogRetentionCleanupSummary = ''
 }
 
 $script:form = New-Object System.Windows.Forms.Form
@@ -3360,7 +3340,7 @@ $script:btnRetentionCleanup = New-Object System.Windows.Forms.Button
 $script:btnRetentionCleanup.AutoSize = $true
 $script:btnRetentionCleanup.MinimumSize = New-Object System.Drawing.Size(220, 40)
 $script:btnRetentionCleanup.Add_Click({
-    Start-AdvancedDashboardRun -ActionKey 'advanced_retention_cleanup' -LabelKey 'advanced_retention_cleanup' -Switches @('-RetentionCleanup')
+    Start-AdvancedDashboardRun -ActionKey 'advanced_retention_cleanup' -LabelKey 'advanced_retention_cleanup' -Switches @('-RetentionCleanup') -RunDashboardRetentionCleanup $true
 })
 
 $script:btnRecoverWrongDuplicateMove = New-Object System.Windows.Forms.Button

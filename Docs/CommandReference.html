@@ -82,7 +82,7 @@
     <p>En <strong>Ajustes</strong>, el botón <strong>Modo avanzado</strong> abre opciones avanzadas que antes requerían comandos PowerShell largos. No duplica acciones ya visibles como TestScan, Reconcile o Purge.</p>
     <table>
       <tr><th>Botón avanzado</th><th>Switch del motor</th><th>Resumen</th></tr>
-      <tr><td>Limpieza de retención</td><td><code>-RetentionCleanup</code></td><td>Limpia solo backups EXIF antiguos y duplicados confirmados antiguos. No limpia la galería normal ni carpetas vacías.</td></tr>
+      <tr><td>Retención y logs</td><td><code>-RetentionCleanup</code></td><td>Limpia retención segura: backups EXIF antiguos, duplicados confirmados antiguos, logs/progress/reportes antiguos e IndexBackups técnicos. No limpia la galería normal ni carpetas vacías.</td></tr>
       <tr><td>Recuperar duplicados mal movidos</td><td><code>-RecoverFromWrongDuplicateMove</code></td><td>Recuperación conservadora desde duplicados usando logs e índice.</td></tr>
       <tr><td>Traducir carpetas existentes</td><td><code>-RenameExistingFoldersToCurrentLanguage</code></td><td>Traduce carpetas trimestrales existentes al idioma activo sin leer contenido.</td></tr>
       <tr><td>Traducir carpetas internas</td><td><code>-RenameInternalFoldersToCurrentLanguage</code></td><td>Renombra o consolida contenedores internos conocidos al idioma activo sin leer fotos ni hidratar nube.</td></tr>
@@ -463,7 +463,7 @@
 
   <section id="logs">
     <h2>Logs, ETA y progress</h2>
-    <div class="note">Al arrancar, el dashboard limpia automáticamente artefactos operativos antiguos en <code>%APPDATA%\PhotoOrganizer\Logs</code> con una retención aproximada de 7 días: <code>*.log</code>, <code>*.progress.json</code> y reportes HTML. No toca fotos, vídeos, <code>ProcessedFiles.json</code> real, backups EXIF, cuarentenas ni <code>%APPDATA%\PhotoOrganizer\Runtime\TechnicalConsole</code>. Los backups técnicos del índice viven separados en <code>%APPDATA%\PhotoOrganizer\IndexBackups</code>; se conserva siempre el más reciente, se conservan backups recientes hasta un máximo aproximado de 10 copias y se migran automáticamente backups antiguos desde <code>Logs\JsonBackups</code>.</div>
+    <div class="note">La acción avanzada <strong>Retención y logs</strong> limpia artefactos operativos antiguos en <code>%APPDATA%\PhotoOrganizer\Logs</code> con una retención aproximada de 7 días: <code>*.log</code>, <code>*.progress.json</code> y reportes HTML. No toca fotos, vídeos, <code>ProcessedFiles.json</code> real, backups EXIF, cuarentenas ni <code>%APPDATA%\PhotoOrganizer\Runtime\TechnicalConsole</code>. Los backups técnicos del índice viven separados en <code>%APPDATA%\PhotoOrganizer\IndexBackups</code>; se conserva siempre el más reciente, se conservan backups recientes hasta un máximo aproximado de 10 copias y la acción migra backups antiguos desde <code>Logs\JsonBackups</code>.</div>
 
     <h3>Ver último log</h3>
 <pre><code>Get-ChildItem -LiteralPath "%APPDATA%\PhotoOrganizer\Logs" -Filter "PhotoOrganizer-*.log" |

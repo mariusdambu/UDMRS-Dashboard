@@ -296,11 +296,11 @@ El ZIP de instalación incluye la aplicación, documentación, herramientas, bra
 6. Deja que OneDrive/Dropbox/iCloud/Google Drive termine de sincronizar antes de ejecutar operaciones grandes.
 7. Ejecuta `Sincronizar índice / reparar cambios manuales` si moviste carpetas manualmente, cambiaste de PC o restauraste una biblioteca parcialmente.
 
-Los logs, progress y reportes HTML viven dentro de `%APPDATA%\PhotoOrganizer\Logs`. El dashboard limpia automáticamente al arrancar artefactos operativos antiguos de esa carpeta con una retención aproximada de 7 días: logs, `*.progress.json` y reportes HTML. Siempre evita archivos modificados en la última hora y rutas activas detectadas.
+Los logs, progress y reportes HTML viven dentro de `%APPDATA%\PhotoOrganizer\Logs`. La acción avanzada `Retención y logs` puede limpiar artefactos operativos antiguos de esa carpeta con una retención aproximada de 7 días: logs, `*.progress.json` y reportes HTML. Siempre evita archivos modificados en la última hora y rutas activas detectadas.
 
-Los backups técnicos de `ProcessedFiles.json` viven separados en `%APPDATA%\PhotoOrganizer\IndexBackups`. No son logs normales. UDMRS conserva siempre el backup más reciente, conserva backups recientes hasta un máximo aproximado de 10 copias y purga el resto. Si existen backups antiguos en `Logs\JsonBackups`, se migran automáticamente a `IndexBackups`.
+Los backups técnicos de `ProcessedFiles.json` viven separados en `%APPDATA%\PhotoOrganizer\IndexBackups`. No son logs normales. `Retención y logs` conserva siempre el backup más reciente, conserva backups recientes hasta un máximo aproximado de 10 copias y purga el resto. Si existen backups antiguos en `Logs\JsonBackups`, esa acción los migra a `IndexBackups`.
 
-La infraestructura temporal del modo avanzado vive separada en `%APPDATA%\PhotoOrganizer\Runtime\TechnicalConsole`, porque no es documentación ni log. Esa carpeta no forma parte de la limpieza automática de logs. Los backups temporales de metadatos viven en `%LOCALAPPDATA%\PhotoOrganizer\` y no son necesarios para migrar el estado incremental.
+La infraestructura temporal del modo avanzado vive separada en `%APPDATA%\PhotoOrganizer\Runtime\TechnicalConsole`, porque no es documentación ni log. Esa carpeta no forma parte de la limpieza de logs. Los backups temporales de metadatos viven en `%LOCALAPPDATA%\PhotoOrganizer\` y no son necesarios para migrar el estado incremental.
 
 El `.cmd` usa `%~dp0` para arrancar desde su propia carpeta. Los scripts usan `$PSScriptRoot` para resolver recursos, idiomas, manuales y ExifTool dentro de la instalación actual; logs, runtime y configuración mutable se resuelven por usuario en `%APPDATA%\PhotoOrganizer`.
 

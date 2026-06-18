@@ -28,7 +28,7 @@ La futura fase de importacion de proveedores externos queda fuera de esta build.
 - RetentionCleanup para backups EXIF antiguos y duplicados confirmados antiguos.
 - Carpetas internas protegidas, carpetas excluidas por usuario y presets vendor-managed.
 - Comportamiento cloud-aware: procesar contenido local verificable y saltar placeholders cloud-only.
-- Retencion automatica ligera de logs al arrancar el dashboard.
+- Retencion ligera de logs desde mantenimiento avanzado.
 - Backups tecnicos del indice separados en `%APPDATA%\PhotoOrganizer\IndexBackups`.
 
 ## Limitaciones conocidas
