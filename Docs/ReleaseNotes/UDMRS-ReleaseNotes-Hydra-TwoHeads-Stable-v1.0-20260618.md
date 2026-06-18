@@ -1,8 +1,8 @@
-# UDMRS-TwoPipelines-Stable-v1.0-20260618
+# UDMRS-Hydra-TwoHeads-Stable-v1.0-20260618
 
 Fecha: 2026-06-18
 
-Build: `UDMRS Build 2026.06.18-TP-v1.0`
+Build: `UDMRS Build 2026.06.18-H2H-v1.0`
 
 Estado: stable release candidate funcional para el ciclo actual de UDMRS Dashboard.
 
@@ -30,4 +30,5 @@ Estado: stable release candidate funcional para el ciclo actual de UDMRS Dashboa
 - Sintaxis PS5.1/PS7 validada en los scripts principales.
 - Revisión documental actualizada para Importar galería, MetadataAudit, MetadataRepair y CaptureDateMaterialization.
 - La copia GitHub debe sincronizarse desde la instalación validada antes del commit.
+
 

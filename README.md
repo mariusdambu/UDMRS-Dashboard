@@ -50,7 +50,7 @@ UDMRS is intentionally conservative, but no media organizer can guarantee safety
 Public release package prepared from:
 
 ```text
-UDMRS Build 2026.06.18-TP-v1.0
+UDMRS Build 2026.06.18-H2H-v1.0
 ```
 
 Stable release with two production entries:
@@ -209,6 +209,7 @@ The included `.gitignore` is intentionally strict.
 ## License
 
 MIT License. See [LICENSE](LICENSE).
+
 
 
 

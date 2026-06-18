@@ -6,9 +6,9 @@ PhotoOrganizer es el motor PowerShell. UDMRS Dashboard es la interfaz visual par
 
 ## Estado de release
 
-Release estable: `UDMRS-TwoPipelines-Stable-v1.0-20260618`.
+Release estable: `UDMRS-Hydra-TwoHeads-Stable-v1.0-20260618`.
 
-Build: `UDMRS Build 2026.06.18-TP-v1.0`.
+Build: `UDMRS Build 2026.06.18-H2H-v1.0`.
 
 Validacion final: sintaxis PS5.1/PS7, dashboard, providers disponibles y flujos principales revisados sin Apply sobre galerias reales.
 
@@ -313,6 +313,7 @@ La aplicación puede convivir con bibliotecas sincronizadas, pero debe existir u
 - Para galerías grandes, marca la biblioteca como disponible sin conexión, por ejemplo `Always keep on this device`, antes de Organize/Repair/Normalize masivos.
 - No ejecutes dos dashboards, dos consolas técnicas o dos comandos manuales contra la misma biblioteca al mismo tiempo.
 - No lances una acción normal mientras `Modo avanzado` ejecuta otra acción avanzada.
+
 
 
 

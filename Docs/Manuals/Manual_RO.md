@@ -2,9 +2,9 @@
 
 Acest manual descrie pachetul public actual. Este scris pentru folosire normala, fara istoria interna a proiectului.
 
-Release stabila: `UDMRS-TwoPipelines-Stable-v1.0-20260618`.
+Release stabila: `UDMRS-Hydra-TwoHeads-Stable-v1.0-20260618`.
 
-Build: `UDMRS Build 2026.06.18-TP-v1.0`.
+Build: `UDMRS Build 2026.06.18-H2H-v1.0`.
 
 Validare finala: sintaxa PS5.1/PS7, dashboard, provideri disponibili si fluxuri principale revizuite fara Apply pe galerii reale.
 
@@ -750,6 +750,7 @@ Select-String -Path "%APPDATA%\PhotoOrganizer\Logs\*.log" -Pattern "Error","Slow
 ```
 
 Comenzile Apply complete sunt in `Docs\CommandReference.html`. Verifica intotdeauna DryRun si rapoartele HTML inainte de modificari reale.
+
 
 
 
