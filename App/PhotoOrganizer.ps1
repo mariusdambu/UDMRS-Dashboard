@@ -2421,7 +2421,7 @@ function Move-LegacyJsonBackupsToIndexBackups {
         $moved = 0
         foreach ($file in @(Get-ChildItem -LiteralPath $legacyRoot -File -Recurse -Force -ErrorAction SilentlyContinue)) {
             try {
-                $relative = [System.IO.Path]::GetRelativePath($legacyRoot, $file.FullName)
+                $relative = ConvertTo-RelativePath -Path $file.FullName -BasePath $legacyRoot
                 $target = Join-Path $targetRoot $relative
                 $targetDirectory = [System.IO.Path]::GetDirectoryName($target)
                 if (-not (Test-Path -LiteralPath $targetDirectory -PathType Container)) {
@@ -5567,7 +5567,7 @@ function Test-MetadataBackupsHaveVerifiedTargets {
 
     $missing = New-Object System.Collections.Generic.List[string]
     foreach ($backupFile in $backupFiles) {
-        $relative = [System.IO.Path]::GetRelativePath($MetadataBackupRoot, $backupFile.FullName).Replace('/', '\').TrimStart('\')
+        $relative = (ConvertTo-RelativePath -Path $backupFile.FullName -BasePath $MetadataBackupRoot).Replace('/', '\').TrimStart('\')
         if (-not $recordsByOriginal.ContainsKey($relative)) {
             if ($missing.Count -lt 20) { $missing.Add("No processed record: $relative") }
             continue
@@ -6325,17 +6325,26 @@ function Convert-AppleDateTimeToDateTime {
 
     $styles = [System.Globalization.DateTimeStyles]::AllowWhiteSpaces -bor [System.Globalization.DateTimeStyles]::AssumeUniversal
     $result = [DateTime]::MinValue
-    foreach ($culture in @([System.Globalization.CultureInfo]::InvariantCulture, [System.Globalization.CultureInfo]::CurrentCulture)) {
-        if ([DateTime]::TryParse($text, $culture, $styles, [ref]$result)) {
-            return $result
+    $candidates = @(
+        $text,
+        ($text -replace ',(?=\d{4}\b)', ', '),
+        ($text -replace '^[A-Za-z]+\s+', ''),
+        (($text -replace '^[A-Za-z]+\s+', '') -replace ',(?=\d{4}\b)', ', ')
+    ) | Select-Object -Unique
+    foreach ($candidate in $candidates) {
+        foreach ($culture in @([System.Globalization.CultureInfo]::InvariantCulture, [System.Globalization.CultureInfo]::CurrentCulture)) {
+            if ([DateTime]::TryParse($candidate, $culture, $styles, [ref]$result)) {
+                return $result
+            }
         }
     }
     return $null
 }
 
-function Find-ApplePhotoDetailsCsv {
+function Find-ApplePhotoDetailsCsvFiles {
     param([string]$RootPath)
 
+    $detailMatches = New-Object System.Collections.Generic.List[object]
     $csvFiles = @(Get-ChildItem -LiteralPath $RootPath -File -Filter '*.csv' -Recurse -Force -ErrorAction SilentlyContinue)
     foreach ($csv in $csvFiles) {
         try {
@@ -6345,12 +6354,20 @@ function Find-ApplePhotoDetailsCsv {
             foreach ($name in $required) {
                 if ($header -match "(^|,)$([regex]::Escape($name))($|,)") { $matchCount++ }
             }
-            if ($matchCount -ge 5) { return $csv }
+            if ($matchCount -ge 5) { $detailMatches.Add($csv) }
         }
         catch {
             Write-Log -Message ((Get-ImportProviderText -Key 'ImportProviderInaccessibleFolder') -f $csv.FullName, $_.Exception.Message) -Phase 'ImportProvider' -Status 'Warning'
         }
     }
+    return @($detailMatches.ToArray() | Sort-Object FullName)
+}
+
+function Find-ApplePhotoDetailsCsv {
+    param([string]$RootPath)
+
+    $detailMatches = @(Find-ApplePhotoDetailsCsvFiles -RootPath $RootPath)
+    if ($detailMatches.Count -gt 0) { return $detailMatches[0] }
     return $null
 }
 
@@ -6362,67 +6379,184 @@ function Resolve-ApplePhotosRoot {
         Stop-WithError "ImportProviderPath does not exist: $resolved"
     }
 
-    $detailsCsv = Find-ApplePhotoDetailsCsv -RootPath $resolved
-    if (-not $detailsCsv) {
-        Stop-WithError "Apple Photos / iCloud export was not detected under: $resolved. Expected a CSV with iCloud photo detail columns."
+    $detailsCsvFiles = @(Find-ApplePhotoDetailsCsvFiles -RootPath $resolved)
+    if ($detailsCsvFiles.Count -eq 0) {
+        Stop-WithError "Apple Photos / iCloud export was not detected under: $resolved. Expected CSV files with iCloud photo detail columns."
     }
 
-    $photosDir = $detailsCsv.DirectoryName
-    $root = Split-Path -Parent $photosDir
-    if ([string]::IsNullOrWhiteSpace($root)) { $root = $resolved }
-    if (-not (Test-IsChildPath -Path $photosDir -ParentPath $resolved) -and -not $photosDir.Equals($resolved, [StringComparison]::OrdinalIgnoreCase)) {
-        $root = $resolved
+    $photoDirectories = @($detailsCsvFiles | ForEach-Object { Resolve-FullPath $_.DirectoryName } | Select-Object -Unique)
+    $candidateRoots = @($photoDirectories | ForEach-Object {
+        $parent = Split-Path -Parent $_
+        if ([string]::IsNullOrWhiteSpace($parent)) { $resolved } else { Resolve-FullPath $parent }
+    } | Select-Object -Unique)
+
+    $root = $resolved
+    if ($candidateRoots.Count -eq 1) {
+        $candidateRoot = [string]$candidateRoots[0]
+        if ((Test-IsChildPath -Path $candidateRoot -ParentPath $resolved) -or $candidateRoot.Equals($resolved, [StringComparison]::OrdinalIgnoreCase)) {
+            $root = $candidateRoot
+        }
     }
 
     return [pscustomobject]@{
         Root = (Resolve-FullPath $root)
-        PhotosDirectory = (Resolve-FullPath $photosDir)
-        DetailsCsv = $detailsCsv.FullName
+        PhotosDirectory = (Resolve-FullPath $photoDirectories[0])
+        PhotosDirectories = @($photoDirectories)
+        DetailsCsv = $detailsCsvFiles[0].FullName
+        DetailsCsvs = @($detailsCsvFiles | ForEach-Object { $_.FullName })
+        ExportPartRoots = @($candidateRoots)
+        IsMultiPart = ($candidateRoots.Count -gt 1)
     }
 }
 
-function Read-ApplePhotoDetails {
+function Split-AppleCsvLineCompat {
+    param([string]$Line)
+
+    try { Add-Type -AssemblyName Microsoft.VisualBasic -ErrorAction SilentlyContinue } catch { }
+    $reader = New-Object System.IO.StringReader($Line)
+    $parser = New-Object Microsoft.VisualBasic.FileIO.TextFieldParser($reader)
+    try {
+        $parser.SetDelimiters(',')
+        $parser.HasFieldsEnclosedInQuotes = $true
+        return @($parser.ReadFields())
+    }
+    finally {
+        $parser.Close()
+        $reader.Dispose()
+    }
+}
+
+function Read-ApplePhotoDetailsCsvRows {
     param([string]$CsvPath)
 
-    $records = @{}
-    $rows = @(Import-Csv -LiteralPath $CsvPath)
-    foreach ($row in $rows) {
-        $name = [string]$row.imgName
-        if ([string]::IsNullOrWhiteSpace($name)) { continue }
-        if (-not $records.ContainsKey($name)) {
-            $records[$name] = New-Object System.Collections.Generic.List[object]
+    $rows = New-Object System.Collections.Generic.List[object]
+    $lines = @(Get-Content -LiteralPath $CsvPath -ErrorAction Stop)
+    if ($lines.Count -le 1) { return @() }
+
+    for ($i = 1; $i -lt $lines.Count; $i++) {
+        $line = [string]$lines[$i]
+        if ([string]::IsNullOrWhiteSpace($line)) { continue }
+        $fields = @(Split-AppleCsvLineCompat -Line $line)
+        if ($fields.Count -lt 8) { continue }
+
+        $originalCreationDate = [string]$fields[5]
+        $index = 6
+        if ($fields.Count -gt $index -and ([string]$fields[$index]) -match '^\d{4}\b') {
+            $originalCreationDate = $originalCreationDate + ',' + [string]$fields[$index]
+            $index++
         }
-        $records[$name].Add([pscustomobject]@{
-            Name = $name
-            FileChecksum = [string]$row.fileChecksum
-            Favorite = ([string]$row.favorite).Equals('yes', [StringComparison]::OrdinalIgnoreCase)
-            Hidden = ([string]$row.hidden).Equals('yes', [StringComparison]::OrdinalIgnoreCase)
-            Deleted = ([string]$row.deleted).Equals('yes', [StringComparison]::OrdinalIgnoreCase)
-            OriginalCreationDate = Convert-AppleDateTimeToDateTime $row.originalCreationDate
-            ImportDate = Convert-AppleDateTimeToDateTime $row.importDate
-            Raw = $row
-            Used = $false
+
+        $viewCount = if ($fields.Count -gt $index) { [string]$fields[$index] } else { '' }
+        $index++
+
+        $importDate = if ($fields.Count -gt $index) { [string]$fields[$index] } else { '' }
+        $index++
+        if ($fields.Count -gt $index -and ([string]$fields[$index]) -match '^\d{4}\b') {
+            $importDate = $importDate + ',' + [string]$fields[$index]
+        }
+
+        $rows.Add([pscustomobject]@{
+            imgName = [string]$fields[0]
+            fileChecksum = [string]$fields[1]
+            favorite = [string]$fields[2]
+            hidden = [string]$fields[3]
+            deleted = [string]$fields[4]
+            originalCreationDate = $originalCreationDate
+            viewCount = $viewCount
+            importDate = $importDate
         })
     }
+
+    return @($rows.ToArray())
+}
+function Read-ApplePhotoDetails {
+    param([string[]]$CsvPaths)
+
+    $records = @{}
+    foreach ($csvPath in @($CsvPaths)) {
+        if ([string]::IsNullOrWhiteSpace($csvPath)) { continue }
+        if (-not (Test-Path -LiteralPath $csvPath -PathType Leaf)) { continue }
+
+        $photosDirectory = Resolve-FullPath ([System.IO.Path]::GetDirectoryName($csvPath))
+        $exportRoot = Split-Path -Parent $photosDirectory
+        if ([string]::IsNullOrWhiteSpace($exportRoot)) { $exportRoot = $photosDirectory }
+        $exportRoot = Resolve-FullPath $exportRoot
+
+        $rows = @(Read-ApplePhotoDetailsCsvRows -CsvPath $csvPath)
+        foreach ($row in $rows) {
+            $name = [string]$row.imgName
+            if ([string]::IsNullOrWhiteSpace($name)) { continue }
+            if (-not $records.ContainsKey($name)) {
+                $records[$name] = New-Object System.Collections.Generic.List[object]
+            }
+            $records[$name].Add([pscustomobject]@{
+                Name = $name
+                FileChecksum = [string]$row.fileChecksum
+                Favorite = ([string]$row.favorite).Equals('yes', [StringComparison]::OrdinalIgnoreCase)
+                Hidden = ([string]$row.hidden).Equals('yes', [StringComparison]::OrdinalIgnoreCase)
+                Deleted = ([string]$row.deleted).Equals('yes', [StringComparison]::OrdinalIgnoreCase)
+                OriginalCreationDate = Convert-AppleDateTimeToDateTime $row.originalCreationDate
+                ImportDate = Convert-AppleDateTimeToDateTime $row.importDate
+                DetailsCsv = $csvPath
+                PhotosDirectory = $photosDirectory
+                ExportRoot = $exportRoot
+                Raw = $row
+                Used = $false
+            })
+        }
+    }
     return $records
+}
+
+function Get-ApplePhotosFolderRole {
+    param(
+        [string]$Path,
+        [string]$AppleRoot
+    )
+
+    $relative = ConvertTo-RelativePath -Path $Path -BasePath $AppleRoot
+    if ([string]::IsNullOrWhiteSpace($relative)) { return 'Root' }
+    $segments = @($relative -split '[\\/]+' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+    $trashAliases = @(
+        'Recently Deleted', 'RecentlyDeleted',
+        'Eliminado recientemente', 'Eliminados recientemente', 'Eliminadas recientemente', 'Eliminados', 'Papelera',
+        'Sterse recent', 'Șterse recent', 'Cos', 'Coș'
+    )
+    foreach ($segment in $segments) {
+        foreach ($alias in $trashAliases) {
+            if ($segment.Equals($alias, [StringComparison]::OrdinalIgnoreCase)) { return 'Trash' }
+        }
+    }
+    return 'Library'
 }
 
 function Get-AppleAlbumReferences {
     param(
         [string]$RootPath,
-        [string]$DetailsCsvPath,
+        [string[]]$DetailsCsvPaths,
         [hashtable]$MediaNames
     )
 
+    $detailsPathSet = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+    foreach ($detailsPath in @($DetailsCsvPaths)) {
+        if (-not [string]::IsNullOrWhiteSpace($detailsPath)) { [void]$detailsPathSet.Add((Resolve-FullPath $detailsPath)) }
+    }
+
     $albumFiles = @(Get-ChildItem -LiteralPath $RootPath -File -Filter '*.csv' -Recurse -Force -ErrorAction SilentlyContinue | Where-Object {
-        -not $_.FullName.Equals($DetailsCsvPath, [StringComparison]::OrdinalIgnoreCase)
+        -not $detailsPathSet.Contains((Resolve-FullPath $_.FullName))
     })
     $referencesByName = @{}
     $usedAlbumFiles = New-Object System.Collections.Generic.List[object]
     $referenceCount = 0
+    $memoryCsvCount = 0
+    $albumCsvCount = 0
 
     foreach ($albumFile in $albumFiles) {
         try {
+            $header = Get-Content -LiteralPath $albumFile.FullName -TotalCount 1 -ErrorAction Stop
+            if ($header -match '(^|,)imageName($|,)') { $memoryCsvCount++ }
+            elseif ($header -match '(^|,)Images($|,)' -or $header -match '(^|,)imgName($|,)') { $albumCsvCount++ }
+
             $rows = @(Import-Csv -LiteralPath $albumFile.FullName)
             $matched = 0
             foreach ($row in $rows) {
@@ -6453,9 +6587,11 @@ function Get-AppleAlbumReferences {
         AlbumFiles = @($usedAlbumFiles.ToArray())
         ReferencesByName = $referencesByName
         ReferenceCount = $referenceCount
+        CandidateCsvCount = @($albumFiles).Count
+        AlbumCsvCount = $albumCsvCount
+        MemoryCsvCount = $memoryCsvCount
     }
 }
-
 function Get-ApplePhotosImportDateInfo {
     param(
         [pscustomobject]$Asset,
@@ -7045,15 +7181,15 @@ function Invoke-ImportProviderApplePhotos {
     $mediaExts = @($ImageExtensions + $VideoExtensions)
     $allFiles = @(Get-ChildItem -LiteralPath $resolved.Root -File -Recurse -Force -ErrorAction SilentlyContinue)
     $mediaFiles = @($allFiles | Where-Object { $mediaExts -contains $_.Extension.ToLowerInvariant() })
-    $detailsByName = Read-ApplePhotoDetails -CsvPath $resolved.DetailsCsv
+    $detailsByName = Read-ApplePhotoDetails -CsvPaths @($resolved.DetailsCsvs)
     $mediaNames = @{}
     foreach ($file in $mediaFiles) {
         if (-not $mediaNames.ContainsKey($file.Name)) { $mediaNames[$file.Name] = $true }
     }
-    $albumInfo = Get-AppleAlbumReferences -RootPath $resolved.Root -DetailsCsvPath $resolved.DetailsCsv -MediaNames $mediaNames
+    $albumInfo = Get-AppleAlbumReferences -RootPath $resolved.Root -DetailsCsvPaths @($resolved.DetailsCsvs) -MediaNames $mediaNames
 
     $livePhotoBaseNames = @{}
-    foreach ($group in @($mediaFiles | Group-Object BaseName)) {
+    foreach ($group in @($mediaFiles | Group-Object @{ Expression = { (Resolve-FullPath $_.DirectoryName).ToLowerInvariant() + '|' + $_.BaseName.ToLowerInvariant() } })) {
         $images = @($group.Group | Where-Object { $ImageExtensions -contains $_.Extension.ToLowerInvariant() })
         $videos = @($group.Group | Where-Object { $VideoExtensions -contains $_.Extension.ToLowerInvariant() })
         if ($images.Count -gt 0 -and $videos.Count -gt 0) {
@@ -7071,7 +7207,7 @@ function Invoke-ImportProviderApplePhotos {
     $Stats.FilesFound = $mediaFiles.Count
     $Stats.LocalFilesDetected = $mediaFiles.Count
     $Stats.FilesAnalyzed = 0
-    Write-Log -Message ((Get-ImportProviderText -Key 'AppleScan') -f $mediaFiles.Count, 1, $albumInfo.AlbumFiles.Count, $deletedCount, $livePhotoBaseNames.Count) -Phase 'ImportProvider'
+    Write-Log -Message ((Get-ImportProviderText -Key 'AppleScan') -f $mediaFiles.Count, @($resolved.DetailsCsvs).Count, $albumInfo.AlbumFiles.Count, $deletedCount, $livePhotoBaseNames.Count) -Phase 'ImportProvider'
 
     $hashMap = Get-Sha256Batch -Files $mediaFiles
     $occurrences = New-Object System.Collections.Generic.List[object]
@@ -7089,6 +7225,8 @@ function Invoke-ImportProviderApplePhotos {
         $details = @()
         if ($detailsByName.ContainsKey($file.Name)) {
             $details = @($detailsByName[$file.Name].ToArray())
+            $samePartDetails = @($details | Where-Object { $_.ExportRoot -and ((Test-IsChildPath -Path $file.FullName -ParentPath $_.ExportRoot) -or (Resolve-FullPath $file.FullName).Equals((Resolve-FullPath $_.ExportRoot), [StringComparison]::OrdinalIgnoreCase)) })
+            if ($samePartDetails.Count -gt 0) { $details = @($samePartDetails) }
             foreach ($detail in $details) { $detail.Used = $true }
         }
         else {
@@ -7098,11 +7236,16 @@ function Invoke-ImportProviderApplePhotos {
         $detail = if ($details.Count -gt 0) { $details[0] } else { $null }
         $albums = if ($albumInfo.ReferencesByName.ContainsKey($file.Name)) { @($albumInfo.ReferencesByName[$file.Name].ToArray()) } else { @() }
         $isVideo = $VideoExtensions -contains $file.Extension.ToLowerInvariant()
+        $folderRole = Get-ApplePhotosFolderRole -Path $file.FullName -AppleRoot $resolved.Root
+        $isTrash = $false
+        if ($detail) { $isTrash = [bool]$detail.Deleted }
+        if ($folderRole -eq 'Trash') { $isTrash = $true }
         $warnings = New-Object System.Collections.Generic.List[string]
         if (@($details).Count -eq 0) { $warnings.Add('Media without Photo Details row') }
         if (@($details).Count -gt 1) { $warnings.Add('Ambiguous Photo Details row') }
         if (@($albums).Count -gt 0) { $warnings.Add('Album reference') }
-        if ($livePhotoBaseNames.ContainsKey($file.BaseName)) { $warnings.Add('Live Photo pair candidate') }
+        $livePhotoKey = (Resolve-FullPath $file.DirectoryName).ToLowerInvariant() + '|' + $file.BaseName.ToLowerInvariant()
+        if ($livePhotoBaseNames.ContainsKey($livePhotoKey)) { $warnings.Add('Live Photo pair candidate') }
 
         $occurrences.Add([pscustomobject]@{
             File = $file
@@ -7110,7 +7253,7 @@ function Invoke-ImportProviderApplePhotos {
             ProviderChecksum = if ($detail) { [string]$detail.FileChecksum } else { '' }
             Detail = $detail
             ProviderDate = if ($detail) { $detail.OriginalCreationDate } else { $null }
-            IsTrash = if ($detail) { [bool]$detail.Deleted } else { $false }
+            IsTrash = $isTrash
             IsHidden = if ($detail) { [bool]$detail.Hidden } else { $false }
             IsFavorite = if ($detail) { [bool]$detail.Favorite } else { $false }
             IsVideo = $isVideo
@@ -7244,7 +7387,7 @@ function Invoke-ImportProviderApplePhotos {
         Mode = if ($Apply) { 'APPLY' } else { 'DRY RUN' }
         Provider = $providerName
         Root = $resolved.Root
-        DetailsCsv = $resolved.DetailsCsv
+        DetailsCsv = @($resolved.DetailsCsvs)
         MediaFiles = $mediaFiles.Count
         Videos = @($occurrences.ToArray() | Where-Object { $_.IsVideo }).Count
         AlbumCsv = @($albumInfo.AlbumFiles).Count
@@ -7264,6 +7407,10 @@ function Invoke-ImportProviderApplePhotos {
         ExifVerificationRead = @($assets.ToArray() | Where-Object { $_.ExifVerification -eq 'Read' }).Count
         ExifVerificationSkippedProviderTrusted = @($assets.ToArray() | Where-Object { $_.ExifVerification -eq 'SkippedProviderTrusted' }).Count
         MediaWithoutDetails = $mediaWithoutDetails.Count
+        DetailsCsvCount = @($resolved.DetailsCsvs).Count
+        AppleExportParts = @($resolved.ExportPartRoots).Count
+        AlbumCandidateCsv = $albumInfo.CandidateCsvCount
+        MemoryCsv = $albumInfo.MemoryCsvCount
         FilesCopied = $Stats.FilesCopied
         DryRunActions = $Stats.DryRunActions
         Errors = $Stats.Errors
@@ -10273,6 +10420,14 @@ if (-not $Apply) {
 
 Save-ProcessedDatabase
 Close-Logging
+
+
+
+
+
+
+
+
 
 
 

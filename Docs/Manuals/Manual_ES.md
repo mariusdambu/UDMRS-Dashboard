@@ -2,11 +2,11 @@
 
 Este manual describe el paquete público actual. Está escrito para usar la herramienta sin conocer la historia interna del proyecto.
 
-Baseline estable: `UDMRS Single-Head Stable Release Candidate 1`.
+Release estable: `UDMRS-TwoPipelines-Stable-v1.0-20260618`.
 
-Build: `UDMRS Build 2026.05.30-SH-RC1`.
+Build: `UDMRS Build 2026.06.18-TP-v1.0`.
 
-Validacion final: `16/16 PASS`, `FAIL_COUNT = 0`.
+Validacion final: sintaxis PS5.1/PS7, dashboard, providers disponibles y flujos principales revisados sin Apply sobre galerías reales.
 
 Estado público actual: el flujo clásico estable sigue siendo la entrada principal para carpetas normales. `Importar galería` está disponible para `Google Photos / Takeout`, `Apple Photos / iCloud` y `XMP / Sidecar Library`.
 
@@ -751,6 +751,8 @@ Select-String -Path "%APPDATA%\PhotoOrganizer\Logs\*.log" -Pattern "Error","Slow
 ```
 
 Los comandos Apply completos están en `Docs\CommandReference.html`. Revisa siempre DryRun y reportes HTML antes de aplicar cambios reales.
+
+
 
 
 

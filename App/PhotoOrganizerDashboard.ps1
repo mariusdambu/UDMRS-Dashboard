@@ -1126,6 +1126,25 @@ function Get-UniqueDashboardBackupTargetPath {
     return (Join-Path $directory ("{0}-migrated-{1}{2}" -f $nameWithoutExtension, ([guid]::NewGuid().ToString('N')), $extension))
 }
 
+function Get-DashboardRelativePathCompat {
+    param(
+        [string]$Path,
+        [string]$BasePath
+    )
+
+    try {
+        $fullPath = ([System.IO.Path]::GetFullPath([Environment]::ExpandEnvironmentVariables($Path))).TrimEnd('\')
+        $fullBase = ([System.IO.Path]::GetFullPath([Environment]::ExpandEnvironmentVariables($BasePath))).TrimEnd('\')
+        if ($fullPath.Equals($fullBase, [StringComparison]::OrdinalIgnoreCase)) { return '' }
+        if ($fullPath.StartsWith($fullBase + '\', [StringComparison]::OrdinalIgnoreCase)) {
+            return $fullPath.Substring($fullBase.Length + 1)
+        }
+        return $fullPath
+    }
+    catch {
+        return $Path
+    }
+}
 function Move-LegacyJsonBackupsToIndexBackups {
     $legacyRoot = Join-Path $script:LogRoot 'JsonBackups'
     if (-not (Test-Path -LiteralPath $legacyRoot -PathType Container)) {
@@ -1140,7 +1159,7 @@ function Move-LegacyJsonBackupsToIndexBackups {
 
         foreach ($file in @(Get-ChildItem -LiteralPath $legacyRoot -File -Recurse -Force -ErrorAction SilentlyContinue)) {
             try {
-                $relative = [System.IO.Path]::GetRelativePath($legacyRoot, $file.FullName)
+                $relative = Get-DashboardRelativePathCompat -Path $file.FullName -BasePath $legacyRoot
                 $target = Join-Path $script:IndexBackupRoot $relative
                 $targetDirectory = [System.IO.Path]::GetDirectoryName($target)
                 if (-not (Test-Path -LiteralPath $targetDirectory -PathType Container)) {
@@ -2355,6 +2374,59 @@ function Save-DashboardWindowSettings {
     } | ConvertTo-Json | Set-Content -LiteralPath $script:DashboardSettingsPath -Encoding UTF8
 }
 
+function Get-DashboardWorkingArea {
+    try {
+        if ($script:form) {
+            return [System.Windows.Forms.Screen]::FromControl($script:form).WorkingArea
+        }
+        return [System.Windows.Forms.Screen]::PrimaryScreen.WorkingArea
+    }
+    catch {
+        return New-Object System.Drawing.Rectangle(0, 0, 1024, 768)
+    }
+}
+
+function Get-DashboardSafeSize {
+    param(
+        [int]$DesiredWidth,
+        [int]$DesiredHeight,
+        [int]$MinimumWidth = 800,
+        [int]$MinimumHeight = 600
+    )
+
+    $workingArea = Get-DashboardWorkingArea
+    $margin = 40
+    $maxWidth = [math]::Max(640, [int]$workingArea.Width - $margin)
+    $maxHeight = [math]::Max(480, [int]$workingArea.Height - $margin)
+    $safeMinimumWidth = [math]::Min($MinimumWidth, $maxWidth)
+    $safeMinimumHeight = [math]::Min($MinimumHeight, $maxHeight)
+    $safeWidth = [math]::Min([math]::Max($safeMinimumWidth, $DesiredWidth), $maxWidth)
+    $safeHeight = [math]::Min([math]::Max($safeMinimumHeight, $DesiredHeight), $maxHeight)
+
+    return [pscustomobject]@{
+        MinimumSize = New-Object System.Drawing.Size($safeMinimumWidth, $safeMinimumHeight)
+        ClientSize = New-Object System.Drawing.Size($safeWidth, $safeHeight)
+        WorkingArea = $workingArea
+    }
+}
+
+function Get-DashboardSafeBounds {
+    param(
+        [int]$X,
+        [int]$Y,
+        [int]$Width,
+        [int]$Height
+    )
+
+    $safe = Get-DashboardSafeSize -DesiredWidth $Width -DesiredHeight $Height
+    $workingArea = $safe.WorkingArea
+    $safeWidth = $safe.ClientSize.Width
+    $safeHeight = $safe.ClientSize.Height
+    $safeX = [math]::Max($workingArea.Left, [math]::Min($X, $workingArea.Right - $safeWidth))
+    $safeY = [math]::Max($workingArea.Top, [math]::Min($Y, $workingArea.Bottom - $safeHeight))
+    return New-Object System.Drawing.Rectangle($safeX, $safeY, $safeWidth, $safeHeight)
+}
+
 function Apply-DashboardWindowSettings {
     param([object]$WindowSettings)
 
@@ -2365,21 +2437,21 @@ function Apply-DashboardWindowSettings {
         $script:form.StartPosition = 'Manual'
         $x = if ($WindowSettings.WindowX -ne $null) { [int]$WindowSettings.WindowX } else { 40 }
         $y = if ($WindowSettings.WindowY -ne $null) { [int]$WindowSettings.WindowY } else { 40 }
-        $script:form.Bounds = New-Object System.Drawing.Rectangle($x, $y, $width, $height)
+        $script:form.Bounds = Get-DashboardSafeBounds -X $x -Y $y -Width $width -Height $height
     }
 
     if ($WindowSettings.WindowState -eq 'Maximized') {
         $script:form.WindowState = 'Maximized'
     }
 }
-
 function Build-ResponsiveLayout {
     $script:form.SuspendLayout()
     $script:form.Controls.Clear()
     $script:form.AutoScaleMode = [System.Windows.Forms.AutoScaleMode]::Dpi
     $script:form.AutoScroll = $true
-    $script:form.MinimumSize = New-Object System.Drawing.Size(800, 600)
-    $script:form.ClientSize = New-Object System.Drawing.Size(1000, 720)
+    $safeDashboardSize = Get-DashboardSafeSize -DesiredWidth 1000 -DesiredHeight 720 -MinimumWidth 800 -MinimumHeight 600
+    $script:form.MinimumSize = $safeDashboardSize.MinimumSize
+    $script:form.ClientSize = $safeDashboardSize.ClientSize
     $script:form.Padding = New-Object System.Windows.Forms.Padding(8)
 
     $rootLayout = New-Object System.Windows.Forms.TableLayoutPanel
@@ -3048,8 +3120,9 @@ catch {
 
 $script:form = New-Object System.Windows.Forms.Form
 $script:form.StartPosition = 'CenterScreen'
-$script:form.MinimumSize = New-Object System.Drawing.Size(920, 840)
-$script:form.ClientSize = New-Object System.Drawing.Size(900, 800)
+$initialDashboardSize = Get-DashboardSafeSize -DesiredWidth 900 -DesiredHeight 800 -MinimumWidth 800 -MinimumHeight 600
+$script:form.MinimumSize = $initialDashboardSize.MinimumSize
+$script:form.ClientSize = $initialDashboardSize.ClientSize
 
 $script:lblSource = New-Object System.Windows.Forms.Label
 $script:lblSource.Location = New-Object System.Drawing.Point(15, 18)
@@ -3754,6 +3827,8 @@ $script:form.Add_FormClosing({
 })
 
 [System.Windows.Forms.Application]::Run($script:form)
+
+
 
 
 

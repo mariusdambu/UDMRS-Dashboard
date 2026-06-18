@@ -50,16 +50,16 @@ UDMRS is intentionally conservative, but no media organizer can guarantee safety
 Public release package prepared from:
 
 ```text
-UDMRS Build 2026.05.30-SH-RC1
+UDMRS Build 2026.06.18-TP-v1.0
 ```
 
-with later provider-import hardening for:
+Stable release with two production entries:
 
 - Google Photos / Google Takeout
 - Apple Photos / iCloud Photos
 - XMP / Sidecar Library
 
-The classic organizing flow remains the primary stable path. Provider import is available for exports with sidecars or provider metadata.
+The classic organizing flow remains the primary path for ordinary folders. Provider import is the second production entry for exports with sidecars, albums, trash metadata or provider timestamps.
 
 ## Requirements
 
@@ -209,5 +209,6 @@ The included `.gitignore` is intentionally strict.
 ## License
 
 MIT License. See [LICENSE](LICENSE).
+
 
 

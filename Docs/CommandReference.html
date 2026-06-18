@@ -32,7 +32,7 @@
 <body>
 <header>
   <h1>UDMRS Dashboard - Command Reference</h1>
-  <p>Paquete público UDMRS · Baseline 2026.05.30-SH-RC1 · Modelo único: Year / Quarter · Importar galería disponible.</p>
+  <p>Paquete público UDMRS · UDMRS-TwoPipelines-Stable-v1.0-20260618 · Modelo único: Year / Quarter · Organizar biblioteca + Importar galería disponibles.</p>
 </header>
 <main>
   <nav>
@@ -89,6 +89,8 @@
       <tr><td>Normalizar estructura</td><td><code>-NormalizeExistingFolders</code></td><td>Reestructura visualmente a Año/Trimestre y limpia ramas vacías/junk/residuales.</td></tr>
       <tr><td>Limpieza de duplicados</td><td><code>-DedupeCleanup</code></td><td>Duplicados exactos por SHA256; no limpia carpetas vacías.</td></tr>
       <tr><td>Reparar EXIF in-place</td><td><code>-RepairOnlyExistingOrganizedLibrary -RepairExif</code></td><td>Reparación EXIF dentro de la biblioteca organizada; no mueve ni deduplica.</td></tr>
+      <tr><td>Auditar fechas visibles</td><td><code>-MetadataAudit</code></td><td>Audita candidatos con fecha fiable no visible; no escribe cambios.</td></tr>
+      <tr><td>Reparar fechas visibles</td><td><code>-MetadataRepair</code></td><td>Materializa fechas fiables en metadata/fechas de sistema; requiere Apply y confirmación.</td></tr>
       <tr><td>Migrar UDMRS a otro PC</td><td>Dashboard helper</td><td>Crea ZIP de instalación compartida, ZIP de estado de usuario y <code>MigrationGuide.txt</code>. No incluye logs ni runtime.</td></tr>
     </table>
     <div class="warning">Los botones avanzados respetan Simulación por defecto. Si activas Apply real, el dashboard pide confirmación específica y muestra los switches que va a lanzar.</div>
@@ -512,6 +514,7 @@
 </main>
 </body>
 </html>
+
 
 
 

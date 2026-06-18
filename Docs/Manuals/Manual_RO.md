@@ -2,13 +2,13 @@
 
 Acest manual descrie pachetul public actual. Este scris pentru folosire normala, fara istoria interna a proiectului.
 
-Baseline stabil: `UDMRS Single-Head Stable Release Candidate 1`.
+Release stabila: `UDMRS-TwoPipelines-Stable-v1.0-20260618`.
 
-Build: `UDMRS Build 2026.05.30-SH-RC1`.
+Build: `UDMRS Build 2026.06.18-TP-v1.0`.
 
-Validare finala: `16/16 PASS`, `FAIL_COUNT = 0`.
+Validare finala: sintaxa PS5.1/PS7, dashboard, provideri disponibili si fluxuri principale revizuite fara Apply pe galerii reale.
 
-Stare publica actuala: fluxul clasic stabil ramane intrarea principala pentru foldere normale. `Importar galería` este disponibil pentru `Google Photos / Takeout` si `XMP / Sidecar Library`.
+Stare publica actuala: fluxul clasic stabil ramane intrarea principala pentru foldere normale. `Importa galerie` este disponibila pentru `Google Photos / Takeout`, `Apple Photos / iCloud` si `XMP / Sidecar Library`.
 
 ## 1. Ce este fiecare componenta
 
@@ -750,6 +750,7 @@ Select-String -Path "%APPDATA%\PhotoOrganizer\Logs\*.log" -Pattern "Error","Slow
 ```
 
 Comenzile Apply complete sunt in `Docs\CommandReference.html`. Verifica intotdeauna DryRun si rapoartele HTML inainte de modificari reale.
+
 
 
 
