@@ -151,7 +151,7 @@ No duplica `Ejecutar`, `Prueba de escaneo`, `Sincronizar índice` ni `Purgar ent
 
 Herramientas disponibles:
 
-- `Retención y logs`: limpia retención segura: backups EXIF antiguos, duplicados confirmados antiguos, logs/progress/reportes antiguos e IndexBackups técnicos. No limpia la galería normal, no limpia carpetas vacías y no toca `_Duplicados_Para_Revisar`.
+- `Limpieza técnica`: limpia retención segura: backups EXIF antiguos, duplicados confirmados antiguos, logs/progress/reportes antiguos e IndexBackups técnicos. No limpia la galería normal, no limpia carpetas vacías y no toca `_Duplicados_Para_Revisar`.
 - `Recuperar duplicados mal movidos`: intenta recuperar archivos enviados erróneamente a duplicados usando logs e índice.
 - `Traducir carpetas existentes`: adapta carpetas trimestrales existentes al idioma activo.
 - `Traducir carpetas internas`: renombra o consolida contenedores internos conocidos al idioma activo sin leer fotos ni hidratar nube.
@@ -564,9 +564,9 @@ PhotoOrganizer-YYYYMMDD-HHMMSS.progress.json
 
 El dashboard ignora silenciosamente lecturas o escrituras bloqueadas temporalmente para no mostrar excepciones crudas de PowerShell.
 
-La acción avanzada `Retención y logs` ejecuta la limpieza de logs antiguos en `%APPDATA%\PhotoOrganizer\Logs`. La retención aproximada es de 7 días para `*.log`, `*.progress.json` y reportes HTML. Esta limpieza no toca fotos, vídeos, `ProcessedFiles.json` real, backups EXIF ni cuarentenas; tampoco toca `%APPDATA%\PhotoOrganizer\Runtime\TechnicalConsole`.
+La acción avanzada `Limpieza técnica` ejecuta la limpieza de logs antiguos en `%APPDATA%\PhotoOrganizer\Logs`. La retención aproximada es de 7 días para `*.log`, `*.progress.json` y reportes HTML. Esta limpieza no toca fotos, vídeos, `ProcessedFiles.json` real, backups EXIF ni cuarentenas; tampoco toca `%APPDATA%\PhotoOrganizer\Runtime\TechnicalConsole`.
 
-Los backups técnicos de `ProcessedFiles.json` viven separados en `%APPDATA%\PhotoOrganizer\IndexBackups`. No son logs normales. `Retención y logs` conserva siempre el backup más reciente, conserva backups recientes hasta un máximo aproximado de 10 copias y purga el resto. Si existen backups antiguos en `Logs\JsonBackups`, esa acción los migra a `IndexBackups`.
+Los backups técnicos de `ProcessedFiles.json` viven separados en `%APPDATA%\PhotoOrganizer\IndexBackups`. No son logs normales. `Limpieza técnica` conserva siempre el backup más reciente, conserva backups recientes hasta un máximo aproximado de 10 copias y purga el resto. Si existen backups antiguos en `Logs\JsonBackups`, esa acción los migra a `IndexBackups`.
 
 Como medida conservadora, nunca borra archivos modificados en la última hora, protege logs/progress de ejecuciones activas cuando puede detectarlos y conserva siempre al menos el backup JSON más reciente. Si un archivo está bloqueado o hay permisos insuficientes, lo omite y la acción continúa.
 

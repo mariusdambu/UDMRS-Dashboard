@@ -153,7 +153,7 @@ Nu dubleaza `Executare`, `Test scan`, `Sincronizeaza indexul` sau `Elimina intra
 
 Instrumente disponibile:
 
-- `Retentie si loguri`: curata zone sigure de retentie: backup-uri EXIF vechi, duplicate confirmate vechi, loguri/progress/rapoarte vechi si IndexBackups tehnice. Nu curata galeria normala, nu curata foldere goale si nu atinge folderul de duplicate in asteptarea revizuirii.
+- `Curatare tehnica`: curata zone sigure de retentie: backup-uri EXIF vechi, duplicate confirmate vechi, loguri/progress/rapoarte vechi si IndexBackups tehnice. Nu curata galeria normala, nu curata foldere goale si nu atinge folderul de duplicate in asteptarea revizuirii.
 - `Recupereaza duplicate mutate gresit`: incearca sa recupereze fisiere trimise gresit la duplicate folosind loguri si indexul.
 - `Tradu foldere existente`: adapteaza foldere trimestriale existente la limba activa.
 - `Tradu foldere interne`: redenumeste sau consolideaza containere interne cunoscute in limba activa fara sa citeasca poze sau sa descarce din cloud.
@@ -561,9 +561,9 @@ PhotoOrganizer-YYYYMMDD-HHMMSS.progress.json
 
 Dashboard-ul ignora silentios citiri sau scrieri blocate temporar, ca sa nu arate exceptii PowerShell brute.
 
-Actiunea avansata `Retentie si loguri` executa curatarea logurilor vechi din `%APPDATA%\PhotoOrganizer\Logs`. Retentia aproximativa este de 7 zile pentru `*.log`, `*.progress.json` si rapoarte HTML. Aceasta curatare nu atinge poze, videoclipuri, `ProcessedFiles.json` real, backup-uri EXIF sau carantine; de asemenea nu atinge `%APPDATA%\PhotoOrganizer\Runtime\TechnicalConsole`.
+Actiunea avansata `Curatare tehnica` executa curatarea logurilor vechi din `%APPDATA%\PhotoOrganizer\Logs`. Retentia aproximativa este de 7 zile pentru `*.log`, `*.progress.json` si rapoarte HTML. Aceasta curatare nu atinge poze, videoclipuri, `ProcessedFiles.json` real, backup-uri EXIF sau carantine; de asemenea nu atinge `%APPDATA%\PhotoOrganizer\Runtime\TechnicalConsole`.
 
-Backup-urile tehnice pentru `ProcessedFiles.json` traiesc separat in `%APPDATA%\PhotoOrganizer\IndexBackups`. Nu sunt loguri normale. `Retentie si loguri` pastreaza intotdeauna cel mai recent backup, pastreaza backup-uri recente pana la un maxim aproximativ de 10 copii si sterge restul. Daca exista backup-uri vechi in `Logs\JsonBackups`, actiunea le migreaza in `IndexBackups`.
+Backup-urile tehnice pentru `ProcessedFiles.json` traiesc separat in `%APPDATA%\PhotoOrganizer\IndexBackups`. Nu sunt loguri normale. `Curatare tehnica` pastreaza intotdeauna cel mai recent backup, pastreaza backup-uri recente pana la un maxim aproximativ de 10 copii si sterge restul. Daca exista backup-uri vechi in `Logs\JsonBackups`, actiunea le migreaza in `IndexBackups`.
 
 Ca masura conservatoare, nu sterge fisiere modificate in ultima ora, protejeaza loguri/progress ale executarilor active cand le poate detecta si pastreaza intotdeauna cel putin cel mai recent backup JSON. Daca un fisier este blocat sau exista probleme de permisiuni, il omite si actiunea continua.
 
