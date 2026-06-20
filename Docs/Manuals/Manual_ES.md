@@ -151,7 +151,7 @@ No duplica `Ejecutar`, `Prueba de escaneo`, `Sincronizar índice` ni `Purgar ent
 
 Herramientas disponibles:
 
-- `Limpieza técnica`: limpia retención segura: backups EXIF antiguos, duplicados confirmados antiguos, logs/progress/reportes antiguos e IndexBackups técnicos. No limpia la galería normal, no limpia carpetas vacías y no toca `_Duplicados_Para_Revisar`.
+- `Limpieza técnica`: limpia backups EXIF, logs/progress/reportes e IndexBackups antiguos; revalida duplicados confirmados vencidos antes de eliminarlos. No limpia la galería normal, no limpia carpetas vacías y no toca `_Duplicados_Para_Revisar`.
 - `Recuperar duplicados mal movidos`: intenta recuperar archivos enviados erróneamente a duplicados usando logs e índice.
 - `Traducir carpetas existentes`: adapta carpetas trimestrales existentes al idioma activo.
 - `Traducir carpetas internas`: renombra o consolida contenedores internos conocidos al idioma activo sin leer fotos ni hidratar nube.
@@ -512,7 +512,9 @@ También reconoce aliases de otros idiomas, como `_Backup_Metadate`, `_MetadataB
 
 `_Duplicados_Para_Revisar` no se toca jamás por `RetentionCleanup`, porque puede contener variantes, casos ambiguos o archivos que requieren revisión humana.
 
-El resultado `No se borró nada` puede ser completamente normal. Por defecto los backups EXIF se retienen 30 días y los duplicados confirmados 45 días. Si todavía no hay elementos suficientemente antiguos, no habrá candidatos. Puedes esperar y volver a lanzarlo más adelante, o borrar manualmente contenido confirmado si necesitas liberar espacio inmediatamente y aceptas perder esa ventana de recuperación.
+Para nuevas cuarentenas confirmadas, UDMRS registra un manifiesto técnico que relaciona cada copia con su canónico y el SHA256 confirmado. Al ejecutar `RetentionCleanup`, los duplicados que superan 45 días se revalidan con su contenido actual: deben existir ambas copias, estar disponibles localmente y tener el mismo SHA256 actual. RAW/DNG, cloud-only, conflictos de índice, hashes distintos, ejecuciones con errores y la última ejecución correcta siempre se conservan.
+
+Las cuarentenas históricas sin manifiesto también se conservan de forma deliberada. El resultado `No se borró nada` puede ser completamente normal: quizá no se alcanzó la antigüedad o ningún candidato superó todas las comprobaciones. No hay tareas en segundo plano; esta limpieza solo ocurre al lanzar explícitamente `Limpieza técnica` / `RetentionCleanup`.
 
 ## 14. Diagnóstico EXIF lento
 

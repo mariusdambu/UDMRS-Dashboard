@@ -153,7 +153,7 @@ Nu dubleaza `Executare`, `Test scan`, `Sincronizeaza indexul` sau `Elimina intra
 
 Instrumente disponibile:
 
-- `Curatare tehnica`: curata zone sigure de retentie: backup-uri EXIF vechi, duplicate confirmate vechi, loguri/progress/rapoarte vechi si IndexBackups tehnice. Nu curata galeria normala, nu curata foldere goale si nu atinge folderul de duplicate in asteptarea revizuirii.
+- `Curatare tehnica`: curata backup-uri EXIF, loguri/progress/rapoarte si IndexBackups vechi; revalideaza duplicatele confirmate expirate inainte de stergere. Nu curata galeria normala, nu curata foldere goale si nu atinge folderul de duplicate in asteptarea revizuirii.
 - `Recupereaza duplicate mutate gresit`: incearca sa recupereze fisiere trimise gresit la duplicate folosind loguri si indexul.
 - `Tradu foldere existente`: adapteaza foldere trimestriale existente la limba activa.
 - `Tradu foldere interne`: redenumeste sau consolideaza containere interne cunoscute in limba activa fara sa citeasca poze sau sa descarce din cloud.
@@ -509,7 +509,9 @@ Recunoaste si aliasuri din alte limbi, cum ar fi `_CopiaSeguridadMetadatos`, `_M
 
 Folderul de duplicate in asteptarea revizuirii nu este atins niciodata de `RetentionCleanup`, deoarece poate contine variante, cazuri ambigue sau fisiere care cer verificare umana.
 
-Rezultatul `Nu s-a sters nimic` poate fi complet normal. Implicit backup-urile EXIF se pastreaza 30 de zile si duplicatele confirmate 45 de zile. Daca nu exista inca elemente suficient de vechi, nu vor exista candidati. Poti astepta si rula din nou mai tarziu sau poti sterge manual continut confirmat daca ai nevoie imediata de spatiu si accepti sa pierzi acea fereastra de recuperare.
+Pentru carantinele confirmate noi, UDMRS salveaza un manifest tehnic care leaga fiecare copie de fisierul canonic si de SHA256 confirmat. La rularea `RetentionCleanup`, duplicatele mai vechi de 45 de zile sunt revalidate folosind continutul actual: ambele copii trebuie sa existe, sa fie disponibile local si sa aiba acelasi SHA256 actual. RAW/DNG, cloud-only, conflictele de index, hash-urile diferite, rularile cu erori si ultima rulare corecta sunt pastrate intotdeauna.
+
+Carantinele istorice fara manifest sunt pastrate in mod deliberat. Rezultatul `Nu s-a sters nimic` poate fi complet normal: pragul de vechime poate sa nu fi fost atins sau niciun candidat nu a trecut toate verificarile. Nu exista sarcini in fundal; curatarea are loc numai cand utilizatorul lanseaza explicit `Curatare tehnica` / `RetentionCleanup`.
 
 ## 14. Diagnostic EXIF lent
 

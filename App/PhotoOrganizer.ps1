@@ -731,6 +731,8 @@ $Stats = [ordered]@{
     MetadataBackupSizeGB = 0
     RetentionDeletedItems = 0
     RetentionRecoveredGB = 0
+    ConfirmedDuplicatesRevalidated = 0
+    ConfirmedDuplicatesRetained = 0
     JsonReconcileValid = 0
     JsonReconcileStale = 0
     JsonReconcilePathsUpdated = 0
@@ -748,6 +750,7 @@ $script:LastHeartbeat = Get-Date
 $script:CurrentPhase = 'Starting'
 $script:LastMessage = ''
 $script:Cancelled = $false
+$script:ConfirmedDuplicateQuarantineEntries = New-Object System.Collections.Generic.List[object]
 $script:RunStartTime = Get-Date
 $script:RunId = $script:RunStartTime.ToString('yyyyMMdd-HHmmss')
 $script:CurrentBatch = 0
@@ -5305,6 +5308,174 @@ function Get-RetentionItemSizeBytes {
     return (Get-FolderSizeBytes -Path $Item.FullName)
 }
 
+function Get-ConfirmedDuplicateManifestRootPath {
+    $stateRoot = $null
+    if (-not [string]::IsNullOrWhiteSpace($ProcessedDbPath)) {
+        try {
+            $stateRoot = [System.IO.Path]::GetDirectoryName([System.IO.Path]::GetFullPath($ProcessedDbPath))
+        }
+        catch {
+        }
+    }
+    if ([string]::IsNullOrWhiteSpace($stateRoot)) {
+        $stateRoot = Get-UserDataRootPath
+    }
+    return (Join-Path $stateRoot 'QuarantineManifests')
+}
+
+function ConvertTo-ConfirmedDuplicateManifestPath {
+    param([string]$Path)
+
+    if ([string]::IsNullOrWhiteSpace($Path)) { return '' }
+    $resolved = Resolve-FullPath $Path
+    try {
+        $relative = ConvertTo-RelativePath -Path $resolved -BasePath $DestinationBase
+        if (-not [string]::IsNullOrWhiteSpace($relative) -and
+            -not [System.IO.Path]::IsPathRooted($relative) -and
+            -not $relative.StartsWith('..')) {
+            return $relative
+        }
+    }
+    catch {
+    }
+    return $resolved
+}
+
+function Resolve-ConfirmedDuplicateManifestPath {
+    param([string]$PathValue)
+
+    if ([string]::IsNullOrWhiteSpace($PathValue)) { return '' }
+    if ([System.IO.Path]::IsPathRooted($PathValue)) {
+        return (Resolve-FullPath $PathValue)
+    }
+    return (Resolve-FullPath (Join-Path $DestinationBase $PathValue))
+}
+
+function Add-ConfirmedDuplicateQuarantineEntry {
+    param(
+        [string]$QuarantinePath,
+        [string]$CanonicalPath,
+        [string]$Hash
+    )
+
+    if (-not $Apply -or [string]::IsNullOrWhiteSpace($QuarantinePath) -or
+        [string]::IsNullOrWhiteSpace($CanonicalPath) -or [string]::IsNullOrWhiteSpace($Hash)) {
+        return
+    }
+    if ($null -eq $script:ConfirmedDuplicateQuarantineEntries) {
+        $script:ConfirmedDuplicateQuarantineEntries = New-Object System.Collections.Generic.List[object]
+    }
+    $script:ConfirmedDuplicateQuarantineEntries.Add([pscustomobject]@{
+        hash = $Hash.ToUpperInvariant()
+        quarantinePath = ConvertTo-ConfirmedDuplicateManifestPath -Path $QuarantinePath
+        canonicalPath = ConvertTo-ConfirmedDuplicateManifestPath -Path $CanonicalPath
+        quarantinedAt = (Get-Date).ToString('o')
+    })
+}
+
+function Update-ConfirmedDuplicateQuarantineCanonicalPath {
+    param(
+        [string]$Hash,
+        [string]$OldCanonicalPath,
+        [string]$NewCanonicalPath
+    )
+
+    if ($null -eq $script:ConfirmedDuplicateQuarantineEntries -or
+        [string]::IsNullOrWhiteSpace($Hash) -or [string]::IsNullOrWhiteSpace($NewCanonicalPath)) {
+        return
+    }
+    $oldValue = ConvertTo-ConfirmedDuplicateManifestPath -Path $OldCanonicalPath
+    $newValue = ConvertTo-ConfirmedDuplicateManifestPath -Path $NewCanonicalPath
+    foreach ($entry in @($script:ConfirmedDuplicateQuarantineEntries.ToArray())) {
+        if ([string]$entry.hash -eq $Hash.ToUpperInvariant() -and
+            ([string]$entry.canonicalPath).Equals($oldValue, [StringComparison]::OrdinalIgnoreCase)) {
+            $entry.canonicalPath = $newValue
+        }
+    }
+}
+
+function Save-ConfirmedDuplicateQuarantineRunManifest {
+    param([bool]$Successful)
+
+    if (-not $Apply -or $null -eq $script:ConfirmedDuplicateQuarantineEntries -or
+        $script:ConfirmedDuplicateQuarantineEntries.Count -eq 0) {
+        return $null
+    }
+
+    try {
+        $root = Get-ConfirmedDuplicateManifestRootPath
+        if (-not (Test-Path -LiteralPath $root -PathType Container)) {
+            New-Item -ItemType Directory -Path $root -Force | Out-Null
+        }
+        $safeRunId = ([string]$script:RunId -replace '[^A-Za-z0-9_.-]', '_')
+        $manifestPath = Join-Path $root ("ConfirmedDuplicates-{0}-{1}.json" -f $safeRunId, $PID)
+        $payload = [pscustomobject]@{
+            schemaVersion = 1
+            runId = [string]$script:RunId
+            completedAt = (Get-Date).ToString('o')
+            status = if ($Successful) { 'Completed' } else { 'CompletedWithErrors' }
+            entries = @($script:ConfirmedDuplicateQuarantineEntries.ToArray())
+        }
+        $tmp = $manifestPath + '.tmp'
+        $payload | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $tmp -Encoding UTF8
+        Move-Item -LiteralPath $tmp -Destination $manifestPath -Force
+        Write-Log -Message ("Confirmed duplicate quarantine manifest saved: {0}. Entries={1}; Status={2}" -f $manifestPath, $payload.entries.Count, $payload.status) -Phase 'DedupeCleanup'
+        return $manifestPath
+    }
+    catch {
+        $Stats.Errors++
+        Write-Log -Message "Confirmed duplicate quarantine manifest could not be saved. Quarantined files will remain protected from automatic retention. Error: $($_.Exception.Message)" -Phase 'DedupeCleanup' -Status 'Warning'
+        return $null
+    }
+}
+
+function ConvertFrom-ConfirmedDuplicateManifestTimestamp {
+    param(
+        [object]$Value,
+        [datetime]$Fallback = [datetime]::MinValue
+    )
+
+    if ($null -eq $Value) { return $Fallback }
+    if ($Value -is [datetime]) { return [datetime]$Value }
+
+    $parsedOffset = [datetimeoffset]::MinValue
+    if ([datetimeoffset]::TryParse(
+            [string]$Value,
+            [System.Globalization.CultureInfo]::InvariantCulture,
+            [System.Globalization.DateTimeStyles]::AllowWhiteSpaces,
+            [ref]$parsedOffset)) {
+        return $parsedOffset.LocalDateTime
+    }
+    return $Fallback
+}
+
+function Get-ConfirmedDuplicateQuarantineManifests {
+    $root = Get-ConfirmedDuplicateManifestRootPath
+    if (-not (Test-Path -LiteralPath $root -PathType Container)) {
+        return @()
+    }
+
+    $result = New-Object System.Collections.Generic.List[object]
+    foreach ($file in @(Get-ChildItem -LiteralPath $root -File -Filter 'ConfirmedDuplicates-*.json' -Force -ErrorAction SilentlyContinue)) {
+        try {
+            $json = Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8 | ConvertFrom-Json
+            if ($null -eq $json -or -not ($json.PSObject.Properties.Name -contains 'entries')) { continue }
+            $completedAt = ConvertFrom-ConfirmedDuplicateManifestTimestamp -Value $json.completedAt
+            $result.Add([pscustomobject]@{
+                Path = $file.FullName
+                RunId = [string]$json.runId
+                CompletedAt = $completedAt
+                Status = [string]$json.status
+                Entries = @($json.entries)
+            })
+        }
+        catch {
+            Write-Log -Message "Confirmed duplicate quarantine manifest ignored because it could not be read: $($file.FullName). Error: $($_.Exception.Message)" -Phase 'Retention cleanup' -Status 'Warning'
+        }
+    }
+    return @($result.ToArray())
+}
+
 function New-RetentionCandidate {
     param(
         [System.IO.FileSystemInfo]$Item,
@@ -5480,11 +5651,136 @@ function Invoke-MetadataBackupRetentionCleanup {
     Write-Log -Message ("Metadata retention cleanup: {0} {1} old backup folders. {2}: {3} GB" -f $verb, $wouldDelete, $spaceVerb, ([math]::Round($space / 1GB, 3))) -Phase $phase
 }
 
+function Get-ConfirmedDuplicateIndexPathsByHash {
+    param([string]$QuarantineRootPath)
+
+    $result = @{}
+    foreach ($record in @($script:ProcessedRecords.ToArray())) {
+        if ($null -eq $record -or [string]::IsNullOrWhiteSpace([string]$record.hash)) { continue }
+        $hashKey = ([string]$record.hash).ToUpperInvariant()
+        $registeredPath = Get-ProcessedRecordRegisteredPath -Record $record
+        if ([string]::IsNullOrWhiteSpace($registeredPath) -or
+            (Test-IsChildPath -Path $registeredPath -ParentPath $QuarantineRootPath)) {
+            continue
+        }
+        if (-not $result.ContainsKey($hashKey)) {
+            $result[$hashKey] = New-Object System.Collections.Generic.HashSet[string] ([StringComparer]::OrdinalIgnoreCase)
+        }
+        [void]$result[$hashKey].Add((Resolve-FullPath $registeredPath))
+    }
+    return $result
+}
+
+function Test-ConfirmedDuplicateRetentionSafety {
+    param(
+        [object]$Candidate,
+        [hashtable]$IndexPathsByHash,
+        [string]$QuarantineRootPath
+    )
+
+    $result = [ordered]@{
+        Safe = $false
+        Reason = 'Unknown'
+        CanonicalPath = ''
+        ActualHash = ''
+    }
+    $quarantinePath = Resolve-FullPath $Candidate.Path
+    if (-not (Test-IsChildPath -Path $quarantinePath -ParentPath $QuarantineRootPath)) {
+        $result.Reason = 'QuarantinePathOutsideExpectedRoot'
+        return [pscustomobject]$result
+    }
+    if (-not (Test-Path -LiteralPath $quarantinePath -PathType Leaf)) {
+        $result.Reason = 'QuarantineFileMissing'
+        return [pscustomobject]$result
+    }
+
+    $extension = [System.IO.Path]::GetExtension($quarantinePath).ToLowerInvariant()
+    if ($RawExtensions -contains $extension) {
+        $result.Reason = 'RawOrDngProtected'
+        return [pscustomobject]$result
+    }
+
+    $quarantineAvailability = Detect-StorageAvailability -Path $quarantinePath
+    if ($quarantineAvailability.State -ne 'LocalVerified') {
+        $result.Reason = 'QuarantineNotLocallyVerified:' + [string]$quarantineAvailability.State
+        return [pscustomobject]$result
+    }
+
+    try {
+        $actualHash = (Get-Sha256 -Path $quarantinePath).ToUpperInvariant()
+        $result.ActualHash = $actualHash
+    }
+    catch {
+        $result.Reason = 'QuarantineHashFailed:' + $_.Exception.Message
+        return [pscustomobject]$result
+    }
+
+    $expectedHash = ([string]$Candidate.ExpectedHash).ToUpperInvariant()
+    if ([string]::IsNullOrWhiteSpace($expectedHash) -or $actualHash -ne $expectedHash) {
+        $result.Reason = 'QuarantineHashChanged'
+        return [pscustomobject]$result
+    }
+
+    $canonicalPaths = New-Object System.Collections.Generic.HashSet[string] ([StringComparer]::OrdinalIgnoreCase)
+    $manifestCanonicalPath = Resolve-ConfirmedDuplicateManifestPath -PathValue ([string]$Candidate.CanonicalPathValue)
+    if (-not [string]::IsNullOrWhiteSpace($manifestCanonicalPath)) {
+        [void]$canonicalPaths.Add($manifestCanonicalPath)
+    }
+    if ($IndexPathsByHash.ContainsKey($expectedHash)) {
+        foreach ($indexPath in @($IndexPathsByHash[$expectedHash])) {
+            [void]$canonicalPaths.Add((Resolve-FullPath $indexPath))
+        }
+    }
+    [void]$canonicalPaths.Remove($quarantinePath)
+    foreach ($path in @($canonicalPaths)) {
+        if (Test-IsChildPath -Path $path -ParentPath $QuarantineRootPath) {
+            [void]$canonicalPaths.Remove($path)
+        }
+    }
+
+    if ($canonicalPaths.Count -eq 0) {
+        $result.Reason = 'CanonicalNotFound'
+        return [pscustomobject]$result
+    }
+    if ($canonicalPaths.Count -gt 1) {
+        $result.Reason = 'CanonicalIndexConflict'
+        return [pscustomobject]$result
+    }
+
+    $canonicalPath = @($canonicalPaths | Select-Object -First 1)[0]
+    $result.CanonicalPath = $canonicalPath
+    if (-not (Test-Path -LiteralPath $canonicalPath -PathType Leaf)) {
+        $result.Reason = 'CanonicalMissing'
+        return [pscustomobject]$result
+    }
+    $canonicalAvailability = Detect-StorageAvailability -Path $canonicalPath
+    if ($canonicalAvailability.State -ne 'LocalVerified') {
+        $result.Reason = 'CanonicalNotLocallyVerified:' + [string]$canonicalAvailability.State
+        return [pscustomobject]$result
+    }
+
+    try {
+        $canonicalHash = (Get-Sha256 -Path $canonicalPath).ToUpperInvariant()
+    }
+    catch {
+        $result.Reason = 'CanonicalHashFailed:' + $_.Exception.Message
+        return [pscustomobject]$result
+    }
+    if ($canonicalHash -ne $actualHash) {
+        $result.Reason = 'CanonicalHashMismatch'
+        return [pscustomobject]$result
+    }
+
+    $result.Safe = $true
+    $result.Reason = 'CurrentSha256Revalidated'
+    return [pscustomobject]$result
+}
+
 function Invoke-ConfirmedDuplicatesRetentionCleanup {
     param([string]$QuarantineRootPath)
 
     $phase = 'Retention cleanup'
-    Write-Log -Message ("Confirmed duplicates retention cleanup started. Mode={0}; Root={1}; RetentionDays={2}; MaxGB={3}" -f $(if ($Apply) { 'APPLY' } else { 'DRY RUN' }), $QuarantineRootPath, $ConfirmedDuplicatesRetentionDays, $ConfirmedDuplicatesMaxGB) -Phase $phase
+    Write-Log -Message ("Confirmed duplicates retention cleanup started. Mode={0}; Root={1}; RetentionDays={2}; MaxGB={3}; Revalidation=CurrentSHA256" -f $(if ($Apply) { 'APPLY' } else { 'DRY RUN' }), $QuarantineRootPath, $ConfirmedDuplicatesRetentionDays, $ConfirmedDuplicatesMaxGB) -Phase $phase
     if ([string]::IsNullOrWhiteSpace($QuarantineRootPath) -or -not (Test-Path -LiteralPath $QuarantineRootPath -PathType Container)) {
         Write-Log -Message "Confirmed duplicates retention cleanup skipped. Root not found: $QuarantineRootPath" -Phase $phase
         return
@@ -5496,33 +5792,92 @@ function Invoke-ConfirmedDuplicatesRetentionCleanup {
         return
     }
 
-    $latestFile = @($files | Sort-Object LastWriteTime -Descending | Select-Object -First 1)
-    $protected = New-Object System.Collections.Generic.HashSet[string] ([StringComparer]::OrdinalIgnoreCase)
-    if ($latestFile.Count -gt 0) {
-        [void]$protected.Add((Resolve-FullPath $latestFile[0].FullName))
+    $manifests = @(Get-ConfirmedDuplicateQuarantineManifests)
+    $successfulManifests = @($manifests | Where-Object { $_.Status -eq 'Completed' } | Sort-Object CompletedAt -Descending)
+    $latestSuccessfulManifestPath = if ($successfulManifests.Count -gt 0) { [string]$successfulManifests[0].Path } else { '' }
+    $referencedPaths = New-Object System.Collections.Generic.HashSet[string] ([StringComparer]::OrdinalIgnoreCase)
+    $candidates = New-Object System.Collections.Generic.List[object]
+    $protectedByRun = 0
+    $protectedByErrors = 0
+
+    foreach ($manifest in $manifests) {
+        $protectManifest = ([string]$manifest.Path).Equals($latestSuccessfulManifestPath, [StringComparison]::OrdinalIgnoreCase)
+        $manifestHasErrors = $manifest.Status -ne 'Completed'
+        foreach ($entry in @($manifest.Entries)) {
+            $quarantinePath = Resolve-ConfirmedDuplicateManifestPath -PathValue ([string]$entry.quarantinePath)
+            if ([string]::IsNullOrWhiteSpace($quarantinePath)) { continue }
+            [void]$referencedPaths.Add($quarantinePath)
+            if (-not (Test-Path -LiteralPath $quarantinePath -PathType Leaf)) { continue }
+            if ($protectManifest) {
+                $protectedByRun++
+                continue
+            }
+            if ($manifestHasErrors) {
+                $protectedByErrors++
+                continue
+            }
+
+            $quarantinedAt = ConvertFrom-ConfirmedDuplicateManifestTimestamp -Value $entry.quarantinedAt -Fallback $manifest.CompletedAt
+            $file = Get-Item -LiteralPath $quarantinePath -Force -ErrorAction SilentlyContinue
+            if ($null -eq $file) { continue }
+            $candidates.Add([pscustomobject]@{
+                Path = $file.FullName
+                Kind = 'ConfirmedDuplicateFile'
+                Reason = 'Old confirmed duplicate pending current SHA256 revalidation'
+                LastWriteTime = $quarantinedAt
+                Bytes = [int64]$file.Length
+                IsDirectory = $false
+                ExpectedHash = [string]$entry.hash
+                CanonicalPathValue = [string]$entry.canonicalPath
+                RunId = [string]$manifest.RunId
+                ManifestPath = [string]$manifest.Path
+            })
+        }
     }
 
-    $candidates = New-Object System.Collections.Generic.List[object]
+    $historicalUntracked = 0
     foreach ($file in $files) {
-        $resolved = Resolve-FullPath $file.FullName
-        if ($protected.Contains($resolved)) {
-            Write-DiagnosticLog "Confirmed duplicates retention protected newest file: $resolved"
-            continue
+        if (-not $referencedPaths.Contains((Resolve-FullPath $file.FullName))) {
+            $historicalUntracked++
         }
-        $candidates.Add((New-RetentionCandidate -Item $file -Kind 'ConfirmedDuplicateFile' -Reason 'Old confirmed SHA256 duplicate quarantine file'))
+    }
+    if ($historicalUntracked -gt 0) {
+        Write-Log -Message "Historical confirmed duplicate quarantine files retained because no successful validation manifest exists: $historicalUntracked" -Phase $phase -Status 'Warning'
     }
 
     $selected = @(Select-RetentionCandidatesByPolicy -Candidates @($candidates.ToArray()) -RootPath $QuarantineRootPath -RetentionDays $ConfirmedDuplicatesRetentionDays -MaxGB $ConfirmedDuplicatesMaxGB)
-    $result = Invoke-RetentionCandidateDeletion -Candidates $selected -Phase $phase
+    $safeCandidates = New-Object System.Collections.Generic.List[object]
+    $retainedReasons = @{}
+    if ($selected.Count -gt 0) {
+        Load-ProcessedIndexLight
+        $indexPathsByHash = Get-ConfirmedDuplicateIndexPathsByHash -QuarantineRootPath $QuarantineRootPath
+        foreach ($candidate in $selected) {
+            $validation = Test-ConfirmedDuplicateRetentionSafety -Candidate $candidate -IndexPathsByHash $indexPathsByHash -QuarantineRootPath $QuarantineRootPath
+            if ($validation.Safe) {
+                $candidate.Reason = "Current SHA256 revalidated against canonical: $($validation.CanonicalPath)"
+                $safeCandidates.Add($candidate)
+                $Stats.ConfirmedDuplicatesRevalidated++
+            }
+            else {
+                $Stats.ConfirmedDuplicatesRetained++
+                if (-not $retainedReasons.ContainsKey($validation.Reason)) { $retainedReasons[$validation.Reason] = 0 }
+                $retainedReasons[$validation.Reason]++
+                Write-Log -Message "Confirmed duplicate retained after revalidation: Path=$($candidate.Path); Reason=$($validation.Reason); Canonical=$($validation.CanonicalPath)" -Phase $phase -Status 'Warning'
+            }
+        }
+    }
+
+    $result = Invoke-RetentionCandidateDeletion -Candidates @($safeCandidates.ToArray()) -Phase $phase
     if ($Apply) {
         Remove-EmptyRetentionDirectories -RootPath $QuarantineRootPath -Phase $phase
     }
 
-    $wouldDelete = if ($Apply) { $result.Deleted } else { $selected.Count }
-    $space = if ($Apply) { $result.RecoveredBytes } else { Get-RetentionCandidatesTotalBytes -Candidates $selected }
+    $wouldDelete = if ($Apply) { $result.Deleted } else { $safeCandidates.Count }
+    $space = if ($Apply) { $result.RecoveredBytes } else { Get-RetentionCandidatesTotalBytes -Candidates @($safeCandidates.ToArray()) }
     $verb = if ($Apply) { 'Deleted' } else { 'Would delete' }
     $spaceVerb = if ($Apply) { 'Recovered space' } else { 'Potential space' }
-    Write-Log -Message ("Confirmed duplicates retention cleanup: {0} {1} confirmed duplicates older than {2} days. {3}: {4} GB" -f $verb, $wouldDelete, $ConfirmedDuplicatesRetentionDays, $spaceVerb, ([math]::Round($space / 1GB, 3))) -Phase $phase
+    $reasonSummary = if ($retainedReasons.Count -gt 0) { @($retainedReasons.GetEnumerator() | Sort-Object Name | ForEach-Object { "$($_.Name)=$($_.Value)" }) -join '; ' } else { 'none' }
+    Write-Log -Message ("Confirmed duplicates retention cleanup: {0} {1} revalidated duplicates older than {2} days. {3}: {4} GB. Eligible={5}; retainedAfterValidation={6}; historicalWithoutManifest={7}; latestRunProtected={8}; errorRunsProtected={9}; retainedReasons={10}" -f $verb, $wouldDelete, $ConfirmedDuplicatesRetentionDays, $spaceVerb, ([math]::Round($space / 1GB, 3)), $selected.Count, $Stats.ConfirmedDuplicatesRetained, $historicalUntracked, $protectedByRun, $protectedByErrors, $reasonSummary) -Phase $phase
 }
 
 function Invoke-RetentionCleanup {
@@ -5533,7 +5888,7 @@ function Invoke-RetentionCleanup {
     Invoke-MetadataBackupRetentionCleanup -BackupBasePath $metadataBackupBasePath
     Invoke-ConfirmedDuplicatesRetentionCleanup -QuarantineRootPath $ConfirmedDuplicatesQuarantineRoot
 
-    Write-Log -Message ("RetentionCleanup summary: deletedItems={0}; recoveredSpaceGB={1}; metadataRetentionDays={2}; confirmedDuplicatesRetentionDays={3}" -f $Stats.RetentionDeletedItems, $Stats.RetentionRecoveredGB, $MetadataBackupRetentionDays, $ConfirmedDuplicatesRetentionDays) -Phase 'Complete' -Status 'Completed'
+    Write-Log -Message ("RetentionCleanup summary: deletedItems={0}; recoveredSpaceGB={1}; metadataRetentionDays={2}; confirmedDuplicatesRetentionDays={3}; confirmedDuplicatesRevalidated={4}; confirmedDuplicatesRetained={5}" -f $Stats.RetentionDeletedItems, $Stats.RetentionRecoveredGB, $MetadataBackupRetentionDays, $ConfirmedDuplicatesRetentionDays, $Stats.ConfirmedDuplicatesRevalidated, $Stats.ConfirmedDuplicatesRetained) -Phase 'Complete' -Status 'Completed'
 }
 
 function Update-MetadataBackupSize {
@@ -8319,6 +8674,7 @@ function Invoke-DedupeCleanup {
             $confirmedDuplicates++
             if ($Apply) {
                 Move-DedupeEntry -Entry $entry -TargetPath $quarantine.Path -Action 'Moved confirmed exact duplicate to quarantine'
+                Add-ConfirmedDuplicateQuarantineEntry -QuarantinePath $quarantine.Path -CanonicalPath $canonical.Path -Hash $hash
                 $Stats.FilesMoved++
             }
         }
@@ -8331,10 +8687,15 @@ function Invoke-DedupeCleanup {
                 $promotedUnique++
                 if ($Apply) {
                     Move-DedupeEntry -Entry $canonical -TargetPath $promotion.Path -Action 'Promoted canonical unique from duplicates review'
+                    Update-ConfirmedDuplicateQuarantineCanonicalPath -Hash $hash -OldCanonicalPath $canonical.Path -NewCanonicalPath $promotion.Path
                     $Stats.FilesMoved++
                 }
             }
         }
+    }
+
+    if ($Apply) {
+        Save-ConfirmedDuplicateQuarantineRunManifest -Successful ($Stats.Errors -eq 0) | Out-Null
     }
 
     $summary = @{
@@ -8952,6 +9313,7 @@ function Move-RecoveryFile {
 
     Move-Item -LiteralPath $File.FullName -Destination $finalTarget -ErrorAction Stop
     if ($action -like 'Quarantine*') {
+        Add-ConfirmedDuplicateQuarantineEntry -QuarantinePath $finalTarget -CanonicalPath $TargetPath -Hash $Hash
         Write-Log -Message "Recovery moved identical existing duplicate to quarantine: $($File.FullName) -> $finalTarget. Reason=$Reason" -Phase 'Recovery'
     }
     else {
@@ -9100,6 +9462,7 @@ function Invoke-RecoverFromWrongDuplicateMove {
 
     if ($Apply) {
         Save-ProcessedDatabase
+        Save-ConfirmedDuplicateQuarantineRunManifest -Successful ($summary.Errors -eq 0) | Out-Null
     }
     $reportPath = Write-RecoveryReport -Summary $summary -Rows @($rows.ToArray())
     Write-Log -Message ("Recovery summary: total={0}; byLog={1}; byProcessed={2}; byExif={3}; unknown={4}; conflicts={5}; identicalExisting={6}; errors={7}; report={8}" -f $summary.Total, $summary.ByLog, $summary.ByProcessed, $summary.ByExif, $summary.Unknown, $summary.Conflicts, $summary.IdenticalExisting, $summary.Errors, $reportPath) -Phase 'Complete' -Status 'Completed'

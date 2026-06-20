@@ -118,7 +118,7 @@ En `Ajustes` existe el botón `Modo avanzado`. Abre un panel técnico sin recarg
 
 Ese panel expone modos del motor que antes requerían comandos PowerShell largos:
 
-- `RetentionCleanup`: limpia solo backups EXIF antiguos y cuarentena de duplicados confirmados antiguos. No limpia la galería normal, no limpia carpetas vacías, no reorganiza fotos y no toca `_Duplicados_Para_Revisar`.
+- `RetentionCleanup`: limpia backups EXIF antiguos y revalida duplicados confirmados vencidos antes de eliminarlos. No limpia la galería normal, no limpia carpetas vacías, no reorganiza fotos y no toca `_Duplicados_Para_Revisar`.
 - `RecoverFromWrongDuplicateMove`: recupera archivos enviados erróneamente a duplicados usando logs e índice.
 - `RenameExistingFoldersToCurrentLanguage`: traduce carpetas trimestrales existentes al idioma activo sin leer contenido.
 - `RenameInternalFoldersToCurrentLanguage`: traduce contenedores internos conocidos al idioma activo sin hidratar contenido cloud-only.
@@ -253,7 +253,9 @@ También reconoce aliases históricos como `_CopiaSeguridadMetadatos`, `_Metadat
 
 `_Duplicados_Para_Revisar` y sus equivalentes de idioma no se tocan jamás por `RetentionCleanup`, porque pueden contener casos que requieren revisión humana.
 
-Por defecto la retención depende de antigüedad: backups de metadata 30 días y duplicados confirmados 45 días. Si ejecutas `RetentionCleanup` antes de que se cumpla ese umbral, puede no borrar nada. Eso es normal y no indica fallo. Puedes esperar y volver a lanzarlo más adelante, o borrar manualmente contenido confirmado si necesitas liberar espacio inmediatamente y aceptas perder esa ventana de recuperación.
+Por defecto la retención depende de antigüedad: backups de metadata 30 días y duplicados confirmados 45 días. Las nuevas cuarentenas confirmadas guardan un manifiesto técnico por ejecución. Cuando el usuario lanza `RetentionCleanup`, UDMRS vuelve a calcular el SHA256 de la copia en cuarentena y de su copia canónica local antes de borrar. También comprueba que no sea RAW/DNG, cloud-only, conflictiva, perteneciente a la última ejecución correcta o a una ejecución con errores.
+
+Las cuarentenas históricas sin manifiesto se conservan: no se convierten retroactivamente en borrado automático. Si cualquier revalidación falla, el archivo permanece en cuarentena y el log explica el motivo. Si todavía no se alcanzó el umbral de días, no habrá candidatos; que no se borre nada es un resultado normal.
 
 ## Estado interno
 

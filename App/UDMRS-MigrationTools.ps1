@@ -57,7 +57,7 @@ function Get-UDMRSMigrationText {
                 LocalRoot = 'Radacina date locale'
                 Included = 'Ce este inclus'
                 InstallIncluded = 'ZIP instalare partajata: App, Docs, Tools, Branding, Templates, Releases, Config, README.md si lansatoarele existente.'
-                UserIncluded = 'ZIP stare utilizator: ProcessedFiles.json, Config, IndexBackups, setari dashboard si fisiere JSON de stare necesare pentru continuarea istoricului acelui utilizator.'
+                UserIncluded = 'ZIP stare utilizator: ProcessedFiles.json, Config, IndexBackups, QuarantineManifests, setari dashboard si fisiere JSON de stare necesare pentru continuarea istoricului acelui utilizator.'
                 NotIncluded = 'Ce nu este inclus'
                 ProgressFiles = 'fisiere progress.json'
                 QueueFiles = 'queue.jsonl'
@@ -93,7 +93,7 @@ function Get-UDMRSMigrationText {
                 LocalRoot = 'Local data root'
                 Included = 'What is included'
                 InstallIncluded = 'Shared installation ZIP: App, Docs, Tools, Branding, Templates, Releases, Config, README.md and launcher files that exist in the current installation.'
-                UserIncluded = 'User state ZIP: ProcessedFiles.json, Config, IndexBackups, dashboard settings and JSON state files needed to continue the same user history.'
+                UserIncluded = 'User state ZIP: ProcessedFiles.json, Config, IndexBackups, QuarantineManifests, dashboard settings and JSON state files needed to continue the same user history.'
                 NotIncluded = 'What is not included'
                 ProgressFiles = 'progress.json files'
                 QueueFiles = 'queue.jsonl'
@@ -129,7 +129,7 @@ function Get-UDMRSMigrationText {
                 LocalRoot = 'Raiz de datos locales'
                 Included = 'Que se incluye'
                 InstallIncluded = 'ZIP de instalacion compartida: App, Docs, Tools, Branding, Templates, Releases, Config, README.md y lanzadores existentes.'
-                UserIncluded = 'ZIP de estado del usuario: ProcessedFiles.json, Config, IndexBackups, ajustes del dashboard y JSON de estado necesarios para continuar el mismo historial de usuario.'
+                UserIncluded = 'ZIP de estado del usuario: ProcessedFiles.json, Config, IndexBackups, QuarantineManifests, ajustes del dashboard y JSON de estado necesarios para continuar el mismo historial de usuario.'
                 NotIncluded = 'Que no se incluye'
                 ProgressFiles = 'archivos progress.json'
                 QueueFiles = 'queue.jsonl'
@@ -270,7 +270,7 @@ function New-UDMRSMigrationPackage {
     New-ZipFromSelectedPaths -ZipPath $installZip -BasePath $resolvedInstallRoot -IncludeNames $installIncludes -ExcludePredicate $installExclude
 
     $userIncludes = @()
-    foreach ($name in @('ProcessedFiles.json', 'settings.json', 'dashboard-settings.json', 'Config', 'IndexBackups')) {
+    foreach ($name in @('ProcessedFiles.json', 'settings.json', 'dashboard-settings.json', 'Config', 'IndexBackups', 'QuarantineManifests')) {
         if (Test-Path -LiteralPath (Join-Path $resolvedUserDataRoot $name)) {
             $userIncludes += $name
         }

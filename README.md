@@ -145,6 +145,8 @@ Advanced operations include:
 
 Use these only after reading the manuals.
 
+`RetentionCleanup` is explicit maintenance, not a background task. For confirmed duplicates produced by current builds, it waits for the retention period and then recalculates the current SHA256 of both the quarantined copy and its local canonical copy. It deletes only when they still match; uncertain, cloud-only, RAW/DNG, latest-run, error-run, and historical untracked cases remain quarantined.
+
 ## Cloud-Aware Behavior
 
 UDMRS can work inside cloud-backed folders, but it follows this rule:

@@ -349,7 +349,7 @@
         <div class="tile"><strong>Dedupe</strong><span>Gestiona duplicados exactos y casos para revisar.</span></div>
         <div class="tile"><strong>Reconcile</strong><span>Sincroniza el indice con rutas reales y movimientos manuales.</span></div>
         <div class="tile"><strong>Recovery</strong><span>Rescata errores conservadores y evita perder trazabilidad.</span></div>
-        <div class="tile"><strong>Retention</strong><span>Limpia backups EXIF antiguos y cuarentena confirmada antigua.</span></div>
+        <div class="tile"><strong>Retention</strong><span>Limpia backups EXIF y revalida cuarentena confirmada vencida antes de borrar.</span></div>
         <div class="tile"><strong>Cloud-aware</strong><span>Procesa local, salta placeholders, no hidrata nube.</span></div>
       </div>
     </section>
@@ -455,7 +455,7 @@
         <div class="folder"><div class="name">Fotos_Organizadas\2026\Ene-Mar</div><div class="role">Destino principal. Archivos locales organizados por ano y trimestre.</div></div>
         <div class="folder"><div class="name">_NecesitaRevision</div><div class="role">Casos ambiguos, baja confianza o problemas que requieren humano.</div></div>
         <div class="folder"><div class="name">_Duplicados_Para_Revisar</div><div class="role">Duplicados probables o conflictos conservadores. No se purga automaticamente.</div></div>
-        <div class="folder"><div class="name">_Cuarentena_Duplicados_Confirmados</div><div class="role">Duplicados exactos confirmados por SHA256. Tiene retencion conservadora.</div></div>
+        <div class="folder"><div class="name">_Cuarentena_Duplicados_Confirmados</div><div class="role">Red de seguridad temporal. La limpieza tecnica revalida el SHA256 actual y elimina solo candidatos seguros.</div></div>
         <div class="folder"><div class="name">%LOCALAPPDATA%\PhotoOrganizer\_CopiaSeguridadMetadatos</div><div class="role">Backups EXIF temporales antes de modificar metadata.</div></div>
         <div class="folder"><div class="name">%APPDATA%\PhotoOrganizer\Logs</div><div class="role">Logs, progress y reportes por usuario. Retencion desde modo avanzado.</div></div>
         <div class="folder"><div class="name">%APPDATA%\PhotoOrganizer\IndexBackups</div><div class="role">Backups tecnicos del indice ProcessedFiles.json. Separados de logs normales.</div></div>
@@ -478,7 +478,7 @@
         <div class="step"><div class="num">2</div><div><strong>PurgeMissingFromProcessedDatabase</strong><br><span class="small">Avanzado. Antes de purgar, revalida y rescata lo que siga vivo. Nunca debe borrar fotos.</span></div></div>
         <div class="step"><div class="num">3</div><div><strong>RecoverFromWrongDuplicateMove</strong><br><span class="small">Usa logs e indice para rescatar archivos movidos erroneamente a zona de duplicados.</span></div></div>
         <div class="step"><div class="num">4</div><div><strong>MetadataAudit / MetadataRepair</strong><br><span class="small">Detecta y materializa fechas fiables que no son visibles para Windows, OneDrive o visores.</span></div></div>
-        <div class="step"><div class="num">5</div><div><strong>RetentionCleanup</strong><br><span class="small">Limpia backups EXIF antiguos y duplicados confirmados antiguos. No toca Duplicados_Para_Revisar.</span></div></div>
+        <div class="step"><div class="num">5</div><div><strong>RetentionCleanup</strong><br><span class="small">Revalida y elimina duplicados confirmados vencidos cuando el canonico local conserva el mismo SHA256. No toca Duplicados_Para_Revisar.</span></div></div>
       </div>
       <div class="callout ok"><strong>Principio de recuperacion</strong><br>El indice se puede reparar. Los archivos reales no se borran por mantenimiento normal. Una sola operacion del motor a la vez.</div>
     </section>
@@ -507,7 +507,7 @@
         <div>
           <h3>Modo avanzado</h3>
           <div class="flow">
-            <div class="node violet"><strong>RetentionCleanup</strong><span>Backups EXIF y cuarentena confirmada antigua.</span></div>
+            <div class="node violet"><strong>RetentionCleanup</strong><span>Backups EXIF y cuarentena confirmada con revalidacion SHA256.</span></div>
             <div class="node violet"><strong>Normalize</strong><span>Reestructura visual y limpia ramas.</span></div>
             <div class="node violet"><strong>DedupeCleanup</strong><span>Audita/promueve/gestiona duplicados.</span></div>
             <div class="node violet"><strong>RepairOnly</strong><span>Repara EXIF en biblioteca ya organizada.</span></div>
