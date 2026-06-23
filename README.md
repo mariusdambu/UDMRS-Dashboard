@@ -35,6 +35,7 @@ UDMRS is intentionally conservative, but no media organizer can guarantee safety
 - Supports Google Photos / Google Takeout imports.
 - Supports Apple Photos / iCloud Photos imports.
 - Supports generic XMP / JSON / YAML sidecar imports.
+- Separates provider date decisions from embedded-date verification: metadata that was not read is never treated as absent, and only a confirmed `Absent` state permits automatic date materialization.
 
 ## What It Does Not Do
 

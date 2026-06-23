@@ -110,7 +110,7 @@
       <tr><td>Immich</td><td class="advanced">Próximamente · requiere muestra/export</td><td>Deshabilitado en UI. No lanza proceso.</td></tr>
       <tr><td>XMP / Sidecar Library</td><td class="safe">Disponible</td><td><code>-ImportProvider XmpSidecarLibrary -ImportProviderPath &lt;RutaGaleria&gt;</code></td></tr>
     </table>
-    <div class="note"><strong>Fuentes ImportProvider.</strong> La ruta siempre la selecciona el usuario. No uses rutas fijas. En DryRun genera reporte sin copiar; en Apply copia assets limpios al destino y registra el índice común. Tras un Apply correcto, la carpeta de exportación seleccionada puede eliminarse solo si el usuario lo confirma explícitamente. La decisión queda registrada en log/reporte.</div>
+    <div class="note"><strong>Fuentes ImportProvider.</strong> La ruta siempre la selecciona el usuario. No uses rutas fijas. En DryRun genera reporte sin copiar; en Apply copia assets limpios al destino y registra el índice común. `ProviderTrusted` puede omitir EXIF para decidir la organización, pero queda como `NotChecked` y no autoriza escritura. Solo `EmbeddedCaptureDateProbe=Absent`, confirmado por lectura, permite materializar. Tras un Apply correcto, la carpeta de exportación seleccionada puede eliminarse solo si el usuario lo confirma explícitamente.</div>
     <div class="note"><strong>Apple Photos / iCloud.</strong> Interpreta exportaciones iCloud con <code>Photo Details.csv</code>, CSV de álbumes, flags de papelera, fechas de proveedor, vídeos y candidatos Live Photo. No depende del nombre visible de la carpeta raíz.</div>
     <div class="note"><strong>XMP / Sidecar Library.</strong> Intenta asociar media con sidecars <code>.xmp</code>, <code>.json</code>, <code>.yaml</code> o <code>.yml</code>. Si la relación es clara usa fecha, título, descripción, tags, rating o ubicación cuando existan. Si es ambigua, manda a revisión. Si no hay metadata útil, usa fallback clásico.</div>
   </section>
@@ -366,7 +366,7 @@
   -MetadataRepair `
   -Language es `
   -Apply</code></pre>
-    <div class="note"><strong>Normalize vs MetadataRepair:</strong> Normalize cambia estructura/rutas/nombres/carpetas. MetadataRepair cambia visibilidad temporal dentro del archivo y fechas de sistema cuando falta una fecha de captura útil para Windows, OneDrive o Microsoft Photos.</div>
+    <div class="note"><strong>Normalize vs MetadataRepair:</strong> Normalize cambia estructura/rutas/nombres/carpetas. MetadataRepair materializa visibilidad temporal únicamente cuando existe fecha fiable y `EmbeddedCaptureDateProbe` confirma `Absent`; los estados `PresentValid`, `Conflict`, `Unreadable`, `Unsupported` y `NotChecked` se preservan.</div>
     <h3>15. RecoverFromWrongDuplicateMove DryRun</h3>
     <p class="safe">Recuperación específica para movimientos erróneos a duplicados. Primero siempre DryRun.</p>
 <pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `

@@ -155,10 +155,12 @@ organizar ruta/nombre
 ↓
 materializar fecha visible
 ```
-`CaptureDateMaterialization` es la capa común que usa esa fecha fiable para escribir metadata visible cuando el formato lo permite y cuando no existe una fecha embebida válida en conflicto. También puede sincronizar `CreationTime` y `LastWriteTime` si esas fechas parecen accidentales.
+`CaptureDateMaterialization` es la capa común que usa esa fecha fiable para escribir metadata visible. Antes de cualquier escritura exige un estado explícito de `EmbeddedCaptureDateProbe`: `PresentValid`, `Absent`, `Conflict`, `Unreadable`, `Unsupported` o `NotChecked`. Solo `Absent`, confirmado por una lectura correcta, autoriza escritura embebida o sincronización de fechas de sistema.
+
+En ImportProvider, una lectura EXIF omitida por confianza del provider queda como `NotChecked`, no como metadata ausente. El provider puede seguir decidiendo fecha, clasificación y destino, pero la copia permanece sin reescritura automática hasta que una lectura confirme `Absent`. Los estados se registran en reportes e índice. Esta separación no decide todavía si Google, Apple, XMP o EXIF debe ganar un conflicto.
 
 - `MetadataAudit`: revisa la biblioteca organizada y genera un CSV con candidatos. Siempre es auditoría; no escribe metadata ni cambia fechas de sistema.
-- `MetadataRepair`: actúa solo sobre candidatos seguros. Escribe metadata embebida, sincroniza fechas de sistema, crea backup, recalcula hash y actualiza `ProcessedFiles.json`.
+- `MetadataRepair`: actúa solo sobre candidatos con fecha fiable y ausencia embebida confirmada. Escribe metadata, sincroniza fechas de sistema, crea backup, recalcula hash y actualiza `ProcessedFiles.json`.
 - `NormalizeExistingFolders`: no sustituye a MetadataRepair. Normalize arregla estructura; MetadataRepair arregla visibilidad temporal dentro del archivo.
 - `RepairExif`: sigue existiendo como opción de organización/reparación, pero la política madura de fechas visibles se centraliza en CaptureDateMaterialization.
 

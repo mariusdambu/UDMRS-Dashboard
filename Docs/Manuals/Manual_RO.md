@@ -384,7 +384,9 @@ UDMRS poate cunoaste o data fiabila din EXIF, provider, sidecar sau model de num
 
 `MetadataAudit` verifica biblioteca organizata si genereaza un CSV cu candidati. Nu modifica nimic, chiar daca dashboard-ul este in Apply. Foloseste-l ca sa vezi cate fisiere au data fiabila cunoscuta, dar nu vizibila pentru Windows, OneDrive sau Microsoft Photos.
 
-`MetadataRepair` actioneaza doar asupra candidatilor siguri. Creeaza backup, scrie metadata incorporata in functie de format, sincronizeaza datele de sistem cand este cazul, recalculeaza hash-ul si actualizeaza indexul.
+`MetadataRepair` actioneaza doar asupra candidatilor siguri. `EmbeddedCaptureDateProbe` distinge `PresentValid`, `Absent`, `Conflict`, `Unreadable`, `Unsupported` si `NotChecked`. Numai `Absent`, confirmat printr-o citire corecta, permite scrierea metadatelor sau sincronizarea datelor de sistem. Creeaza backup, recalculeaza hash-ul si actualizeaza indexul cand modifica fisierul.
+
+In ImportProvider, `ProviderTrusted` poate evita o citire EXIF costisitoare pentru a decide data si destinatia, dar acel caz ramane `NotChecked`: nu autorizeaza rescrierea. `PresentValid`, `Conflict`, `Unreadable`, `Unsupported` si `NotChecked` sunt pastrate. Aceasta infrastructura nu schimba inca prioritatea dintre provider si metadata incorporata.
 
 Formate acoperite de politica de materializare: JPG/JPEG, HEIC/HEIF, MP4/MOV/M4V/3GP, PNG, TIFF, WEBP si GIF atunci cand exista o metoda sigura de scriere a datei utile. Daca formatul nu permite data asteptata sau exista conflict cu metadata valida, logul/raportul trebuie sa marcheze `DateKnownButMetadataNotWritten` sau un warning echivalent.
 

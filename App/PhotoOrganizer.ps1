@@ -434,6 +434,7 @@ $ImportProviderTextByLanguage = @{
         DateSource = 'Fuente de fecha'
         Confidence = 'Confianza'
         ExifVerification = 'Verificación EXIF'
+        EmbeddedDateState = 'Estado fecha embebida'
         Warnings = 'Avisos'
         SidecarsFound = 'Sidecars encontrados'
         SidecarsUsed = 'Sidecars usados'
@@ -496,6 +497,7 @@ $ImportProviderTextByLanguage = @{
         DateSource = 'Sursa datei'
         Confidence = 'Încredere'
         ExifVerification = 'Verificare EXIF'
+        EmbeddedDateState = 'Stare dată încorporată'
         Warnings = 'Avertismente'
         SidecarsFound = 'Sidecar-uri găsite'
         SidecarsUsed = 'Sidecar-uri folosite'
@@ -558,6 +560,7 @@ $ImportProviderTextByLanguage = @{
         DateSource = 'Date source'
         Confidence = 'Confidence'
         ExifVerification = 'EXIF verification'
+        EmbeddedDateState = 'Embedded date state'
         Warnings = 'Warnings'
         SidecarsFound = 'Sidecars found'
         SidecarsUsed = 'Sidecars used'
@@ -3604,6 +3607,7 @@ function Register-ProcessedFile {
         captureDate = if ($Item.DateInfo -and $Item.DateInfo.Date) { $Item.DateInfo.Date.ToString('o') } else { '' }
         captureDateSource = if ($Item.DateInfo) { [string]$Item.DateInfo.Source } else { '' }
         captureDateConfidence = if ($Item.DateInfo) { [int]$Item.DateInfo.Confidence } else { 0 }
+        embeddedCaptureDateState = if ($Item.PSObject.Properties.Name -contains 'EmbeddedCaptureDateState') { [string]$Item.EmbeddedCaptureDateState } else { 'NotChecked' }
         captureDateMaterializationStatus = if ($Item.PSObject.Properties.Name -contains 'CaptureDateMaterializationStatus') { [string]$Item.CaptureDateMaterializationStatus } else { '' }
         embeddedCaptureMetadataWritten = if ($Item.PSObject.Properties.Name -contains 'EmbeddedCaptureMetadataWritten') { [bool]$Item.EmbeddedCaptureMetadataWritten } else { $false }
         fileSystemDatesSynced = if ($Item.PSObject.Properties.Name -contains 'FileSystemDatesSynced') { [bool]$Item.FileSystemDatesSynced } else { $false }
@@ -3657,6 +3661,7 @@ function Register-ImportedProviderFile {
         captureDate = if ($Item.DateInfo -and $Item.DateInfo.Date) { $Item.DateInfo.Date.ToString('o') } else { '' }
         captureDateSource = if ($Item.DateInfo) { [string]$Item.DateInfo.Source } else { '' }
         captureDateConfidence = if ($Item.DateInfo) { [int]$Item.DateInfo.Confidence } else { 0 }
+        embeddedCaptureDateState = if ($Item.PSObject.Properties.Name -contains 'EmbeddedCaptureDateState') { [string]$Item.EmbeddedCaptureDateState } else { 'NotChecked' }
         captureDateMaterializationStatus = if ($Item.PSObject.Properties.Name -contains 'CaptureDateMaterializationStatus') { [string]$Item.CaptureDateMaterializationStatus } else { '' }
         embeddedCaptureMetadataWritten = if ($Item.PSObject.Properties.Name -contains 'EmbeddedCaptureMetadataWritten') { [bool]$Item.EmbeddedCaptureMetadataWritten } else { $false }
         fileSystemDatesSynced = if ($Item.PSObject.Properties.Name -contains 'FileSystemDatesSynced') { [bool]$Item.FileSystemDatesSynced } else { $false }
@@ -4210,20 +4215,24 @@ function Get-ExifMetadata {
         Warning = $null
         ExifScore = 0
         Raw = $null
+        ReadStatus = 'NotChecked'
     }
 
     if (-not $ExifToolAvailable) {
+        $metadata.ReadStatus = 'Unreadable'
         return [pscustomobject]$metadata
     }
 
     $availability = Detect-StorageAvailability -Path $Path
     if ($availability.State -eq 'CloudPlaceholder') {
         Register-CloudPlaceholderSkipped -Path $Path -Phase 'EXIF' -Availability $availability
+        $metadata.ReadStatus = 'Unreadable'
         return [pscustomobject]$metadata
     }
     if ($availability.State -eq 'MissingReal') {
         $Stats.MissingReal++
         Write-Log -Message "EXIF skipped missing file: $Path. Reason=$($availability.Reason)" -Phase 'EXIF'
+        $metadata.ReadStatus = 'Unreadable'
         return [pscustomobject]$metadata
     }
 
@@ -4236,6 +4245,7 @@ function Get-ExifMetadata {
         if ($exif.TimedOut) {
             Register-SlowExifCandidate -Path $Path -Reason 'timeout' -Detail "Per-file ExifTool timeout after $TimeoutSeconds seconds" -Seconds $exif.DurationSeconds -BatchNumber $script:CurrentBatch
             Register-ExifProblemFile -Path $Path -Reason "Slow EXIF file detected" -Detail "ExifTool timeout after $TimeoutSeconds seconds"
+            $metadata.ReadStatus = 'Unreadable'
             return [pscustomobject]$metadata
         }
         if ($exif.DurationSeconds -ge 10) {
@@ -4247,22 +4257,26 @@ function Get-ExifMetadata {
                 Register-ExifProblemFile -Path $Path -Reason "Media corruption / WhatsApp metadata issue" -Detail $exif.Error
             }
             Write-DiagnosticLog "ExifTool metadata read failed for ${Path}: $($exif.Error)"
+            $metadata.ReadStatus = 'Unreadable'
             return [pscustomobject]$metadata
         }
 
         if (Test-ExifProblemText -Text $exif.Error) {
             Register-SlowExifCandidate -Path $Path -Reason 'metadata warning' -Detail $exif.Error -Seconds $exif.DurationSeconds -BatchNumber $script:CurrentBatch
             Register-ExifProblemFile -Path $Path -Reason "Media corruption / WhatsApp metadata issue" -Detail $exif.Error
+            $metadata.ReadStatus = 'Unreadable'
             return [pscustomobject]$metadata
         }
 
         $json = $exif.Output
         if ([string]::IsNullOrWhiteSpace($json)) {
+            $metadata.ReadStatus = 'Unreadable'
             return [pscustomobject]$metadata
         }
 
         $raw = ($json | ConvertFrom-Json)[0]
         $metadata.Raw = $raw
+        $metadata.ReadStatus = 'Read'
         foreach ($field in @($VisibleCaptureMetadataFields + @('GPSLatitude', 'GPSLongitude', 'ImageWidth', 'ImageHeight', 'Warning'))) {
             if ($raw.PSObject.Properties.Name -contains $field) {
                 $metadata[$field] = $raw.$field
@@ -4274,6 +4288,7 @@ function Get-ExifMetadata {
         if (Test-ExifProblemText -Text ([string]$metadata.Warning)) {
             Register-SlowExifCandidate -Path $Path -Reason 'metadata warning' -Detail ([string]$metadata.Warning) -Seconds $exif.DurationSeconds -BatchNumber $script:CurrentBatch
             Register-ExifProblemFile -Path $Path -Reason "Media corruption / WhatsApp metadata issue" -Detail ([string]$metadata.Warning)
+            $metadata.ReadStatus = 'Unreadable'
             return [pscustomobject]$metadata
         }
 
@@ -4285,12 +4300,15 @@ function Get-ExifMetadata {
         if ($metadata.ImageWidth -and $metadata.ImageHeight) { $metadata.ExifScore += 1 }
     }
     catch {
+        $metadata.ReadStatus = 'Unreadable'
     }
 
     return [pscustomobject]$metadata
 }
 
 function New-EmptyMetadata {
+    param([string]$ReadStatus = 'NotChecked')
+
     return [pscustomobject]([ordered]@{
         DateTimeOriginal = $null
         CreateDate = $null
@@ -4310,6 +4328,7 @@ function New-EmptyMetadata {
         Warning = $null
         ExifScore = 0
         Raw = $null
+        ReadStatus = $ReadStatus
     })
 }
 
@@ -4335,6 +4354,7 @@ function Convert-ExifRawToMetadata {
         Warning = $null
         ExifScore = 0
         Raw = $Raw
+        ReadStatus = 'Read'
     }
 
     foreach ($field in @($VisibleCaptureMetadataFields + @('GPSLatitude', 'GPSLongitude', 'ImageWidth', 'ImageHeight', 'Warning'))) {
@@ -4368,6 +4388,11 @@ function Get-ExifMetadataBatch {
     }
 
     if (-not $ExifToolAvailable -or $Files.Count -eq 0) {
+        if (-not $ExifToolAvailable) {
+            foreach ($file in $Files) {
+                $result[$file.FullName].ReadStatus = 'Unreadable'
+            }
+        }
         return $result
     }
 
@@ -4376,11 +4401,13 @@ function Get-ExifMetadataBatch {
         $availability = Detect-StorageAvailability -Item $file
         if ($availability.State -eq 'CloudPlaceholder') {
             Register-CloudPlaceholderSkipped -Path $file.FullName -Phase 'EXIF' -Availability $availability
+            $result[$file.FullName].ReadStatus = 'Unreadable'
             continue
         }
         if ($availability.State -eq 'MissingReal') {
             $Stats.MissingReal++
             Write-Log -Message "EXIF batch skipped missing file: $($file.FullName). Reason=$($availability.Reason)" -Phase 'EXIF'
+            $result[$file.FullName].ReadStatus = 'Unreadable'
             continue
         }
         $localFiles.Add($file)
@@ -4498,6 +4525,12 @@ function Get-ExifMetadataBatch {
         if ($ShowImportProviderProgress) {
             Write-ImportProviderExifVerificationProgress -Current $Files.Count -Total $Files.Count -StartedAt $progressStartedAt -Force
             $script:OperationalProgress = $null
+        }
+    }
+
+    foreach ($file in $Files) {
+        if ([string]$result[$file.FullName].ReadStatus -eq 'NotChecked') {
+            $result[$file.FullName].ReadStatus = 'Unreadable'
         }
     }
 
@@ -6456,12 +6489,13 @@ function Write-GoogleTakeoutImportReport {
     $dateSourceLabel = Get-ImportProviderText -Key 'DateSource'
     $confidenceLabel = Get-ImportProviderText -Key 'Confidence'
     $exifVerificationLabel = Get-ImportProviderText -Key 'ExifVerification'
+    $embeddedDateStateLabel = Get-ImportProviderText -Key 'EmbeddedDateState'
     $warningsLabel = Get-ImportProviderText -Key 'Warnings'
     $assetRows = New-Object System.Text.StringBuilder
     foreach ($asset in @($Assets | Select-Object -First 500)) {
         $albums = (@($asset.AlbumNames) -join ', ')
         $warnings = (@($asset.Warnings) -join '; ')
-        [void]$assetRows.AppendLine(("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td><td>{6}</td><td>{7}</td><td>{8}</td></tr>" -f
+        [void]$assetRows.AppendLine(("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td><td>{6}</td><td>{7}</td><td>{8}</td><td>{9}</td></tr>" -f
             (ConvertTo-HtmlText $asset.Hash.Substring(0, [math]::Min(12, $asset.Hash.Length))),
             (ConvertTo-HtmlText $asset.Status),
             (ConvertTo-HtmlText $asset.PrimaryPath),
@@ -6470,6 +6504,7 @@ function Write-GoogleTakeoutImportReport {
             (ConvertTo-HtmlText $asset.DateSource),
             (ConvertTo-HtmlText $asset.MetadataConfidence),
             (ConvertTo-HtmlText $asset.ExifVerification),
+            (ConvertTo-HtmlText $asset.EmbeddedCaptureDateState),
             (ConvertTo-HtmlText $warnings)))
     }
 
@@ -6510,7 +6545,7 @@ function Write-GoogleTakeoutImportReport {
   <p><strong>${sourceDeletionLabel}:</strong> $($Summary.SourceDeletionStatus) · $([System.Net.WebUtility]::HtmlEncode([string]$Summary.SourceDeletionPath))</p>
   <h2>$assetsLabel</h2>
   <table>
-    <tr><th>$hashLabel</th><th>$statusLabel</th><th>$pathLabel</th><th>$occurrencesLabel</th><th>$albumsLabel</th><th>$dateSourceLabel</th><th>$confidenceLabel</th><th>$exifVerificationLabel</th><th>$warningsLabel</th></tr>
+    <tr><th>$hashLabel</th><th>$statusLabel</th><th>$pathLabel</th><th>$occurrencesLabel</th><th>$albumsLabel</th><th>$dateSourceLabel</th><th>$confidenceLabel</th><th>$exifVerificationLabel</th><th>$embeddedDateStateLabel</th><th>$warningsLabel</th></tr>
     $assetRows
   </table>
 </body>
@@ -6530,6 +6565,7 @@ function Write-GoogleTakeoutImportReport {
             dateSource = $_.DateSource
             metadataConfidence = $_.MetadataConfidence
             exifVerification = $_.ExifVerification
+            embeddedCaptureDateState = $_.EmbeddedCaptureDateState
             occurrences = @($_.Occurrences | ForEach-Object {
                 [pscustomobject]@{
                     path = $_.File.FullName
@@ -7049,13 +7085,14 @@ function Write-ApplePhotosImportReport {
     $dateSourceLabel = Get-ImportProviderText -Key 'DateSource'
     $confidenceLabel = Get-ImportProviderText -Key 'Confidence'
     $exifVerificationLabel = Get-ImportProviderText -Key 'ExifVerification'
+    $embeddedDateStateLabel = Get-ImportProviderText -Key 'EmbeddedDateState'
     $warningsLabel = Get-ImportProviderText -Key 'Warnings'
 
     $assetRows = New-Object System.Text.StringBuilder
     foreach ($asset in @($Assets | Select-Object -First 500)) {
         $albums = (@($asset.AlbumNames) -join ', ')
         $warnings = (@($asset.Warnings) -join '; ')
-        [void]$assetRows.AppendLine(("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td><td>{6}</td><td>{7}</td><td>{8}</td></tr>" -f
+        [void]$assetRows.AppendLine(("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td><td>{6}</td><td>{7}</td><td>{8}</td><td>{9}</td></tr>" -f
             (ConvertTo-HtmlText $asset.Hash.Substring(0, [math]::Min(12, $asset.Hash.Length))),
             (ConvertTo-HtmlText $asset.Status),
             (ConvertTo-HtmlText $asset.PrimaryPath),
@@ -7064,6 +7101,7 @@ function Write-ApplePhotosImportReport {
             (ConvertTo-HtmlText $asset.DateSource),
             (ConvertTo-HtmlText $asset.MetadataConfidence),
             (ConvertTo-HtmlText $asset.ExifVerification),
+            (ConvertTo-HtmlText $asset.EmbeddedCaptureDateState),
             (ConvertTo-HtmlText $warnings)))
     }
 
@@ -7103,7 +7141,7 @@ function Write-ApplePhotosImportReport {
   <p><strong>$(Get-ImportProviderText -Key 'TakeoutSourceDeletion'):</strong> $($Summary.SourceDeletionStatus) · $([System.Net.WebUtility]::HtmlEncode([string]$Summary.SourceDeletionPath))</p>
   <h2>$assetsLabel</h2>
   <table>
-    <tr><th>$hashLabel</th><th>$statusLabel</th><th>$pathLabel</th><th>Apple checksum</th><th>$albumsLabel</th><th>$dateSourceLabel</th><th>$confidenceLabel</th><th>$exifVerificationLabel</th><th>$warningsLabel</th></tr>
+    <tr><th>$hashLabel</th><th>$statusLabel</th><th>$pathLabel</th><th>Apple checksum</th><th>$albumsLabel</th><th>$dateSourceLabel</th><th>$confidenceLabel</th><th>$exifVerificationLabel</th><th>$embeddedDateStateLabel</th><th>$warningsLabel</th></tr>
     $assetRows
   </table>
 </body>
@@ -7125,6 +7163,7 @@ function Write-ApplePhotosImportReport {
                 DateSource = [string]$_.DateSource
                 MetadataConfidence = [string]$_.MetadataConfidence
                 ExifVerification = [string]$_.ExifVerification
+                EmbeddedCaptureDateState = [string]$_.EmbeddedCaptureDateState
                 Warnings = @($_.Warnings)
             }
         })
@@ -7423,19 +7462,21 @@ function Write-XmpSidecarLibraryImportReport {
     $dateSourceLabel = Get-ImportProviderText -Key 'DateSource'
     $confidenceLabel = Get-ImportProviderText -Key 'Confidence'
     $exifVerificationLabel = Get-ImportProviderText -Key 'ExifVerification'
+    $embeddedDateStateLabel = Get-ImportProviderText -Key 'EmbeddedDateState'
     $sidecarFieldsLabel = Get-ImportProviderText -Key 'SidecarFields'
     $warningsLabel = Get-ImportProviderText -Key 'Warnings'
     $assetRows = New-Object System.Text.StringBuilder
     foreach ($asset in @($Assets | Select-Object -First 500)) {
         $warnings = (@($asset.Warnings) -join '; ')
         $fields = if ($asset.Sidecar) { (@($asset.Sidecar.FieldsFound) -join ', ') } else { '' }
-        [void]$assetRows.AppendLine(("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td><td>{6}</td><td>{7}</td></tr>" -f
+        [void]$assetRows.AppendLine(("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td><td>{6}</td><td>{7}</td><td>{8}</td></tr>" -f
             (ConvertTo-HtmlText $asset.Status),
             (ConvertTo-HtmlText $asset.PrimaryPath),
             (ConvertTo-HtmlText $asset.SidecarStatus),
             (ConvertTo-HtmlText $asset.DateSource),
             (ConvertTo-HtmlText $asset.MetadataConfidence),
             (ConvertTo-HtmlText $asset.ExifVerification),
+            (ConvertTo-HtmlText $asset.EmbeddedCaptureDateState),
             (ConvertTo-HtmlText $fields),
             (ConvertTo-HtmlText $warnings)))
     }
@@ -7476,7 +7517,7 @@ function Write-XmpSidecarLibraryImportReport {
   <p><strong>$(Get-ImportProviderText -Key 'TakeoutSourceDeletion'):</strong> $($Summary.SourceDeletionStatus) · $([System.Net.WebUtility]::HtmlEncode([string]$Summary.SourceDeletionPath))</p>
   <h2>$assetsLabel</h2>
   <table>
-    <tr><th>$statusLabel</th><th>$pathLabel</th><th>$sidecarLabel</th><th>$dateSourceLabel</th><th>$confidenceLabel</th><th>$exifVerificationLabel</th><th>$sidecarFieldsLabel</th><th>$warningsLabel</th></tr>
+    <tr><th>$statusLabel</th><th>$pathLabel</th><th>$sidecarLabel</th><th>$dateSourceLabel</th><th>$confidenceLabel</th><th>$exifVerificationLabel</th><th>$embeddedDateStateLabel</th><th>$sidecarFieldsLabel</th><th>$warningsLabel</th></tr>
     $assetRows
   </table>
 </body>
@@ -7495,6 +7536,7 @@ function Write-XmpSidecarLibraryImportReport {
             DateSource = [string]$_.DateSource
             MetadataConfidence = [string]$_.MetadataConfidence
             ExifVerification = [string]$_.ExifVerification
+            EmbeddedCaptureDateState = [string]$_.EmbeddedCaptureDateState
             AlbumNames = @($_.AlbumNames)
             Warnings = @($_.Warnings)
             SidecarFields = if ($_.Sidecar) { @($_.Sidecar.FieldsFound) } else { @() }
@@ -7649,6 +7691,7 @@ function Invoke-ImportProviderApplePhotos {
             DateSource = ''
             MetadataConfidence = 'Pending'
             ExifVerification = 'Pending'
+            EmbeddedCaptureDateState = 'NotChecked'
             TargetPath = ''
         })
     }
@@ -7676,7 +7719,7 @@ function Invoke-ImportProviderApplePhotos {
     foreach ($asset in @($assets.ToArray())) {
         $primary = $asset.PrimaryOccurrence
         $metadata = if ($metadataMap.ContainsKey($primary.File.FullName)) { $metadataMap[$primary.File.FullName] } else { New-EmptyMetadata }
-        $embeddedMetadataRead = $metadataMap.ContainsKey($primary.File.FullName)
+        $embeddedMetadataRead = ([string]$metadata.ReadStatus -eq 'Read')
         $dateInfo = Get-ApplePhotosImportDateInfo -Asset $asset -Metadata $metadata -EmbeddedMetadataRead $embeddedMetadataRead
         $asset.DateSource = [string]$dateInfo.Source
         if ($dateInfo.PSObject.Properties.Name -contains 'MetadataConfidence') { $asset.MetadataConfidence = [string]$dateInfo.MetadataConfidence }
@@ -7719,7 +7762,9 @@ function Invoke-ImportProviderApplePhotos {
             ProviderAlbumNames = @($asset.AlbumNames)
             ProviderMetadataConfidence = $asset.MetadataConfidence
             ProviderExifVerification = $asset.ExifVerification
+            EmbeddedMetadataReadStatus = [string]$metadata.ReadStatus
         }
+        $asset.EmbeddedCaptureDateState = [string](Initialize-EmbeddedCaptureDateProbe -Item $item).State
 
         if ($asset.Status -eq 'ConflictNeedsReview') {
             $Stats.NeedsReview++
@@ -7910,6 +7955,7 @@ function Invoke-ImportProviderXmpSidecarLibrary {
             DateSource = ''
             MetadataConfidence = 'Pending'
             ExifVerification = 'Pending'
+            EmbeddedCaptureDateState = 'NotChecked'
             PrimaryPath = $file.FullName
             TargetPath = ''
         })
@@ -7938,7 +7984,7 @@ function Invoke-ImportProviderXmpSidecarLibrary {
     $duplicateInIndex = 0
     foreach ($asset in @($assets.ToArray())) {
         $metadata = if ($metadataMap.ContainsKey($asset.File.FullName)) { $metadataMap[$asset.File.FullName] } else { New-EmptyMetadata }
-        $embeddedMetadataRead = $metadataMap.ContainsKey($asset.File.FullName)
+        $embeddedMetadataRead = ([string]$metadata.ReadStatus -eq 'Read')
         $dateInfo = Get-XmpSidecarLibraryDateInfo -Asset $asset -Metadata $metadata -EmbeddedMetadataRead $embeddedMetadataRead
         $asset.DateSource = [string]$dateInfo.Source
         if ($dateInfo.PSObject.Properties.Name -contains 'MetadataConfidence') { $asset.MetadataConfidence = [string]$dateInfo.MetadataConfidence }
@@ -7978,7 +8024,9 @@ function Invoke-ImportProviderXmpSidecarLibrary {
             ProviderAlbumNames = @($asset.AlbumNames)
             ProviderMetadataConfidence = $asset.MetadataConfidence
             ProviderExifVerification = $asset.ExifVerification
+            EmbeddedMetadataReadStatus = [string]$metadata.ReadStatus
         }
+        $asset.EmbeddedCaptureDateState = [string](Initialize-EmbeddedCaptureDateProbe -Item $item).State
 
         if ($asset.Status -eq 'ConflictNeedsReview' -or $dateInfo.Confidence -lt $ExifRepairConfidence) {
             $Stats.NeedsReview++
@@ -8179,6 +8227,7 @@ function Invoke-ImportProviderGoogleTakeout {
             DateSource = ''
             MetadataConfidence = 'Pending'
             ExifVerification = 'Pending'
+            EmbeddedCaptureDateState = 'NotChecked'
             TargetPath = ''
         })
     }
@@ -8209,7 +8258,7 @@ function Invoke-ImportProviderGoogleTakeout {
     foreach ($asset in @($assets.ToArray())) {
         $primary = $asset.PrimaryOccurrence
         $metadata = if ($metadataMap.ContainsKey($primary.File.FullName)) { $metadataMap[$primary.File.FullName] } else { New-EmptyMetadata }
-        $embeddedMetadataRead = $metadataMap.ContainsKey($primary.File.FullName)
+        $embeddedMetadataRead = ([string]$metadata.ReadStatus -eq 'Read')
         $dateInfo = Get-GoogleTakeoutImportDateInfo -Asset $asset -PrimaryOccurrence $primary -Metadata $metadata -EmbeddedMetadataRead $embeddedMetadataRead
         $asset.DateSource = [string]$dateInfo.Source
         if ($dateInfo.PSObject.Properties.Name -contains 'MetadataConfidence') { $asset.MetadataConfidence = [string]$dateInfo.MetadataConfidence }
@@ -8253,7 +8302,9 @@ function Invoke-ImportProviderGoogleTakeout {
             ProviderAlbumNames = @($asset.AlbumNames)
             ProviderMetadataConfidence = $asset.MetadataConfidence
             ProviderExifVerification = $asset.ExifVerification
+            EmbeddedMetadataReadStatus = [string]$metadata.ReadStatus
         }
+        $asset.EmbeddedCaptureDateState = [string](Initialize-EmbeddedCaptureDateProbe -Item $item).State
 
         if ($asset.Status -eq 'ConflictNeedsReview') {
             $Stats.NeedsReview++
@@ -9518,8 +9569,10 @@ function Invoke-MetadataAuditOrRepair {
                 Sha256 = $null
                 Width = if ($metadata.ImageWidth) { [int]$metadata.ImageWidth } else { 0 }
                 Height = if ($metadata.ImageHeight) { [int]$metadata.ImageHeight } else { 0 }
+                EmbeddedMetadataReadStatus = [string]$metadata.ReadStatus
             }
             $item.DateInfo = Get-PrimaryDate -Item $item -IsVideo $item.IsVideo
+            [void](Initialize-EmbeddedCaptureDateProbe -Item $item)
             $processedRecordBeforeRepair = Find-ProcessedRecordByPath -Path $file.FullName
             $oldHashBeforeRepair = if ($processedRecordBeforeRepair -and $processedRecordBeforeRepair.hash) { [string]$processedRecordBeforeRepair.hash } else { '' }
             if (-not [string]::IsNullOrWhiteSpace($oldHashBeforeRepair)) { $item.Sha256 = $oldHashBeforeRepair }
@@ -9531,6 +9584,7 @@ function Invoke-MetadataAuditOrRepair {
                     CaptureDate = if ($item.DateInfo -and $item.DateInfo.Date) { $item.DateInfo.Date.ToString('yyyy-MM-dd HH:mm:ss') } else { '' }
                     Source = if ($item.DateInfo) { [string]$item.DateInfo.Source } else { '' }
                     Confidence = if ($item.DateInfo) { [int]$item.DateInfo.Confidence } else { 0 }
+                    EmbeddedCaptureDateState = $materializationResult.EmbeddedCaptureDateState
                     Status = $materializationResult.Status
                     EmbeddedMetadataWritten = $materializationResult.EmbeddedMetadataWritten
                     FileSystemDatesSynced = $materializationResult.FileSystemDatesSynced
@@ -9597,8 +9651,10 @@ function Invoke-RepairOnlyExistingOrganizedLibrary {
                 Sha256 = $null
                 Width = if ($metadata.ImageWidth) { [int]$metadata.ImageWidth } else { 0 }
                 Height = if ($metadata.ImageHeight) { [int]$metadata.ImageHeight } else { 0 }
+                EmbeddedMetadataReadStatus = [string]$metadata.ReadStatus
             }
             $item.DateInfo = Get-PrimaryDate -Item $item -IsVideo $item.IsVideo
+            [void](Initialize-EmbeddedCaptureDateProbe -Item $item)
             Write-DateInfoDiagnostic -File $file -DateInfo $item.DateInfo -Context 'RepairOnlyExistingOrganizedLibrary'
             $processedRecordBeforeRepair = Find-ProcessedRecordByPath -Path $file.FullName
             $oldHashBeforeRepair = if ($processedRecordBeforeRepair -and $processedRecordBeforeRepair.hash) { [string]$processedRecordBeforeRepair.hash } else { '' }
@@ -9778,6 +9834,76 @@ function Get-ExistingEmbeddedCaptureDateForRepair {
     }
 
     return $null
+}
+
+function Get-EmbeddedCaptureDateProbe {
+    param([pscustomobject]$Item)
+
+    $result = [ordered]@{
+        State = 'NotChecked'
+        ExistingDate = $null
+        Detail = 'Embedded capture metadata was not checked.'
+    }
+    if ($null -eq $Item) {
+        return [pscustomobject]$result
+    }
+
+    $readStatus = if ($Item.PSObject.Properties.Name -contains 'EmbeddedMetadataReadStatus') {
+        [string]$Item.EmbeddedMetadataReadStatus
+    }
+    else {
+        'NotChecked'
+    }
+    if ($readStatus -eq 'NotChecked') {
+        return [pscustomobject]$result
+    }
+    if ($readStatus -ne 'Read') {
+        $result.State = 'Unreadable'
+        $result.Detail = 'Embedded capture metadata could not be read reliably.'
+        return [pscustomobject]$result
+    }
+
+    $providerConflict = ($Item.DateInfo -and
+        $Item.DateInfo.PSObject.Properties.Name -contains 'ProviderExifConflict' -and
+        [bool]$Item.DateInfo.ProviderExifConflict)
+    $filenameConflict = ($Item.DateInfo -and
+        $Item.DateInfo.PSObject.Properties.Name -contains 'FilenameDateConflictsWithExif' -and
+        [bool]$Item.DateInfo.FilenameDateConflictsWithExif)
+    if ($providerConflict -or $filenameConflict) {
+        $result.State = 'Conflict'
+        $result.Detail = if ($providerConflict) { 'Provider and embedded capture dates conflict.' } else { 'Filename and embedded capture dates conflict.' }
+        return [pscustomobject]$result
+    }
+
+    $existingDate = Get-ExistingEmbeddedCaptureDateForRepair -Item $Item
+    if ($existingDate) {
+        $result.State = 'PresentValid'
+        $result.ExistingDate = $existingDate
+        $result.Detail = 'A valid embedded capture date already exists.'
+        return [pscustomobject]$result
+    }
+
+    $writeMode = Get-ExifRepairWriteMode -Extension ([string]$Item.Extension) -IsVideo ([bool]$Item.IsVideo)
+    if ([string]::IsNullOrWhiteSpace($writeMode)) {
+        $result.State = 'Unsupported'
+        $result.Detail = 'The media format has no supported capture-date write mode.'
+        return [pscustomobject]$result
+    }
+
+    $result.State = 'Absent'
+    $result.Detail = 'Embedded metadata was read successfully and no valid capture date was found.'
+    return [pscustomobject]$result
+}
+
+function Initialize-EmbeddedCaptureDateProbe {
+    param([pscustomobject]$Item)
+
+    $probe = Get-EmbeddedCaptureDateProbe -Item $Item
+    if ($null -ne $Item) {
+        $Item | Add-Member -NotePropertyName EmbeddedCaptureDateState -NotePropertyValue ([string]$probe.State) -Force
+        $Item | Add-Member -NotePropertyName EmbeddedCaptureDateProbeDetail -NotePropertyValue ([string]$probe.Detail) -Force
+    }
+    return $probe
 }
 
 function Get-ExifRepairWriteArguments {
@@ -9995,8 +10121,12 @@ function Invoke-CaptureDateMaterialization {
         HashChanged = $false
         OldHash = if ($Item -and $Item.PSObject.Properties.Name -contains 'Sha256') { [string]$Item.Sha256 } else { '' }
         NewHash = if ($Item -and $Item.PSObject.Properties.Name -contains 'Sha256') { [string]$Item.Sha256 } else { '' }
+        EmbeddedCaptureDateState = 'NotChecked'
         Status = 'NotNeeded'
     }
+
+    $embeddedDateProbe = Initialize-EmbeddedCaptureDateProbe -Item $Item
+    $result.EmbeddedCaptureDateState = [string]$embeddedDateProbe.State
 
     if ($null -eq $Item -or -not (Test-DateInfoCanDriveVisibleDateMaterialization -DateInfo $Item.DateInfo)) {
         if ($null -ne $Item) {
@@ -10049,7 +10179,8 @@ function Invoke-CaptureDateMaterialization {
         Write-Log -Message "DateKnownButMetadataNotWritten: Path=$($Item.File.FullName); Date=$($Item.DateInfo.Date.ToString('yyyy-MM-dd HH:mm:ss')); Source=$($Item.DateInfo.Source); Reason=$($repairResult.Reason)" -Phase 'CaptureDateMaterialization'
     }
 
-    $shouldSyncFs = ($SyncFileSystemDates -or $MetadataRepair -or $RepairExif -or $MetadataAudit -or $AllowMetadataWriteWithoutRepairExif)
+    $materializationStateAllowsWrite = ([string]$embeddedDateProbe.State -eq 'Absent')
+    $shouldSyncFs = ($materializationStateAllowsWrite -and ($SyncFileSystemDates -or $MetadataRepair -or $RepairExif -or $MetadataAudit -or $AllowMetadataWriteWithoutRepairExif))
     if ($shouldSyncFs) {
         $fsResult = Sync-FileSystemDatesFromValidatedCaptureDate -Item $Item -Reason $Reason
         if ($fsResult.Candidate) { $result.Candidate = $true }
@@ -10092,7 +10223,21 @@ function Repair-ExifDate {
         WriteMode = ''
     }
 
-    if ((-not $RepairExif -and -not $MetadataRepair -and -not $MetadataAudit -and -not $AllowMetadataWriteWithoutRepairExif) -or -not $ExifToolAvailable) {
+    if (-not $RepairExif -and -not $MetadataRepair -and -not $MetadataAudit -and -not $AllowMetadataWriteWithoutRepairExif) {
+        return $result
+    }
+
+    $embeddedDateProbe = Initialize-EmbeddedCaptureDateProbe -Item $Item
+    if ([string]$embeddedDateProbe.State -eq 'PresentValid') {
+        $result.Reason = 'ExistingEmbeddedDate'
+        return $result
+    }
+    if ([string]$embeddedDateProbe.State -ne 'Absent') {
+        $result.Reason = 'EmbeddedCaptureDate' + [string]$embeddedDateProbe.State
+        return $result
+    }
+    if (-not $ExifToolAvailable) {
+        $result.Reason = 'EmbeddedCaptureDateUnreadable'
         return $result
     }
 
@@ -10108,12 +10253,6 @@ function Repair-ExifDate {
     }
 
     if ($Item.DateInfo.Confidence -lt $ExifRepairConfidence) {
-        return $result
-    }
-
-    $existingDate = Get-ExistingEmbeddedCaptureDateForRepair -Item $Item
-    if ($existingDate) {
-        $result.Reason = 'ExistingEmbeddedDate'
         return $result
     }
 
@@ -10654,8 +10793,10 @@ for ($batchStart = 0; $batchStart -lt $files.Count; $batchStart += $BatchSize) {
                 Width = if ($metadata.ImageWidth) { [int]$metadata.ImageWidth } else { 0 }
                 Height = if ($metadata.ImageHeight) { [int]$metadata.ImageHeight } else { 0 }
                 DuplicateHandled = $false
+                EmbeddedMetadataReadStatus = [string]$metadata.ReadStatus
             }
             $item.DateInfo = Get-PrimaryDate -Item $item -IsVideo $isVideo
+            [void](Initialize-EmbeddedCaptureDateProbe -Item $item)
             Write-DateInfoDiagnostic -File $file -DateInfo $item.DateInfo -Context 'Organize'
             $items.Add($item)
         }

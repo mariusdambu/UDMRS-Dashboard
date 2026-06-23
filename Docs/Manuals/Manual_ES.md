@@ -387,7 +387,9 @@ UDMRS puede conocer una fecha fiable por EXIF, provider, sidecar o patrón de no
 
 `MetadataAudit` revisa la biblioteca organizada y genera un CSV con candidatos. No modifica nada, incluso si el dashboard estuviera en Apply. Úsalo para saber cuántos archivos tienen fecha fiable conocida pero no visible para Windows, OneDrive o Microsoft Photos.
 
-`MetadataRepair` actúa solo sobre candidatos seguros. Crea backup, escribe metadata embebida según formato, sincroniza fechas de sistema si procede, recalcula hash y actualiza el índice.
+`MetadataRepair` actúa solo sobre candidatos seguros. `EmbeddedCaptureDateProbe` distingue `PresentValid`, `Absent`, `Conflict`, `Unreadable`, `Unsupported` y `NotChecked`. Solo `Absent`, confirmado por una lectura correcta, permite escribir metadata o sincronizar fechas de sistema. Crea backup, recalcula hash y actualiza el índice cuando modifica el archivo.
+
+En ImportProvider, `ProviderTrusted` puede evitar una lectura EXIF costosa para decidir fecha y destino, pero ese caso queda como `NotChecked`: no autoriza reescritura. `PresentValid`, `Conflict`, `Unreadable`, `Unsupported` y `NotChecked` se preservan. Esta infraestructura no cambia todavía la prioridad entre provider y metadata embebida.
 
 Formatos cubiertos por política de materialización: JPG/JPEG, HEIC/HEIF, MP4/MOV/M4V/3GP, PNG, TIFF, WEBP y GIF cuando exista forma segura de escribir metadata útil. Si el formato no permite escribir la fecha esperada o existe conflicto con metadata válida, el log/report debe dejarlo como `DateKnownButMetadataNotWritten` o warning equivalente.
 

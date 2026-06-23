@@ -39,4 +39,12 @@ Estado: stable release candidate funcional para el ciclo actual de UDMRS Dashboa
 - Se conservan siempre la última ejecución correcta, ejecuciones con errores, RAW/DNG, cloud-only, conflictos, hashes distintos y cuarentenas históricas sin manifiesto.
 - No se añadieron tareas al arranque ni procesos en segundo plano; el coste solo existe cuando el usuario inicia explícitamente la limpieza técnica.
 
+## Separación ProviderDate / EmbeddedDate - 2026-06-23
+
+- `CaptureDateMaterialization` ya no interpreta metadata no leída como metadata ausente.
+- Se introduce `EmbeddedCaptureDateProbe` con estados `PresentValid`, `Absent`, `Conflict`, `Unreadable`, `Unsupported` y `NotChecked`.
+- Solo `Absent`, confirmado por una lectura correcta, permite escritura automática de fecha o sincronización de fechas de sistema.
+- Los assets `ProviderTrusted` que omiten EXIF mantienen el rendimiento actual, quedan como `NotChecked` y se preservan sin reescritura.
+- No cambia todavía la política de prioridad entre Google, Apple, XMP y metadata embebida.
+
 
