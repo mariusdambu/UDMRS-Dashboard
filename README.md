@@ -34,6 +34,7 @@ UDMRS is intentionally conservative, but no media organizer can guarantee safety
 - Handles cloud placeholders conservatively: visible cloud-only files are skipped, not hydrated automatically.
 - Supports Google Photos / Google Takeout imports.
 - Supports Apple Photos / iCloud Photos imports.
+- Supports lightweight Movistar Cloud Export imports with explicit Trash exclusion.
 - Supports generic XMP / JSON / YAML sidecar imports.
 - Separates provider date decisions from embedded-date verification: metadata that was not read is never treated as absent, and only a confirmed `Absent` state permits automatic date materialization.
 
@@ -58,6 +59,7 @@ Stable release with two production entries:
 
 - Google Photos / Google Takeout
 - Apple Photos / iCloud Photos
+- Movistar Cloud Export
 - XMP / Sidecar Library
 
 The classic organizing flow remains the primary path for ordinary folders. Provider import is the second production entry for exports with sidecars, albums, trash metadata or provider timestamps.
@@ -124,6 +126,7 @@ Available providers:
 
 - Google Photos / Takeout
 - Apple Photos / iCloud
+- Movistar Cloud Export
 - XMP / Sidecar Library
 
 Planned / sample-gated providers:

@@ -8,7 +8,7 @@ Build: `UDMRS Build 2026.06.18-H2H-v1.0`.
 
 Validare finala: sintaxa PS5.1/PS7, dashboard, provideri disponibili si fluxuri principale revizuite fara Apply pe galerii reale.
 
-Stare publica actuala: fluxul clasic stabil ramane intrarea principala pentru foldere normale. `Importa galerie` este disponibila pentru `Google Photos / Takeout`, `Apple Photos / iCloud` si `XMP / Sidecar Library`.
+Stare publica actuala: fluxul clasic stabil ramane intrarea principala pentru foldere normale. `Importa galerie` este disponibila pentru `Google Photos / Takeout`, `Apple Photos / iCloud`, `Movistar Cloud Export` si `XMP / Sidecar Library`.
 
 ## 1. Ce este fiecare componenta
 
@@ -132,6 +132,7 @@ Disponibil:
 
 - `Google Photos / Takeout`: analizeaza o exportare Google Takeout aleasa de utilizator, interpreteaza sidecar-uri JSON, albume, cos, incredere metadata si duplicate fizice, apoi copiaza asset-uri curate in destinatia `An\Trimestru`.
 - `Apple Photos / iCloud`: analizeaza o exportare iCloud aleasa de utilizator, interpreteaza `Photo Details.csv`, CSV-uri de albume, marcaje de cos, date provider, video si candidati Live Photo, apoi copiaza asset-uri curate in destinatia `An\Trimestru`.
+- `Movistar Cloud Export`: detecteaza exportarea prin `profile.json`, importa numai `Pictures` si `Videos`, omite `Trash` si foloseste EXIF, QuickTime, date fiabile din nume, SHA256 si indexul comun. Datele personale din profil nu sunt publicate in rapoarte.
 - `XMP / Sidecar Library`: incearca sa interpreteze galerii necunoscute cu sidecar-uri XMP, JSON sau YAML. Daca relatia media/sidecar este clara foloseste metadata; daca este ambigua trimite la revizuire; fara metadata utila foloseste fallback clasic.
 
 Planificate si dezactivate:

@@ -107,11 +107,13 @@
       <tr><td>Google Photos / Takeout</td><td class="safe">Disponible</td><td><code>-ImportProvider GoogleTakeout -ImportProviderPath &lt;RutaTakeout&gt;</code></td></tr>
       <tr><td>Apple Photos / iCloud</td><td class="safe">Disponible</td><td><code>-ImportProvider ApplePhotos -ImportProviderPath &lt;RutaICloudExport&gt;</code></td></tr>
       <tr><td>Samsung Gallery</td><td class="advanced">Próximamente · requiere muestra real</td><td>Deshabilitado en UI. No lanza proceso.</td></tr>
+      <tr><td>Movistar Cloud Export</td><td class="safe">Disponible</td><td><code>-ImportProvider MovistarCloud -ImportProviderPath &lt;RutaExportMovistar&gt;</code></td></tr>
       <tr><td>Immich</td><td class="advanced">Próximamente · requiere muestra/export</td><td>Deshabilitado en UI. No lanza proceso.</td></tr>
       <tr><td>XMP / Sidecar Library</td><td class="safe">Disponible</td><td><code>-ImportProvider XmpSidecarLibrary -ImportProviderPath &lt;RutaGaleria&gt;</code></td></tr>
     </table>
     <div class="note"><strong>Fuentes ImportProvider.</strong> La ruta siempre la selecciona el usuario. No uses rutas fijas. En DryRun genera reporte sin copiar; en Apply copia assets limpios al destino y registra el índice común. `ProviderTrusted` puede omitir EXIF para decidir la organización, pero queda como `NotChecked` y no autoriza escritura. Solo `EmbeddedCaptureDateProbe=Absent`, confirmado por lectura, permite materializar. Tras un Apply correcto, la carpeta de exportación seleccionada puede eliminarse solo si el usuario lo confirma explícitamente.</div>
     <div class="note"><strong>Apple Photos / iCloud.</strong> Interpreta exportaciones iCloud con <code>Photo Details.csv</code>, CSV de álbumes, flags de papelera, fechas de proveedor, vídeos y candidatos Live Photo. No depende del nombre visible de la carpeta raíz.</div>
+    <div class="note"><strong>Movistar Cloud Export.</strong> Reconoce la firma <code>profile.json</code>, procesa contenido activo de <code>Pictures</code> y <code>Videos</code>, y omite <code>Trash</code>. No utiliza los datos personales del perfil como metadata de assets ni los publica en reportes.</div>
     <div class="note"><strong>XMP / Sidecar Library.</strong> Intenta asociar media con sidecars <code>.xmp</code>, <code>.json</code>, <code>.yaml</code> o <code>.yml</code>. Si la relación es clara usa fecha, título, descripción, tags, rating o ubicación cuando existan. Si es ambigua, manda a revisión. Si no hay metadata útil, usa fallback clásico.</div>
   </section>
 

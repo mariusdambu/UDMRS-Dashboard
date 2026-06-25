@@ -1306,7 +1306,7 @@ function Update-RunState {
     $script:btnTestScan.Enabled = -not $blockNormalLaunch
     if ($script:btnReconcile) { $script:btnReconcile.Enabled = -not $blockNormalLaunch }
     if ($script:btnPurgeMissing) { $script:btnPurgeMissing.Enabled = -not $blockNormalLaunch }
-    foreach ($button in @($script:btnAdvancedModes, $script:btnRetentionCleanup, $script:btnRecoverWrongDuplicateMove, $script:btnRenameExistingFolders, $script:btnRenameInternalFolders, $script:btnNormalizeExistingFolders, $script:btnDedupeCleanup, $script:btnRepairOnlyLibrary, $script:btnMetadataAudit, $script:btnMetadataRepair, $script:btnMigrateUdmrs, $script:btnImportGoogleTakeout, $script:btnImportApplePhotos, $script:btnImportSamsungGallery, $script:btnImportImmich, $script:btnImportXmpSidecar)) {
+    foreach ($button in @($script:btnAdvancedModes, $script:btnRetentionCleanup, $script:btnRecoverWrongDuplicateMove, $script:btnRenameExistingFolders, $script:btnRenameInternalFolders, $script:btnNormalizeExistingFolders, $script:btnDedupeCleanup, $script:btnRepairOnlyLibrary, $script:btnMetadataAudit, $script:btnMetadataRepair, $script:btnMigrateUdmrs, $script:btnImportGoogleTakeout, $script:btnImportApplePhotos, $script:btnImportSamsungGallery, $script:btnImportMovistarCloud, $script:btnImportImmich, $script:btnImportXmpSidecar)) {
         if ($button) { $button.Enabled = -not $blockAdvancedLaunch }
     }
     $script:btnCancel.Enabled = $Running
@@ -2397,6 +2397,21 @@ function Get-DashboardWorkingArea {
     }
 }
 
+function Start-MovistarCloudImportWizard {
+    Set-SelectedActionHint -ActionKey 'import_provider_movistar'
+    $chosen = Choose-Folder -InitialPath $script:txtSource.Text -Description (UT 'select_movistar_cloud')
+    if ([string]::IsNullOrWhiteSpace($chosen)) { return }
+
+    $switches = @('-ImportProvider', 'MovistarCloud', '-ImportProviderPath', $chosen)
+    $switches = @(Confirm-ImportProviderApplyOptions -Switches $switches -ProviderLabelKey 'import_provider_movistar' -ProviderPath $chosen)
+    if (-not $switches -or $switches.Count -eq 0) { return }
+
+    Start-AdvancedDashboardRun `
+        -ActionKey 'import_provider_movistar' `
+        -LabelKey 'import_provider_movistar' `
+        -Switches $switches
+}
+
 function Get-DashboardSafeSize {
     param(
         [int]$DesiredWidth,
@@ -2739,6 +2754,7 @@ function Build-ResponsiveLayout {
         @($script:btnImportGoogleTakeout, 'import_provider_google_desc', 'import_provider_status_available'),
         @($script:btnImportApplePhotos, 'import_provider_apple_desc', 'import_provider_status_available'),
         @($script:btnImportSamsungGallery, 'import_provider_samsung_desc', 'import_provider_status_coming_sample'),
+        @($script:btnImportMovistarCloud, 'import_provider_movistar_desc', 'import_provider_status_available'),
         @($script:btnImportImmich, 'import_provider_immich_desc', 'import_provider_status_coming_sample'),
         @($script:btnImportXmpSidecar, 'import_provider_xmp_desc', 'import_provider_status_available')
     )
@@ -2983,6 +2999,7 @@ function Update-Texts {
     if ($script:btnImportGoogleTakeout) { $script:btnImportGoogleTakeout.Text = UT 'import_provider_google' }
     if ($script:btnImportApplePhotos) { $script:btnImportApplePhotos.Text = UT 'import_provider_apple' }
     if ($script:btnImportSamsungGallery) { $script:btnImportSamsungGallery.Text = UT 'import_provider_samsung' }
+    if ($script:btnImportMovistarCloud) { $script:btnImportMovistarCloud.Text = UT 'import_provider_movistar' }
     if ($script:btnImportImmich) { $script:btnImportImmich.Text = UT 'import_provider_immich' }
     if ($script:btnImportXmpSidecar) { $script:btnImportXmpSidecar.Text = UT 'import_provider_xmp' }
     if ($script:lblImportGalleryTitle) { $script:lblImportGalleryTitle.Text = UT 'import_gallery_title' }
@@ -3077,6 +3094,7 @@ function Apply-OptionTooltips {
     Set-ControlTooltip -Control $script:btnImportGoogleTakeout -Text (UT 'import_provider_google_desc')
     Set-ControlTooltip -Control $script:btnImportApplePhotos -Text (UT 'import_provider_apple_desc')
     Set-ControlTooltip -Control $script:btnImportSamsungGallery -Text (UT 'import_provider_samsung_desc')
+    Set-ControlTooltip -Control $script:btnImportMovistarCloud -Text (UT 'import_provider_movistar_desc')
     Set-ControlTooltip -Control $script:btnImportImmich -Text (UT 'import_provider_immich_desc')
     Set-ControlTooltip -Control $script:btnImportXmpSidecar -Text (UT 'import_provider_xmp_desc')
     Set-ControlTooltip -Control $script:btnMigrateUdmrs -Text (UT 'advanced_migrate_udmrs_desc')
@@ -3420,6 +3438,13 @@ $script:btnImportSamsungGallery.Add_Click({
     Show-PlannedImportProviderNotice -ProviderLabelKey 'import_provider_samsung' -StatusKey 'import_provider_status_coming_sample'
 })
 
+$script:btnImportMovistarCloud = New-Object System.Windows.Forms.Button
+$script:btnImportMovistarCloud.AutoSize = $true
+$script:btnImportMovistarCloud.MinimumSize = New-Object System.Drawing.Size(220, 40)
+$script:btnImportMovistarCloud.Add_Click({
+    Start-MovistarCloudImportWizard
+})
+
 $script:btnImportImmich = New-Object System.Windows.Forms.Button
 $script:btnImportImmich.AutoSize = $true
 $script:btnImportImmich.MinimumSize = New-Object System.Drawing.Size(220, 40)
@@ -3454,6 +3479,7 @@ foreach ($binding in @(
     @($script:btnImportGoogleTakeout, 'import_provider_google'),
     @($script:btnImportApplePhotos, 'import_provider_apple'),
     @($script:btnImportSamsungGallery, 'import_gallery_coming'),
+    @($script:btnImportMovistarCloud, 'import_provider_movistar'),
     @($script:btnImportImmich, 'import_gallery_coming'),
     @($script:btnImportXmpSidecar, 'import_provider_xmp'),
     @($script:btnMigrateUdmrs, 'advanced_migrate_udmrs')

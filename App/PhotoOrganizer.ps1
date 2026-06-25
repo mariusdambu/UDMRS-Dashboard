@@ -449,6 +449,7 @@ $ImportProviderTextByLanguage = @{
         GoogleScan = 'ImportProvider Google Takeout scan: medios={0}; sidecars={1}; álbumes={2}; jsonRaíz={3}'
         AppleScan = 'ImportProvider Apple Photos / iCloud scan: medios={0}; detallesCsv={1}; albumesCsv={2}; papelera={3}; livePhotoCandidatos={4}'
         XmpScan = 'ImportProvider XMP / Sidecar Library scan: medios={0}; sidecars={1}; metadataCarpeta={2}'
+        MovistarScan = 'ImportProvider Movistar Cloud Export scan: imágenes={0}; vídeos={1}; mediosPapeleraOmitidos={2}; otrosPapeleraOmitidos={3}'
         ExifPlan = 'Plan de verificación EXIF ImportProvider {0}: leer={1}; omitidosPorConfianzaProvider={2}; diagnóstico={3}'
         ExifPlanVideoTrusted = 'Plan de verificación EXIF ImportProvider {0}: vídeos omitidos por confianza provider={1}'
         ExifVerificationStart = 'Verificando metadata EXIF/QuickTime: 0 / {0} (0%). Velocidad: calculando. Transcurrido: 0m. Restante estimado: desconocido.'
@@ -471,6 +472,7 @@ $ImportProviderTextByLanguage = @{
         GoogleSummary = 'Resumen ImportProvider Google Takeout: medios={0}; assetsLogicos={1}; ocurrencias={2}; albumes={3}; duplicadosInternos={4}; papelera={5}; videos={6}; importables={7}; conflictos={8}; confianzaAlta={9}; confianzaMedia={10}; confianzaBaja={11}; exifLeidos={12}; exifOmitidosPorConfianzaProvider={13}; sidecarsUsados={14}; sidecarsAmbiguos={15}; jsonHuerfanos={16}; mediaSinJson={17}; copiados={18}; reporte={19}'
         AppleSummary = 'Resumen ImportProvider Apple Photos / iCloud: medios={0}; assetsLogicos={1}; albumesCsv={2}; referenciasAlbum={3}; papelera={4}; videos={5}; livePhotoCandidatos={6}; importables={7}; conflictos={8}; confianzaAlta={9}; confianzaMedia={10}; confianzaBaja={11}; exifLeidos={12}; exifOmitidosPorConfianzaProvider={13}; mediaSinDetalles={14}; copiados={15}; reporte={16}'
         XmpSummary = 'Resumen ImportProvider XMP / Sidecar Library: medios={0}; sidecars={1}; sidecarsUsados={2}; sidecarsHuerfanos={3}; mediaSinSidecar={4}; sidecarsAmbiguos={5}; fallbackClasico={6}; importables={7}; conflictos={8}; confianzaAlta={9}; confianzaMedia={10}; confianzaBaja={11}; exifLeidos={12}; exifOmitidosPorConfianzaProvider={13}; copiados={14}; reporte={15}'
+        MovistarSummary = 'Resumen ImportProvider Movistar Cloud Export: mediosActivos={0}; assetsLogicos={1}; duplicadosInternos={2}; papeleraMediaOmitida={3}; papeleraOtrosOmitidos={4}; fechaEmbebidaValida={5}; fechaFilenameFiable={6}; sinFechaFiable={7}; materializacionCandidatos={8}; GPS={9}; ilegibles={10}; duplicadosExistentes={11}; revision={12}; copiados={13}; metadataEscrita={14}; reporte={15}'
     }
     ro = @{
         Mode = 'Mod'
@@ -512,6 +514,7 @@ $ImportProviderTextByLanguage = @{
         GoogleScan = 'Scan ImportProvider Google Takeout: media={0}; sidecar-uri={1}; albume={2}; jsonRădăcină={3}'
         AppleScan = 'Scan ImportProvider Apple Photos / iCloud: media={0}; detaliiCsv={1}; albumeCsv={2}; coș={3}; candidațiLivePhoto={4}'
         XmpScan = 'Scan ImportProvider XMP / Sidecar Library: media={0}; sidecar-uri={1}; metadataFolder={2}'
+        MovistarScan = 'Scan ImportProvider Movistar Cloud Export: imagini={0}; video={1}; mediaCoșOmise={2}; alteFișiereCoșOmise={3}'
         ExifPlan = 'Plan verificare EXIF ImportProvider {0}: citire={1}; omisePrinÎncredereProvider={2}; diagnostic={3}'
         ExifPlanVideoTrusted = 'Plan verificare EXIF ImportProvider {0}: video omise prin încredere provider={1}'
         ExifVerificationStart = 'Verificare metadata EXIF/QuickTime: 0 / {0} (0%). Viteză: se calculează. Trecut: 0m. Rămas estimat: necunoscut.'
@@ -534,6 +537,7 @@ $ImportProviderTextByLanguage = @{
         GoogleSummary = 'Rezumat ImportProvider Google Takeout: media={0}; asset-uriLogice={1}; apariții={2}; albume={3}; duplicateInterne={4}; coș={5}; video={6}; importabile={7}; conflicte={8}; încredereMare={9}; încredereMedie={10}; încredereMică={11}; exifCitite={12}; exifOmisePrinÎncredereProvider={13}; sidecar-uriFolosite={14}; sidecar-uriAmbigue={15}; jsonOrfane={16}; mediaFărăJson={17}; copiate={18}; raport={19}'
         AppleSummary = 'Rezumat ImportProvider Apple Photos / iCloud: media={0}; asset-uriLogice={1}; albumeCsv={2}; referințeAlbum={3}; coș={4}; video={5}; candidațiLivePhoto={6}; importabile={7}; conflicte={8}; încredereMare={9}; încredereMedie={10}; încredereMică={11}; exifCitite={12}; exifOmisePrinÎncredereProvider={13}; mediaFărăDetalii={14}; copiate={15}; raport={16}'
         XmpSummary = 'Rezumat ImportProvider XMP / Sidecar Library: media={0}; sidecar-uri={1}; sidecar-uriFolosite={2}; sidecar-uriOrfane={3}; mediaFărăSidecar={4}; sidecar-uriAmbigue={5}; fallbackClasic={6}; importabile={7}; conflicte={8}; încredereMare={9}; încredereMedie={10}; încredereMică={11}; exifCitite={12}; exifOmisePrinÎncredereProvider={13}; copiate={14}; raport={15}'
+        MovistarSummary = 'Rezumat ImportProvider Movistar Cloud Export: mediaActive={0}; asset-uriLogice={1}; duplicateInterne={2}; mediaCoșOmise={3}; alteFișiereCoșOmise={4}; datăÎncorporatăValidă={5}; datăFișierFiabilă={6}; fărăDatăFiabilă={7}; candidațiMaterializare={8}; GPS={9}; ilizibile={10}; duplicateExistente={11}; revizuire={12}; copiate={13}; metadataScrisă={14}; raport={15}'
     }
     en = @{
         Mode = 'Mode'
@@ -575,6 +579,7 @@ $ImportProviderTextByLanguage = @{
         GoogleScan = 'ImportProvider Google Takeout scan: media={0}; sidecars={1}; albums={2}; rootJson={3}'
         AppleScan = 'ImportProvider Apple Photos / iCloud scan: media={0}; detailsCsv={1}; albumCsv={2}; trash={3}; livePhotoCandidates={4}'
         XmpScan = 'ImportProvider XMP / Sidecar Library scan: media={0}; sidecars={1}; folderMetadata={2}'
+        MovistarScan = 'ImportProvider Movistar Cloud Export scan: pictures={0}; videos={1}; trashMediaSkipped={2}; trashOtherSkipped={3}'
         ExifPlan = 'ImportProvider {0} EXIF verification plan: read={1}; skippedProviderTrusted={2}; diagnostic={3}'
         ExifPlanVideoTrusted = 'ImportProvider {0} EXIF verification plan: videosSkippedProviderTrusted={1}'
         ExifVerificationStart = 'Verifying EXIF/QuickTime metadata: 0 / {0} (0%). Speed: calculating. Elapsed: 0m. Estimated remaining: unknown.'
@@ -597,6 +602,7 @@ $ImportProviderTextByLanguage = @{
         GoogleSummary = 'ImportProvider Google Takeout summary: media={0}; logicalAssets={1}; occurrences={2}; albums={3}; internalDuplicateOccurrences={4}; trashOccurrences={5}; videos={6}; importable={7}; conflicts={8}; confidenceHigh={9}; confidenceMedium={10}; confidenceLow={11}; exifRead={12}; exifSkippedProviderTrusted={13}; sidecarsUsed={14}; sidecarsAmbiguous={15}; jsonOrphans={16}; mediaWithoutJson={17}; copied={18}; report={19}'
         AppleSummary = 'ImportProvider Apple Photos / iCloud summary: media={0}; logicalAssets={1}; albumCsv={2}; albumReferences={3}; trash={4}; videos={5}; livePhotoCandidates={6}; importable={7}; conflicts={8}; confidenceHigh={9}; confidenceMedium={10}; confidenceLow={11}; exifRead={12}; exifSkippedProviderTrusted={13}; mediaWithoutDetails={14}; copied={15}; report={16}'
         XmpSummary = 'ImportProvider XMP / Sidecar Library summary: media={0}; sidecars={1}; sidecarsUsed={2}; orphanSidecars={3}; mediaWithoutSidecar={4}; ambiguousSidecars={5}; fallbackClassic={6}; importable={7}; conflicts={8}; confidenceHigh={9}; confidenceMedium={10}; confidenceLow={11}; exifRead={12}; exifSkippedProviderTrusted={13}; copied={14}; report={15}'
+        MovistarSummary = 'ImportProvider Movistar Cloud Export summary: activeMedia={0}; logicalAssets={1}; internalDuplicates={2}; trashMediaSkipped={3}; trashOtherSkipped={4}; validEmbeddedDate={5}; reliableFilenameDate={6}; noReliableDate={7}; materializationCandidates={8}; GPS={9}; unreadable={10}; existingDuplicates={11}; review={12}; copied={13}; metadataWritten={14}; report={15}'
     }
 }
 
@@ -2946,6 +2952,9 @@ function Load-ProcessedDatabase {
                     verifiedLocal = if ($recordProperties -contains 'verifiedLocal') { [bool]$record.verifiedLocal } else { $true }
                     storageState = if (($recordProperties -contains 'storageState') -and $record.storageState) { [string]$record.storageState } else { 'LocalVerified' }
                     providerHint = if (($recordProperties -contains 'providerHint') -and $record.providerHint) { [string]$record.providerHint } else { 'Unknown' }
+                    importProvider = if (($recordProperties -contains 'importProvider') -and $record.importProvider) { [string]$record.importProvider } else { '' }
+                    providerSourceHash = if (($recordProperties -contains 'providerSourceHash') -and $record.providerSourceHash) { ([string]$record.providerSourceHash).ToUpperInvariant() } else { '' }
+                    providerSourceHashes = if ($recordProperties -contains 'providerSourceHashes') { @($record.providerSourceHashes | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) } | ForEach-Object { ([string]$_).ToUpperInvariant() } | Select-Object -Unique) } else { @() }
                     toolVersion = 'PhotoOrganizer 2'
                 }
 
@@ -3079,6 +3088,9 @@ function Load-ProcessedIndexLight {
                 verifiedLocal = if ($recordProperties -contains 'verifiedLocal') { [bool]$record.verifiedLocal } else { $true }
                 storageState = if (($recordProperties -contains 'storageState') -and $record.storageState) { [string]$record.storageState } else { 'LocalVerified' }
                 providerHint = if (($recordProperties -contains 'providerHint') -and $record.providerHint) { [string]$record.providerHint } else { 'Unknown' }
+                importProvider = if (($recordProperties -contains 'importProvider') -and $record.importProvider) { [string]$record.importProvider } else { '' }
+                providerSourceHash = if (($recordProperties -contains 'providerSourceHash') -and $record.providerSourceHash) { ([string]$record.providerSourceHash).ToUpperInvariant() } else { '' }
+                providerSourceHashes = if ($recordProperties -contains 'providerSourceHashes') { @($record.providerSourceHashes | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) } | ForEach-Object { ([string]$_).ToUpperInvariant() } | Select-Object -Unique) } else { @() }
                 toolVersion = 'PhotoOrganizer 2'
             }
 
@@ -3654,6 +3666,8 @@ function Register-ImportedProviderFile {
         storageState = 'LocalVerified'
         providerHint = $ProviderName
         importProvider = $ProviderName
+        providerSourceHash = if ($Item.PSObject.Properties.Name -contains 'ProviderSourceSha256') { [string]$Item.ProviderSourceSha256 } else { '' }
+        providerSourceHashes = if ($Item.PSObject.Properties.Name -contains 'ProviderSourceSha256' -and -not [string]::IsNullOrWhiteSpace([string]$Item.ProviderSourceSha256)) { @(([string]$Item.ProviderSourceSha256).ToUpperInvariant()) } else { @() }
         occurrenceCount = if ($Item.PSObject.Properties.Name -contains 'ProviderOccurrenceCount') { [int]$Item.ProviderOccurrenceCount } else { 1 }
         albumNames = if ($Item.PSObject.Properties.Name -contains 'ProviderAlbumNames') { @($Item.ProviderAlbumNames) } else { @() }
         metadataConfidence = if ($Item.PSObject.Properties.Name -contains 'ProviderMetadataConfidence') { [string]$Item.ProviderMetadataConfidence } else { '' }
@@ -6086,6 +6100,15 @@ function Get-ImportProviderRegistry {
             Notes = 'Officially planned because of adoption, but disabled until a real export proves recoverable semantics.'
         },
         [pscustomobject]@{
+            Id = 'MovistarCloud'
+            Aliases = @('MovistarCloud', 'MovistarCloudExport', 'Movistar')
+            DisplayName = 'Movistar Cloud Export'
+            Status = 'Available'
+            Gate = 'Implemented'
+            SemanticSignals = @('profile.json export signature', 'active Pictures and Videos', 'Trash exclusion')
+            Notes = 'Lightweight structured-export provider. It reuses classic EXIF, QuickTime, filename and SHA256 decisions without treating Movistar as a date authority.'
+        },
+        [pscustomobject]@{
             Id = 'Immich'
             Aliases = @('Immich')
             DisplayName = 'Immich'
@@ -6692,16 +6715,51 @@ function Copy-ProviderAssetToDestination {
     $sourceFile = $Item.File
     Copy-Item -LiteralPath $sourceFile.FullName -Destination $resolved.Path -ErrorAction Stop
     $Stats.FilesCopied++
+    $postMaterializationDuplicatePath = ''
     try {
         $destinationFile = Get-Item -LiteralPath $resolved.Path -ErrorAction Stop
         $Item.File = $destinationFile
         $materializationResult = Invoke-CaptureDateMaterialization -Item $Item -RootPath $DestinationBase -MetadataBackupRoot $MetadataBackupRoot -ExifToolAvailable $ExifToolAvailable -AllowMetadataWriteWithoutRepairExif -Reason "ImportProvider $ProviderName"
         if ($materializationResult.HashChanged -and -not [string]::IsNullOrWhiteSpace($materializationResult.NewHash)) {
             Write-Log -Message "Provider import hash updated after capture date materialization: oldHash=$($materializationResult.OldHash) newHash=$($materializationResult.NewHash) path=$($resolved.Path)" -Phase 'ImportProvider'
+            $finalHash = ([string]$materializationResult.NewHash).ToUpperInvariant()
+            if ($script:ProcessedByHash.ContainsKey($finalHash)) {
+                $existingRecord = $script:ProcessedByHash[$finalHash]
+                $existingPath = Get-ProcessedRecordRegisteredPath -Record $existingRecord
+                if (-not [string]::IsNullOrWhiteSpace($existingPath) -and
+                    -not (Resolve-FullPath $existingPath).TrimEnd('\').Equals((Resolve-FullPath $resolved.Path).TrimEnd('\'), [StringComparison]::OrdinalIgnoreCase)) {
+                    $availability = Detect-StorageAvailability -Path $existingPath
+                    if ($availability.State -eq 'LocalVerified') {
+                        $existingHash = Get-Sha256 -Path $existingPath
+                        if (-not [string]::IsNullOrWhiteSpace($existingHash) -and $existingHash.ToUpperInvariant() -eq $finalHash) {
+                            Remove-Item -LiteralPath $resolved.Path -Force -ErrorAction Stop
+                            $Stats.FilesCopied = [math]::Max(0, $Stats.FilesCopied - 1)
+                            $Stats.ExactDuplicatesFound++
+                            $Stats.ExistingIdenticalSkipped++
+                            $postMaterializationDuplicatePath = $existingPath
+                            $Item | Add-Member -NotePropertyName ProviderPostMaterializationDuplicate -NotePropertyValue $true -Force
+                            $Item | Add-Member -NotePropertyName ProviderCanonicalPath -NotePropertyValue $existingPath -Force
+                            if ($Item.PSObject.Properties.Name -contains 'ProviderSourceSha256' -and -not [string]::IsNullOrWhiteSpace([string]$Item.ProviderSourceSha256)) {
+                                $sourceHashAlias = ([string]$Item.ProviderSourceSha256).ToUpperInvariant()
+                                $sourceHashAliases = @()
+                                if ($existingRecord.PSObject.Properties.Name -contains 'providerSourceHash' -and -not [string]::IsNullOrWhiteSpace([string]$existingRecord.providerSourceHash)) { $sourceHashAliases += ([string]$existingRecord.providerSourceHash).ToUpperInvariant() }
+                                if ($existingRecord.PSObject.Properties.Name -contains 'providerSourceHashes') { $sourceHashAliases += @($existingRecord.providerSourceHashes | ForEach-Object { ([string]$_).ToUpperInvariant() }) }
+                                $sourceHashAliases += $sourceHashAlias
+                                Set-ProcessedRecordProperty -Record $existingRecord -Name 'providerSourceHashes' -Value @($sourceHashAliases | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -Unique)
+                                $script:ProcessedDirtyCount++
+                            }
+                            Write-Log -Message "Provider copy removed after materialization produced an existing exact SHA256 duplicate. NewCopy=$($resolved.Path); Canonical=$existingPath; Hash=$finalHash" -Phase 'ImportProvider' -Status 'Completed'
+                        }
+                    }
+                }
+            }
         }
     }
     finally {
         $Item.File = $sourceFile
+    }
+    if (-not [string]::IsNullOrWhiteSpace($postMaterializationDuplicatePath)) {
+        return $postMaterializationDuplicatePath
     }
     Register-ImportedProviderFile -Item $Item -NewPath $resolved.Path -Status "$Reason - Copied" -ProviderName $ProviderName -ProviderRootPath $ProviderRootPath
     return $resolved.Path
@@ -7822,6 +7880,405 @@ function Invoke-ImportProviderApplePhotos {
 
     Invoke-ImportProviderSourceDeletion -SelectedProviderPath $ProviderRootPath -Summary $summary
     $reports = Write-ApplePhotosImportReport -Summary $summary -Assets @($assets.ToArray()) -AlbumFiles @($albumInfo.AlbumFiles)
+    Write-Log -Message ((Get-ImportProviderText -Key 'SourceDeletionStatusLog') -f $summary.SourceDeletionStatus, $summary.SourceDeletionPath, $reports.HtmlPath) -Phase 'Complete' -Status 'Completed'
+    Cleanup-MetadataBackupsOnSuccess
+}
+
+function Test-MovistarCloudProfileSchema {
+    param([string]$ProfilePath)
+
+    if (-not (Test-Path -LiteralPath $ProfilePath -PathType Leaf)) { return $false }
+    $profile = Read-ProviderJsonFile -Path $ProfilePath
+    if (-not $profile) { return $false }
+    $properties = @($profile.PSObject.Properties.Name)
+    return ($properties -contains 'creationdate') -and
+        (($properties -contains 'phones') -or ($properties -contains 'useremail')) -and
+        (($properties -contains 'firstname') -or ($properties -contains 'lastname'))
+}
+
+function Get-MovistarCloudFolderRole {
+    param([string]$Name)
+
+    $normalized = ([string]$Name).Trim()
+    if ($normalized -match '(?i)^(Pictures|Photos|Images|Fotos|Imágenes|Imagenes|Poze|Fotografii)$') { return 'Pictures' }
+    if ($normalized -match '(?i)^(Videos|Vídeos|Video|Videoclipuri)$') { return 'Videos' }
+    if ($normalized -match '(?i)^(Trash|Papelera|Bin|Recycle Bin|Coș|Cos|Șterse|Sterse)$') { return 'Trash' }
+    return 'Unknown'
+}
+
+function Resolve-MovistarCloudExportRoot {
+    param([string]$RootPath)
+
+    $resolved = Resolve-FullPath $RootPath
+    if (-not (Test-Path -LiteralPath $resolved -PathType Container)) {
+        Stop-WithError "ImportProviderPath does not exist: $resolved"
+    }
+
+    $candidateRoots = New-Object System.Collections.Generic.List[string]
+    $candidateRoots.Add($resolved)
+    foreach ($child in @(Get-ChildItem -LiteralPath $resolved -Directory -Force -ErrorAction SilentlyContinue)) {
+        $candidateRoots.Add($child.FullName)
+    }
+
+    foreach ($candidateRoot in @($candidateRoots.ToArray())) {
+        $profilePath = Join-Path $candidateRoot 'profile.json'
+        if (-not (Test-MovistarCloudProfileSchema -ProfilePath $profilePath)) { continue }
+
+        $pictures = New-Object System.Collections.Generic.List[string]
+        $videos = New-Object System.Collections.Generic.List[string]
+        $trash = New-Object System.Collections.Generic.List[string]
+        foreach ($directory in @(Get-ChildItem -LiteralPath $candidateRoot -Directory -Force -ErrorAction SilentlyContinue)) {
+            switch (Get-MovistarCloudFolderRole -Name $directory.Name) {
+                'Pictures' { $pictures.Add($directory.FullName) }
+                'Videos' { $videos.Add($directory.FullName) }
+                'Trash' { $trash.Add($directory.FullName) }
+            }
+        }
+
+        if (($pictures.Count + $videos.Count) -gt 0) {
+            return [pscustomobject]@{
+                Root = Resolve-FullPath $candidateRoot
+                ProfilePath = Resolve-FullPath $profilePath
+                PicturesFolders = @($pictures.ToArray())
+                VideosFolders = @($videos.ToArray())
+                TrashFolders = @($trash.ToArray())
+            }
+        }
+    }
+
+    Stop-WithError "Movistar Cloud export structure was not detected under: $resolved"
+}
+
+function Get-MovistarCloudLocalFiles {
+    param([string[]]$FolderPaths)
+
+    $files = New-Object System.Collections.Generic.List[object]
+    foreach ($folderPath in @($FolderPaths)) {
+        if (-not (Test-Path -LiteralPath $folderPath -PathType Container)) { continue }
+        $directories = New-Object System.Collections.Generic.Stack[string]
+        $directories.Push($folderPath)
+        while ($directories.Count -gt 0) {
+            $directory = $directories.Pop()
+            try {
+                foreach ($childDirectory in @(Get-ChildItem -LiteralPath $directory -Directory -Force -ErrorAction Stop)) {
+                    $availability = Detect-StorageAvailability -Item $childDirectory -Directory
+                    if ($availability.State -eq 'CloudPlaceholder') {
+                        Register-CloudPlaceholderSkipped -Path $childDirectory.FullName -Phase 'ImportProvider' -Availability $availability
+                        continue
+                    }
+                    if ($availability.State -eq 'MissingReal') {
+                        $Stats.MissingReal++
+                        continue
+                    }
+                    $directories.Push($childDirectory.FullName)
+                }
+                foreach ($childFile in @(Get-ChildItem -LiteralPath $directory -File -Force -ErrorAction Stop)) {
+                    $availability = Detect-StorageAvailability -Item $childFile
+                    if ($availability.State -eq 'CloudPlaceholder') {
+                        Register-CloudPlaceholderSkipped -Path $childFile.FullName -Phase 'ImportProvider' -Availability $availability
+                        continue
+                    }
+                    if ($availability.State -eq 'MissingReal') {
+                        $Stats.MissingReal++
+                        continue
+                    }
+                    $files.Add($childFile)
+                }
+            }
+            catch {
+                $Stats.Inaccessible++
+                Write-Log -Message ((Get-ImportProviderText -Key 'ImportProviderInaccessibleFolder') -f $directory, $_.Exception.Message) -Phase 'ImportProvider'
+            }
+        }
+    }
+    return @($files.ToArray())
+}
+
+function Write-MovistarCloudImportReport {
+    param(
+        [pscustomobject]$Summary,
+        [object[]]$Assets
+    )
+
+    if (-not (Test-Path -LiteralPath $LogRoot -PathType Container)) {
+        New-Item -ItemType Directory -Path $LogRoot -Force | Out-Null
+    }
+
+    $htmlPath = Join-Path $LogRoot ("ImportProvider-MovistarCloud-{0}.html" -f $script:RunId)
+    $jsonPath = Join-Path $LogRoot ("ImportProvider-MovistarCloud-{0}.json" -f $script:RunId)
+    $labelsByLanguage = @{
+        es = @{ ActiveMedia='Medios activos'; Pictures='Imágenes'; Videos='Vídeos'; TrashMedia='Medios de papelera omitidos'; TrashOther='Otros archivos de papelera omitidos'; Embedded='Fecha embebida válida'; Filename='Fecha fiable en nombre'; NoDate='Sin fecha fiable'; Materialization='Candidatos de materialización'; GPS='Con GPS'; Unreadable='Ilegibles'; Review='Revisión'; Existing='Duplicados existentes'; MetadataWritten='Metadata escrita'; Role='Área'; MaterializationStatus='Materialización' }
+        ro = @{ ActiveMedia='Media active'; Pictures='Imagini'; Videos='Video'; TrashMedia='Media din coș omise'; TrashOther='Alte fișiere din coș omise'; Embedded='Dată încorporată validă'; Filename='Dată fiabilă în nume'; NoDate='Fără dată fiabilă'; Materialization='Candidați materializare'; GPS='Cu GPS'; Unreadable='Ilizibile'; Review='Revizuire'; Existing='Duplicate existente'; MetadataWritten='Metadata scrisă'; Role='Zonă'; MaterializationStatus='Materializare' }
+        en = @{ ActiveMedia='Active media'; Pictures='Pictures'; Videos='Videos'; TrashMedia='Trash media skipped'; TrashOther='Other trash files skipped'; Embedded='Valid embedded date'; Filename='Reliable filename date'; NoDate='No reliable date'; Materialization='Materialization candidates'; GPS='With GPS'; Unreadable='Unreadable'; Review='Review'; Existing='Existing duplicates'; MetadataWritten='Metadata written'; Role='Area'; MaterializationStatus='Materialization' }
+    }
+    $labels = if ($labelsByLanguage.ContainsKey($Language)) { $labelsByLanguage[$Language] } else { $labelsByLanguage.es }
+    $assetRows = New-Object System.Text.StringBuilder
+    foreach ($asset in @($Assets | Select-Object -First 500)) {
+        [void]$assetRows.AppendLine(("<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td><td>{6}</td><td>{7}</td><td>{8}</td></tr>" -f
+            (ConvertTo-HtmlText $asset.Status),
+            (ConvertTo-HtmlText $asset.PrimaryPath),
+            (ConvertTo-HtmlText $asset.Role),
+            (ConvertTo-HtmlText $asset.DateSource),
+            (ConvertTo-HtmlText $asset.MetadataConfidence),
+            (ConvertTo-HtmlText $asset.ExifVerification),
+            (ConvertTo-HtmlText $asset.EmbeddedCaptureDateState),
+            (ConvertTo-HtmlText $asset.MaterializationStatus),
+            (ConvertTo-HtmlText (@($asset.Warnings) -join '; '))))
+    }
+
+    $html = @"
+<!doctype html>
+<html><head><meta charset="utf-8"><title>ImportProvider Movistar Cloud Export</title>
+<style>body{font-family:Segoe UI,Arial,sans-serif;margin:24px;color:#1f2937}table{border-collapse:collapse;width:100%}th,td{border:1px solid #d1d5db;padding:6px 8px;text-align:left;vertical-align:top}th{background:#f3f4f6}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:16px 0}.card{background:#f8fafc;border:1px solid #dbe3ef;border-radius:8px;padding:10px}.num{font-size:24px;font-weight:700}</style>
+</head><body>
+<h1>ImportProvider Movistar Cloud Export</h1>
+<p>$(Get-ImportProviderText -Key 'Mode'): $($Summary.Mode)</p>
+<div class="grid">
+<div class="card"><div class="num">$($Summary.ActiveMedia)</div><div>$($labels.ActiveMedia)</div></div>
+<div class="card"><div class="num">$($Summary.Pictures)</div><div>$($labels.Pictures)</div></div>
+<div class="card"><div class="num">$($Summary.Videos)</div><div>$($labels.Videos)</div></div>
+<div class="card"><div class="num">$($Summary.TrashMediaSkipped)</div><div>$($labels.TrashMedia)</div></div>
+<div class="card"><div class="num">$($Summary.TrashOtherSkipped)</div><div>$($labels.TrashOther)</div></div>
+<div class="card"><div class="num">$($Summary.ValidEmbeddedDate)</div><div>$($labels.Embedded)</div></div>
+<div class="card"><div class="num">$($Summary.ReliableFilenameDate)</div><div>$($labels.Filename)</div></div>
+<div class="card"><div class="num">$($Summary.NoReliableDate)</div><div>$($labels.NoDate)</div></div>
+<div class="card"><div class="num">$($Summary.MaterializationCandidates)</div><div>$($labels.Materialization)</div></div>
+<div class="card"><div class="num">$($Summary.WithGps)</div><div>$($labels.GPS)</div></div>
+<div class="card"><div class="num">$($Summary.Unreadable)</div><div>$($labels.Unreadable)</div></div>
+<div class="card"><div class="num">$($Summary.ExistingDuplicates)</div><div>$($labels.Existing)</div></div>
+<div class="card"><div class="num">$($Summary.NeedsReview)</div><div>$($labels.Review)</div></div>
+<div class="card"><div class="num">$($Summary.MetadataWritten)</div><div>$($labels.MetadataWritten)</div></div>
+</div>
+<p><strong>$(Get-ImportProviderText -Key 'TakeoutSourceDeletion'):</strong> $($Summary.SourceDeletionStatus)</p>
+<h2>$(Get-ImportProviderText -Key 'AssetsFirst500')</h2>
+<table><tr><th>$(Get-ImportProviderText -Key 'Status')</th><th>$(Get-ImportProviderText -Key 'Path')</th><th>$($labels.Role)</th><th>$(Get-ImportProviderText -Key 'DateSource')</th><th>$(Get-ImportProviderText -Key 'Confidence')</th><th>$(Get-ImportProviderText -Key 'ExifVerification')</th><th>$(Get-ImportProviderText -Key 'EmbeddedDateState')</th><th>$($labels.MaterializationStatus)</th><th>$(Get-ImportProviderText -Key 'Warnings')</th></tr>
+$assetRows
+</table></body></html>
+"@
+    $html | Set-Content -LiteralPath $htmlPath -Encoding UTF8
+
+    $reportAssets = @($Assets | ForEach-Object {
+        [pscustomobject]@{
+            Hash = [string]$_.Hash
+            Status = [string]$_.Status
+            PrimaryPath = [string]$_.PrimaryPath
+            TargetPath = [string]$_.TargetPath
+            Role = [string]$_.Role
+            DateSource = [string]$_.DateSource
+            Date = if ($_.Date) { ([datetime]$_.Date).ToString('o') } else { '' }
+            MetadataConfidence = [string]$_.MetadataConfidence
+            ExifVerification = [string]$_.ExifVerification
+            EmbeddedCaptureDateState = [string]$_.EmbeddedCaptureDateState
+            MaterializationExpected = [bool]$_.MaterializationExpected
+            MaterializationStatus = [string]$_.MaterializationStatus
+            MetadataWritten = [bool]$_.MetadataWritten
+            FileSystemDatesSynced = [bool]$_.FileSystemDatesSynced
+            HasGps = [bool]$_.HasGps
+            OccurrenceCount = [int]$_.OccurrenceCount
+            Warnings = @($_.Warnings)
+        }
+    })
+    [pscustomobject]@{
+        Language = $Language
+        Provider = 'MovistarCloud'
+        ProfileDetected = $true
+        ProfilePersonalDataIncluded = $false
+        Summary = $Summary
+        Assets = $reportAssets
+    } | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $jsonPath -Encoding UTF8
+
+    Write-Log -Message ((Get-ImportProviderText -Key 'ReportWritten') -f $htmlPath) -Phase 'ImportProvider'
+    Write-Log -Message ((Get-ImportProviderText -Key 'JsonReportWritten') -f $jsonPath) -Phase 'ImportProvider'
+    return [pscustomobject]@{ HtmlPath = $htmlPath; JsonPath = $jsonPath }
+}
+
+function Get-MovistarCloudImportDateInfo {
+    param(
+        [pscustomobject]$Item,
+        [bool]$IsVideo
+    )
+
+    $dateInfo = Get-PrimaryDate -Item $Item -IsVideo $IsVideo
+    if (-not $IsVideo -or [string]$dateInfo.Source -ne 'FileName') { return $dateInfo }
+
+    $name = [System.IO.Path]::GetFileNameWithoutExtension([string]$Item.File.Name)
+    if ($name -notmatch '(?i)^VIDEO-(?<Day>\d{2})-(?<Month>\d{2})-(?<Year>19\d{2}|20\d{2})_(?<Hour>\d{2})-(?<Minute>\d{2})-(?<Second>\d{2})(?:[-_].*)?$') {
+        return $dateInfo
+    }
+
+    $parsed = [datetime]::MinValue
+    $text = '{0}-{1}-{2} {3}:{4}:{5}' -f $Matches.Year, $Matches.Month, $Matches.Day, $Matches.Hour, $Matches.Minute, $Matches.Second
+    if (-not [datetime]::TryParseExact($text, 'yyyy-MM-dd HH:mm:ss', [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::None, [ref]$parsed)) {
+        return $dateInfo
+    }
+
+    return [pscustomobject]@{
+        Date = $parsed
+        Confidence = 98
+        Source = 'FileName'
+        Sources = @('FileName')
+        FilenameDateKind = 'ReliableDateTime'
+        FilenameDatePattern = 'MovistarVideoDDMMYYYY'
+        FilenameDateHasReliableTime = $true
+        FilenameDateSyntheticTime = $false
+        FilenameDateConflictsWithExif = $false
+    }
+}
+
+function Invoke-ImportProviderMovistarCloud {
+    param([string]$ProviderRootPath)
+
+    $providerName = 'MovistarCloud'
+    $displayName = Get-ImportProviderDisplayName -Provider $providerName
+    $resolved = Resolve-MovistarCloudExportRoot -RootPath $ProviderRootPath
+    Write-Log -Message ((Get-ImportProviderText -Key 'ImportStarted') -f $displayName, $(if ($Apply) { 'APPLY' } else { 'DRY RUN' }), $resolved.Root) -Phase 'ImportProvider'
+
+    $mediaExts = @($ImageExtensions + $VideoExtensions)
+    $pictureFiles = @(Get-MovistarCloudLocalFiles -FolderPaths $resolved.PicturesFolders | Where-Object { $mediaExts -contains $_.Extension.ToLowerInvariant() })
+    $videoFiles = @(Get-MovistarCloudLocalFiles -FolderPaths $resolved.VideosFolders | Where-Object { $mediaExts -contains $_.Extension.ToLowerInvariant() })
+    $activeFiles = @($pictureFiles + $videoFiles)
+    $trashEntries = New-Object System.Collections.Generic.List[object]
+    foreach ($trashFolder in @($resolved.TrashFolders)) {
+        try {
+            foreach ($entry in @(Get-ChildItem -LiteralPath $trashFolder -File -Recurse -Force -ErrorAction Stop)) { $trashEntries.Add($entry) }
+        }
+        catch {
+            $Stats.Inaccessible++
+            Write-Log -Message ((Get-ImportProviderText -Key 'ImportProviderInaccessibleFolder') -f $trashFolder, $_.Exception.Message) -Phase 'ImportProvider'
+        }
+    }
+    $trashMedia = @($trashEntries.ToArray() | Where-Object { $mediaExts -contains $_.Extension.ToLowerInvariant() })
+    $trashOther = @($trashEntries.ToArray() | Where-Object { $mediaExts -notcontains $_.Extension.ToLowerInvariant() })
+    Write-Log -Message ((Get-ImportProviderText -Key 'MovistarScan') -f $pictureFiles.Count, $videoFiles.Count, $trashMedia.Count, $trashOther.Count) -Phase 'ImportProvider'
+
+    $Stats.FilesFound = $activeFiles.Count
+    $Stats.LocalFilesDetected = $activeFiles.Count
+    $hashMap = Get-Sha256Batch -Files $activeFiles
+    $occurrences = New-Object System.Collections.Generic.List[object]
+    foreach ($file in $activeFiles) {
+        $Stats.FilesAnalyzed++
+        $hashResult = if ($hashMap.ContainsKey($file.FullName)) { $hashMap[$file.FullName] } else { $null }
+        if (-not $hashResult -or [string]::IsNullOrWhiteSpace([string]$hashResult.Hash)) {
+            $Stats.Errors++
+            Write-Log -Message ((Get-ImportProviderText -Key 'ImportProviderHashFailed') -f $file.FullName, $hashResult.Error) -Phase 'ImportProvider' -Status 'Warning'
+            continue
+        }
+        $role = if (@($resolved.PicturesFolders | Where-Object { Test-IsChildPath -Path $file.FullName -ParentPath $_ }).Count -gt 0) { 'Pictures' } else { 'Videos' }
+        $occurrences.Add([pscustomobject]@{ File=$file; Hash=$hashResult.Hash.ToUpperInvariant(); Role=$role; IsVideo=($VideoExtensions -contains $file.Extension.ToLowerInvariant()) })
+    }
+
+    $assets = New-Object System.Collections.Generic.List[object]
+    foreach ($group in @($occurrences.ToArray() | Group-Object Hash)) {
+        $groupOccurrences = @($group.Group)
+        $primary = @($groupOccurrences | Sort-Object @{Expression={$_.File.FullName.Length}}, @{Expression={$_.File.FullName}} | Select-Object -First 1)[0]
+        $warnings = New-Object System.Collections.Generic.List[string]
+        if ($groupOccurrences.Count -gt 1) { $warnings.Add('Internal exact duplicate occurrence') }
+        $assets.Add([pscustomobject]@{
+            Hash=[string]$group.Name; Occurrences=@($groupOccurrences); OccurrenceCount=$groupOccurrences.Count; PrimaryOccurrence=$primary; PrimaryPath=$primary.File.FullName; Role=$primary.Role; IsVideo=[bool]$primary.IsVideo
+            Status='Pending'; TargetPath=''; Date=$null; DateSource=''; MetadataConfidence='Pending'; ExifVerification='Queued'; EmbeddedCaptureDateState='NotChecked'; MaterializationExpected=$false; MaterializationStatus='NotRun'; MetadataWritten=$false; FileSystemDatesSynced=$false; HasGps=$false; Warnings=$warnings
+        })
+    }
+
+    $metadataFiles = @($assets.ToArray() | ForEach-Object { $_.PrimaryOccurrence.File })
+    Write-Log -Message ((Get-ImportProviderText -Key 'ExifPlan') -f $displayName, $metadataFiles.Count, 0, $Diagnostic) -Phase 'ImportProvider'
+    $metadataMap = Get-ExifMetadataBatch -Files $metadataFiles -ExifToolAvailable $ExifToolAvailable -ShowImportProviderProgress
+    Load-ProcessedIndexLight
+    $knownProviderSourceHashes = @{}
+    foreach ($record in @($script:ProcessedRecords.ToArray())) {
+        if ($record.PSObject.Properties.Name -contains 'providerSourceHash' -and -not [string]::IsNullOrWhiteSpace([string]$record.providerSourceHash)) {
+            $knownProviderSourceHashes[([string]$record.providerSourceHash).ToUpperInvariant()] = $true
+        }
+        if ($record.PSObject.Properties.Name -contains 'providerSourceHashes') {
+            foreach ($sourceHash in @($record.providerSourceHashes)) {
+                if (-not [string]::IsNullOrWhiteSpace([string]$sourceHash)) { $knownProviderSourceHashes[([string]$sourceHash).ToUpperInvariant()] = $true }
+            }
+        }
+    }
+    if ($Apply) { Initialize-DestinationStructure }
+
+    $existingDuplicates = 0
+    $postMaterializationDuplicates = 0
+    $needsReview = 0
+    $importable = 0
+    foreach ($asset in @($assets.ToArray())) {
+        $primary = $asset.PrimaryOccurrence
+        $metadata = if ($metadataMap.ContainsKey($primary.File.FullName)) { $metadataMap[$primary.File.FullName] } else { New-EmptyMetadata }
+        $item = [pscustomobject]@{
+            File=$primary.File; Extension=$primary.File.Extension.ToLowerInvariant(); IsVideo=[bool]$primary.IsVideo; IsRaw=($RawExtensions -contains $primary.File.Extension.ToLowerInvariant()); Metadata=$metadata; DateInfo=$null; Sha256=$asset.Hash; ProviderSourceSha256=$asset.Hash; GlobalDuplicate=$false; PerceptualHash=$null
+            Width=if($metadata.ImageWidth){[int]$metadata.ImageWidth}else{0}; Height=if($metadata.ImageHeight){[int]$metadata.ImageHeight}else{0}; DuplicateHandled=$false; ProviderOccurrenceCount=$asset.OccurrenceCount; ProviderAlbumNames=@(); ProviderMetadataConfidence=''; ProviderExifVerification='Read'; EmbeddedMetadataReadStatus=[string]$metadata.ReadStatus
+        }
+        $item.DateInfo = Get-MovistarCloudImportDateInfo -Item $item -IsVideo $item.IsVideo
+        $probe = Initialize-EmbeddedCaptureDateProbe -Item $item
+        $asset.Date = $item.DateInfo.Date
+        $asset.DateSource = [string]$item.DateInfo.Source
+        $asset.ExifVerification = if ([string]$metadata.ReadStatus -eq 'Read') { 'Read' } else { 'Unreadable' }
+        $asset.EmbeddedCaptureDateState = [string]$probe.State
+        $asset.HasGps = ($null -ne $metadata.GPSLatitude -and $null -ne $metadata.GPSLongitude)
+        $asset.MaterializationExpected = ([string]$probe.State -eq 'Absent' -and (Test-DateInfoCanDriveVisibleDateMaterialization -DateInfo $item.DateInfo))
+        $asset.MetadataConfidence = if ([string]$probe.State -eq 'PresentValid' -and [int]$item.DateInfo.Confidence -ge 98) { 'HighConfidence' } elseif ([int]$item.DateInfo.Confidence -ge $ExifRepairConfidence) { 'MediumConfidence' } else { 'LowConfidence' }
+        $item.ProviderMetadataConfidence = $asset.MetadataConfidence
+        $item.ProviderExifVerification = $asset.ExifVerification
+
+        if ([string]$metadata.ReadStatus -ne 'Read') {
+            $asset.Status = 'UnreadableNeedsReview'
+            $asset.Warnings.Add('Embedded metadata could not be read')
+        }
+        elseif ([string]$probe.State -eq 'Conflict') {
+            $asset.Status = 'ConflictNeedsReview'
+            $asset.Warnings.Add('Filename date conflicts with embedded metadata')
+        }
+        elseif ([int]$item.DateInfo.Confidence -lt $ExifRepairConfidence) {
+            $asset.Status = 'NoReliableDateNeedsReview'
+            $asset.Warnings.Add('No reliable capture date')
+        }
+        elseif ($script:ProcessedByHash.ContainsKey($asset.Hash) -or $knownProviderSourceHashes.ContainsKey($asset.Hash)) {
+            $asset.Status = 'ExistingDuplicateSkipped'
+            $existingDuplicates++
+            $Stats.ExactDuplicatesFound++
+            continue
+        }
+        else {
+            $asset.Status = 'Importable'
+        }
+
+        if ($asset.Status -match 'NeedsReview$') {
+            $needsReview++
+            $Stats.NeedsReview++
+            $asset.TargetPath = Copy-ProviderAssetToDestination -Item $item -DestinationDirectory $NeedsReviewRoot -ProviderName $providerName -ProviderRootPath $resolved.Root -Reason 'Movistar Cloud export review'
+        }
+        else {
+            $destinationDirectory = Get-DestinationPath -Item $item -RootPath $resolved.Root -OrganizedRoot $OrganizedRoot
+            $asset.TargetPath = Copy-ProviderAssetToDestination -Item $item -DestinationDirectory $destinationDirectory -ProviderName $providerName -ProviderRootPath $resolved.Root -Reason 'Movistar Cloud export import'
+            if ($item.PSObject.Properties.Name -contains 'ProviderPostMaterializationDuplicate' -and [bool]$item.ProviderPostMaterializationDuplicate) {
+                $asset.Status = 'PostMaterializationDuplicateSkipped'
+                $asset.Warnings.Add('Materialization produced an existing exact SHA256 duplicate; newly created copy removed')
+                $postMaterializationDuplicates++
+                $existingDuplicates++
+            }
+            else {
+                $importable++
+            }
+        }
+        if ($item.PSObject.Properties.Name -contains 'CaptureDateMaterializationStatus') { $asset.MaterializationStatus = [string]$item.CaptureDateMaterializationStatus }
+        if ($item.PSObject.Properties.Name -contains 'EmbeddedCaptureMetadataWritten') { $asset.MetadataWritten = [bool]$item.EmbeddedCaptureMetadataWritten }
+        if ($item.PSObject.Properties.Name -contains 'FileSystemDatesSynced') { $asset.FileSystemDatesSynced = [bool]$item.FileSystemDatesSynced }
+    }
+
+    if ($Apply) { Save-ProcessedDatabase }
+
+    $summary = [pscustomobject]@{
+        Mode=if($Apply){'APPLY'}else{'DRY RUN'}; Provider=$providerName; Root=$resolved.Root; ProfileDetected=$true; ProfilePersonalDataIncluded=$false
+        ActiveMedia=$occurrences.Count; Pictures=@($occurrences.ToArray()|Where-Object{$_.Role-eq'Pictures'}).Count; Videos=@($occurrences.ToArray()|Where-Object{$_.Role-eq'Videos'}).Count; LogicalAssets=$assets.Count; InternalDuplicateOccurrences=[math]::Max(0,$occurrences.Count-$assets.Count)
+        TrashMediaSkipped=$trashMedia.Count; TrashOtherSkipped=$trashOther.Count; ValidEmbeddedDate=@($assets.ToArray()|Where-Object{$_.EmbeddedCaptureDateState-eq'PresentValid'}).Count; ReliableFilenameDate=@($assets.ToArray()|Where-Object{$_.DateSource-eq'FileName'-and$_.MetadataConfidence-ne'LowConfidence'}).Count
+        NoReliableDate=@($assets.ToArray()|Where-Object{$_.Status-eq'NoReliableDateNeedsReview'}).Count; MaterializationCandidates=@($assets.ToArray()|Where-Object{$_.MaterializationExpected}).Count; WithGps=@($assets.ToArray()|Where-Object{$_.HasGps}).Count; Unreadable=@($assets.ToArray()|Where-Object{$_.Status-eq'UnreadableNeedsReview'}).Count
+        ExistingDuplicates=$existingDuplicates; PostMaterializationDuplicates=$postMaterializationDuplicates; Conflicts=@($assets.ToArray()|Where-Object{$_.Status-eq'ConflictNeedsReview'}).Count; NeedsReview=$needsReview; ImportableAssets=$importable; FilesCopied=$Stats.FilesCopied; MetadataWritten=@($assets.ToArray()|Where-Object{$_.MetadataWritten-and$_.Status-eq'Importable'}).Count; FileSystemDatesSynced=@($assets.ToArray()|Where-Object{$_.FileSystemDatesSynced-and$_.Status-eq'Importable'}).Count; Errors=$Stats.Errors
+        SourceDeletionStatus=if($DeleteImportProviderSourceAfterSuccess){'RequestedPending'}elseif($Apply){'NotRequested'}else{'NotRequested'}; SourceDeletionPath=$resolved.Root
+    }
+    $reports = Write-MovistarCloudImportReport -Summary $summary -Assets @($assets.ToArray())
+    Write-Log -Message ((Get-ImportProviderText -Key 'MovistarSummary') -f $summary.ActiveMedia,$summary.LogicalAssets,$summary.InternalDuplicateOccurrences,$summary.TrashMediaSkipped,$summary.TrashOtherSkipped,$summary.ValidEmbeddedDate,$summary.ReliableFilenameDate,$summary.NoReliableDate,$summary.MaterializationCandidates,$summary.WithGps,$summary.Unreadable,$summary.ExistingDuplicates,$summary.NeedsReview,$summary.FilesCopied,$summary.MetadataWritten,$reports.HtmlPath) -Phase 'Complete' -Status 'Completed'
+
+    Invoke-ImportProviderSourceDeletion -SelectedProviderPath $ProviderRootPath -Summary $summary
+    $reports = Write-MovistarCloudImportReport -Summary $summary -Assets @($assets.ToArray())
     Write-Log -Message ((Get-ImportProviderText -Key 'SourceDeletionStatusLog') -f $summary.SourceDeletionStatus, $summary.SourceDeletionPath, $reports.HtmlPath) -Phase 'Complete' -Status 'Completed'
     Cleanup-MetadataBackupsOnSuccess
 }
@@ -10551,6 +11008,7 @@ if (-not [string]::IsNullOrWhiteSpace($ImportProvider)) {
     switch ([string]$importProviderSpec.Id) {
         'GoogleTakeout' { Invoke-ImportProviderGoogleTakeout -ProviderRootPath $ImportProviderPath }
         'ApplePhotos' { Invoke-ImportProviderApplePhotos -ProviderRootPath $ImportProviderPath }
+        'MovistarCloud' { Invoke-ImportProviderMovistarCloud -ProviderRootPath $ImportProviderPath }
         'XmpSidecarLibrary' { Invoke-ImportProviderXmpSidecarLibrary -ProviderRootPath $ImportProviderPath }
         default { Stop-WithError "ImportProvider $($importProviderSpec.DisplayName) is registered but has no executable implementation yet." }
     }

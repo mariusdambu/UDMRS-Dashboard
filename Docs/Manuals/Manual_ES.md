@@ -8,7 +8,7 @@ Build: `UDMRS Build 2026.06.18-H2H-v1.0`.
 
 Validacion final: sintaxis PS5.1/PS7, dashboard, providers disponibles y flujos principales revisados sin Apply sobre galerías reales.
 
-Estado público actual: el flujo clásico estable sigue siendo la entrada principal para carpetas normales. `Importar galería` está disponible para `Google Photos / Takeout`, `Apple Photos / iCloud` y `XMP / Sidecar Library`.
+Estado público actual: el flujo clásico estable sigue siendo la entrada principal para carpetas normales. `Importar galería` está disponible para `Google Photos / Takeout`, `Apple Photos / iCloud`, `Movistar Cloud Export` y `XMP / Sidecar Library`.
 
 ## 1. Qué es cada pieza
 
@@ -130,6 +130,7 @@ Disponible:
 
 - `Google Photos / Takeout`: analiza una exportación Google Takeout seleccionada por el usuario, interpreta sidecars JSON, álbumes, papelera, confianza de metadata y duplicados físicos, y copia assets limpios al destino `Año\Trimestre`.
 - `Apple Photos / iCloud`: analiza una exportación iCloud seleccionada por el usuario, interpreta `Photo Details.csv`, CSV de álbumes, flags de papelera, fechas de proveedor, vídeos y candidatos Live Photo, y copia assets limpios al destino `Año\Trimestre`.
+- `Movistar Cloud Export`: detecta la exportación mediante `profile.json`, importa únicamente `Pictures` y `Videos`, omite `Trash` y usa EXIF, QuickTime, fechas fiables del nombre, SHA256 y el índice compartido. No publica datos personales del perfil.
 - `XMP / Sidecar Library`: intenta interpretar galerías desconocidas con sidecars XMP, JSON o YAML. Si la relación media/sidecar es clara usa metadata; si es ambigua manda a revisión; si no hay metadata útil usa fallback clásico.
 
 Planificados y deshabilitados:

@@ -14,7 +14,7 @@ Validacion final: sintaxis PS5.1/PS7, dashboard, providers disponibles y flujos 
 
 Esta release congela el flujo clasico estable y la entrada `Importar galeria` como segunda entrada productiva.
 
-Estado actual: `Google Photos / Takeout`, `Apple Photos / iCloud` y `XMP / Sidecar Library` estan disponibles. `Samsung Gallery` e `Immich` aparecen como providers planificados y deshabilitados hasta disponer de muestras reales.
+Estado actual: `Google Photos / Takeout`, `Apple Photos / iCloud`, `Movistar Cloud Export` y `XMP / Sidecar Library` estan disponibles. `Samsung Gallery` e `Immich` aparecen como providers planificados y deshabilitados hasta disponer de muestras reales.
 
 ## Branding visual
 
@@ -101,6 +101,7 @@ Disponible actualmente:
 
 - `Google Photos / Takeout`: analiza una exportación Google Takeout seleccionada por el usuario, usa sidecars JSON, álbumes, papelera, confianza de metadata y deduplicación por assets lógicos, y copia assets limpios al destino `Year\Quarter`.
 - `Apple Photos / iCloud`: analiza una exportación iCloud seleccionada por el usuario, usa `Photo Details.csv`, CSV de álbumes, flags de papelera, fechas de proveedor, vídeos y candidatos Live Photo, y copia assets limpios al destino `Year\Quarter`.
+- `Movistar Cloud Export`: reconoce `profile.json` y las áreas activas `Pictures`/`Videos`, omite y contabiliza `Trash`, y reutiliza EXIF, QuickTime, filename fiable, SHA256 y el índice común. El perfil solo identifica la estructura; sus datos personales no se incluyen en reportes.
 - `XMP / Sidecar Library`: intenta interpretar galerías desconocidas con sidecars XMP, JSON o YAML. Si la relación media/sidecar es clara usa metadata; si es ambigua manda a revisión; si no hay metadata útil usa fallback clásico.
 
 Planificados y deshabilitados:
