@@ -2312,6 +2312,7 @@ $script:ProcessedDirtyCount = 0
 $script:JsonBackupDoneByPath = @{}
 $script:IndexBackupRetentionDays = 7
 $script:IndexBackupMaxFiles = 10
+$script:PhysicalMetadataCertificationSchemaVersion = 1
 
 function Get-FallbackProcessedDbPath {
     return (Join-Path (Join-Path (Get-UserDataRootPath) 'Config') 'ProcessedFiles.json')
@@ -2955,6 +2956,14 @@ function Load-ProcessedDatabase {
                     importProvider = if (($recordProperties -contains 'importProvider') -and $record.importProvider) { [string]$record.importProvider } else { '' }
                     providerSourceHash = if (($recordProperties -contains 'providerSourceHash') -and $record.providerSourceHash) { ([string]$record.providerSourceHash).ToUpperInvariant() } else { '' }
                     providerSourceHashes = if ($recordProperties -contains 'providerSourceHashes') { @($record.providerSourceHashes | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) } | ForEach-Object { ([string]$_).ToUpperInvariant() } | Select-Object -Unique) } else { @() }
+                    physicalMetadataCertificationStatus = if (($recordProperties -contains 'physicalMetadataCertificationStatus') -and $record.physicalMetadataCertificationStatus) { [string]$record.physicalMetadataCertificationStatus } else { 'NotCertified' }
+                    physicalMetadataCertifiedAt = if (($recordProperties -contains 'physicalMetadataCertifiedAt') -and $record.physicalMetadataCertifiedAt) { if ($record.physicalMetadataCertifiedAt -is [datetime]) { ([datetime]$record.physicalMetadataCertifiedAt).ToUniversalTime().ToString('o') } else { [string]$record.physicalMetadataCertifiedAt } } else { '' }
+                    physicalMetadataCertificationSchema = if (($recordProperties -contains 'physicalMetadataCertificationSchema') -and $record.physicalMetadataCertificationSchema) { [int]$record.physicalMetadataCertificationSchema } else { 0 }
+                    physicalMetadataCertifiedHash = if (($recordProperties -contains 'physicalMetadataCertifiedHash') -and $record.physicalMetadataCertifiedHash) { ([string]$record.physicalMetadataCertifiedHash).ToUpperInvariant() } else { '' }
+                    physicalMetadataCertifiedLength = if (($recordProperties -contains 'physicalMetadataCertifiedLength') -and $null -ne $record.physicalMetadataCertifiedLength) { [int64]$record.physicalMetadataCertifiedLength } else { -1 }
+                    physicalMetadataCertifiedLastWriteTimeUtc = if (($recordProperties -contains 'physicalMetadataCertifiedLastWriteTimeUtc') -and $record.physicalMetadataCertifiedLastWriteTimeUtc) { if ($record.physicalMetadataCertifiedLastWriteTimeUtc -is [datetime]) { ([datetime]$record.physicalMetadataCertifiedLastWriteTimeUtc).ToUniversalTime().ToString('o') } else { [string]$record.physicalMetadataCertifiedLastWriteTimeUtc } } else { '' }
+                    physicalMetadataCertifiedBy = if (($recordProperties -contains 'physicalMetadataCertifiedBy') -and $record.physicalMetadataCertifiedBy) { [string]$record.physicalMetadataCertifiedBy } else { '' }
+                    physicalMetadataCertificationReason = if (($recordProperties -contains 'physicalMetadataCertificationReason') -and $record.physicalMetadataCertificationReason) { [string]$record.physicalMetadataCertificationReason } else { '' }
                     toolVersion = 'PhotoOrganizer 2'
                 }
 
@@ -3091,6 +3100,14 @@ function Load-ProcessedIndexLight {
                 importProvider = if (($recordProperties -contains 'importProvider') -and $record.importProvider) { [string]$record.importProvider } else { '' }
                 providerSourceHash = if (($recordProperties -contains 'providerSourceHash') -and $record.providerSourceHash) { ([string]$record.providerSourceHash).ToUpperInvariant() } else { '' }
                 providerSourceHashes = if ($recordProperties -contains 'providerSourceHashes') { @($record.providerSourceHashes | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) } | ForEach-Object { ([string]$_).ToUpperInvariant() } | Select-Object -Unique) } else { @() }
+                physicalMetadataCertificationStatus = if (($recordProperties -contains 'physicalMetadataCertificationStatus') -and $record.physicalMetadataCertificationStatus) { [string]$record.physicalMetadataCertificationStatus } else { 'NotCertified' }
+                physicalMetadataCertifiedAt = if (($recordProperties -contains 'physicalMetadataCertifiedAt') -and $record.physicalMetadataCertifiedAt) { if ($record.physicalMetadataCertifiedAt -is [datetime]) { ([datetime]$record.physicalMetadataCertifiedAt).ToUniversalTime().ToString('o') } else { [string]$record.physicalMetadataCertifiedAt } } else { '' }
+                physicalMetadataCertificationSchema = if (($recordProperties -contains 'physicalMetadataCertificationSchema') -and $record.physicalMetadataCertificationSchema) { [int]$record.physicalMetadataCertificationSchema } else { 0 }
+                physicalMetadataCertifiedHash = if (($recordProperties -contains 'physicalMetadataCertifiedHash') -and $record.physicalMetadataCertifiedHash) { ([string]$record.physicalMetadataCertifiedHash).ToUpperInvariant() } else { '' }
+                physicalMetadataCertifiedLength = if (($recordProperties -contains 'physicalMetadataCertifiedLength') -and $null -ne $record.physicalMetadataCertifiedLength) { [int64]$record.physicalMetadataCertifiedLength } else { -1 }
+                physicalMetadataCertifiedLastWriteTimeUtc = if (($recordProperties -contains 'physicalMetadataCertifiedLastWriteTimeUtc') -and $record.physicalMetadataCertifiedLastWriteTimeUtc) { if ($record.physicalMetadataCertifiedLastWriteTimeUtc -is [datetime]) { ([datetime]$record.physicalMetadataCertifiedLastWriteTimeUtc).ToUniversalTime().ToString('o') } else { [string]$record.physicalMetadataCertifiedLastWriteTimeUtc } } else { '' }
+                physicalMetadataCertifiedBy = if (($recordProperties -contains 'physicalMetadataCertifiedBy') -and $record.physicalMetadataCertifiedBy) { [string]$record.physicalMetadataCertifiedBy } else { '' }
+                physicalMetadataCertificationReason = if (($recordProperties -contains 'physicalMetadataCertificationReason') -and $record.physicalMetadataCertificationReason) { [string]$record.physicalMetadataCertificationReason } else { '' }
                 toolVersion = 'PhotoOrganizer 2'
             }
 
@@ -3624,6 +3641,14 @@ function Register-ProcessedFile {
         embeddedCaptureMetadataWritten = if ($Item.PSObject.Properties.Name -contains 'EmbeddedCaptureMetadataWritten') { [bool]$Item.EmbeddedCaptureMetadataWritten } else { $false }
         fileSystemDatesSynced = if ($Item.PSObject.Properties.Name -contains 'FileSystemDatesSynced') { [bool]$Item.FileSystemDatesSynced } else { $false }
         dateKnownButMetadataNotWritten = if ($Item.PSObject.Properties.Name -contains 'DateKnownButMetadataNotWritten') { [bool]$Item.DateKnownButMetadataNotWritten } else { $false }
+        physicalMetadataCertificationStatus = if ($Item.PSObject.Properties.Name -contains 'PhysicalMetadataCertificationStatus') { [string]$Item.PhysicalMetadataCertificationStatus } else { 'NotCertified' }
+        physicalMetadataCertifiedAt = if ($Item.PSObject.Properties.Name -contains 'PhysicalMetadataCertifiedAt') { [string]$Item.PhysicalMetadataCertifiedAt } else { '' }
+        physicalMetadataCertificationSchema = if ($Item.PSObject.Properties.Name -contains 'PhysicalMetadataCertificationSchema') { [int]$Item.PhysicalMetadataCertificationSchema } else { 0 }
+        physicalMetadataCertifiedHash = if ($Item.PSObject.Properties.Name -contains 'PhysicalMetadataCertifiedHash') { [string]$Item.PhysicalMetadataCertifiedHash } else { '' }
+        physicalMetadataCertifiedLength = if ($Item.PSObject.Properties.Name -contains 'PhysicalMetadataCertifiedLength') { [int64]$Item.PhysicalMetadataCertifiedLength } else { -1 }
+        physicalMetadataCertifiedLastWriteTimeUtc = if ($Item.PSObject.Properties.Name -contains 'PhysicalMetadataCertifiedLastWriteTimeUtc') { [string]$Item.PhysicalMetadataCertifiedLastWriteTimeUtc } else { '' }
+        physicalMetadataCertifiedBy = if ($Item.PSObject.Properties.Name -contains 'PhysicalMetadataCertifiedBy') { [string]$Item.PhysicalMetadataCertifiedBy } else { '' }
+        physicalMetadataCertificationReason = if ($Item.PSObject.Properties.Name -contains 'PhysicalMetadataCertificationReason') { [string]$Item.PhysicalMetadataCertificationReason } else { '' }
         toolVersion = 'PhotoOrganizer 2'
     }
 
@@ -3680,6 +3705,14 @@ function Register-ImportedProviderFile {
         embeddedCaptureMetadataWritten = if ($Item.PSObject.Properties.Name -contains 'EmbeddedCaptureMetadataWritten') { [bool]$Item.EmbeddedCaptureMetadataWritten } else { $false }
         fileSystemDatesSynced = if ($Item.PSObject.Properties.Name -contains 'FileSystemDatesSynced') { [bool]$Item.FileSystemDatesSynced } else { $false }
         dateKnownButMetadataNotWritten = if ($Item.PSObject.Properties.Name -contains 'DateKnownButMetadataNotWritten') { [bool]$Item.DateKnownButMetadataNotWritten } else { $false }
+        physicalMetadataCertificationStatus = if ($Item.PSObject.Properties.Name -contains 'PhysicalMetadataCertificationStatus') { [string]$Item.PhysicalMetadataCertificationStatus } else { 'NotCertified' }
+        physicalMetadataCertifiedAt = if ($Item.PSObject.Properties.Name -contains 'PhysicalMetadataCertifiedAt') { [string]$Item.PhysicalMetadataCertifiedAt } else { '' }
+        physicalMetadataCertificationSchema = if ($Item.PSObject.Properties.Name -contains 'PhysicalMetadataCertificationSchema') { [int]$Item.PhysicalMetadataCertificationSchema } else { 0 }
+        physicalMetadataCertifiedHash = if ($Item.PSObject.Properties.Name -contains 'PhysicalMetadataCertifiedHash') { [string]$Item.PhysicalMetadataCertifiedHash } else { '' }
+        physicalMetadataCertifiedLength = if ($Item.PSObject.Properties.Name -contains 'PhysicalMetadataCertifiedLength') { [int64]$Item.PhysicalMetadataCertifiedLength } else { -1 }
+        physicalMetadataCertifiedLastWriteTimeUtc = if ($Item.PSObject.Properties.Name -contains 'PhysicalMetadataCertifiedLastWriteTimeUtc') { [string]$Item.PhysicalMetadataCertifiedLastWriteTimeUtc } else { '' }
+        physicalMetadataCertifiedBy = if ($Item.PSObject.Properties.Name -contains 'PhysicalMetadataCertifiedBy') { [string]$Item.PhysicalMetadataCertifiedBy } else { '' }
+        physicalMetadataCertificationReason = if ($Item.PSObject.Properties.Name -contains 'PhysicalMetadataCertificationReason') { [string]$Item.PhysicalMetadataCertificationReason } else { '' }
         toolVersion = 'PhotoOrganizer 2'
     }
 
@@ -9983,6 +10016,129 @@ function Get-RepairOnlyFiles {
     return @(Get-MediaFilesWithoutProtectedTraversal -RootPath $RootPath -Phase 'RepairOnly' -CountLocalFiles)
 }
 
+function New-ProcessedRecordPathIndex {
+    $index = @{}
+    if (-not $script:ProcessedRecords) {
+        return $index
+    }
+
+    foreach ($record in @($script:ProcessedRecords.ToArray())) {
+        $registeredPath = Get-ProcessedRecordRegisteredPath -Record $record
+        if ([string]::IsNullOrWhiteSpace($registeredPath)) { continue }
+        try {
+            $key = (Resolve-FullPath $registeredPath).TrimEnd('\').ToLowerInvariant()
+            if (-not $index.ContainsKey($key)) {
+                $index[$key] = $record
+            }
+        }
+        catch {
+            continue
+        }
+    }
+
+    return $index
+}
+
+function Get-ProcessedRecordFromPathIndex {
+    param(
+        [hashtable]$PathIndex,
+        [string]$Path
+    )
+
+    if ($null -eq $PathIndex -or [string]::IsNullOrWhiteSpace($Path)) {
+        return $null
+    }
+
+    try {
+        $key = (Resolve-FullPath $Path).TrimEnd('\').ToLowerInvariant()
+        if ($PathIndex.ContainsKey($key)) {
+            return $PathIndex[$key]
+        }
+    }
+    catch {
+        return $null
+    }
+
+    return $null
+}
+
+function Test-PhysicalMetadataCertificationCurrent {
+    param(
+        [object]$Record,
+        [System.IO.FileInfo]$File
+    )
+
+    $result = [ordered]@{
+        Current = $false
+        Reason = 'Unknown'
+    }
+
+    if ($null -eq $Record) {
+        $result.Reason = 'NoProcessedRecord'
+        return [pscustomobject]$result
+    }
+    if ($null -eq $File) {
+        $result.Reason = 'NoFile'
+        return [pscustomobject]$result
+    }
+
+    $recordProperties = @($Record.PSObject.Properties.Name)
+    $status = if ($recordProperties -contains 'physicalMetadataCertificationStatus') { [string]$Record.physicalMetadataCertificationStatus } else { '' }
+    if ($status -ne 'Certified') {
+        $result.Reason = 'NotCertified'
+        return [pscustomobject]$result
+    }
+
+    $schema = if ($recordProperties -contains 'physicalMetadataCertificationSchema') { [int]$Record.physicalMetadataCertificationSchema } else { 0 }
+    if ($schema -ne [int]$script:PhysicalMetadataCertificationSchemaVersion) {
+        $result.Reason = 'SchemaMismatch'
+        return [pscustomobject]$result
+    }
+
+    $verifiedLocal = if ($recordProperties -contains 'verifiedLocal') { [bool]$Record.verifiedLocal } else { $true }
+    $storageState = if (($recordProperties -contains 'storageState') -and $Record.storageState) { [string]$Record.storageState } else { 'LocalVerified' }
+    if (-not $verifiedLocal -or $storageState -ne 'LocalVerified') {
+        $result.Reason = 'NotLocalVerified'
+        return [pscustomobject]$result
+    }
+
+    $certifiedLength = if (($recordProperties -contains 'physicalMetadataCertifiedLength') -and $null -ne $Record.physicalMetadataCertifiedLength) { [int64]$Record.physicalMetadataCertifiedLength } else { -1 }
+    if ($certifiedLength -lt 0 -or $certifiedLength -ne [int64]$File.Length) {
+        $result.Reason = 'LengthMismatch'
+        return [pscustomobject]$result
+    }
+
+    $certifiedLastWriteText = if (($recordProperties -contains 'physicalMetadataCertifiedLastWriteTimeUtc') -and $Record.physicalMetadataCertifiedLastWriteTimeUtc) { [string]$Record.physicalMetadataCertifiedLastWriteTimeUtc } else { '' }
+    if ([string]::IsNullOrWhiteSpace($certifiedLastWriteText)) {
+        $result.Reason = 'MissingLastWriteTime'
+        return [pscustomobject]$result
+    }
+
+    try {
+        $certifiedLastWriteUtc = ([datetime]::Parse($certifiedLastWriteText, [System.Globalization.CultureInfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::RoundtripKind)).ToUniversalTime()
+        $currentLastWriteUtc = $File.LastWriteTimeUtc
+        if ([math]::Abs(($certifiedLastWriteUtc - $currentLastWriteUtc).TotalSeconds) -gt 1) {
+            $result.Reason = 'LastWriteTimeMismatch'
+            return [pscustomobject]$result
+        }
+    }
+    catch {
+        $result.Reason = 'InvalidLastWriteTime'
+        return [pscustomobject]$result
+    }
+
+    $certifiedHash = if (($recordProperties -contains 'physicalMetadataCertifiedHash') -and $Record.physicalMetadataCertifiedHash) { ([string]$Record.physicalMetadataCertifiedHash).ToUpperInvariant() } else { '' }
+    $recordHash = if (($recordProperties -contains 'hash') -and $Record.hash) { ([string]$Record.hash).ToUpperInvariant() } else { '' }
+    if (-not [string]::IsNullOrWhiteSpace($certifiedHash) -and -not [string]::IsNullOrWhiteSpace($recordHash) -and -not $certifiedHash.Equals($recordHash, [StringComparison]::OrdinalIgnoreCase)) {
+        $result.Reason = 'HashMismatch'
+        return [pscustomobject]$result
+    }
+
+    $result.Current = $true
+    $result.Reason = 'CertifiedCurrent'
+    return [pscustomobject]$result
+}
+
 function Invoke-MetadataAuditOrRepair {
     param([switch]$CloseAndExit)
 
@@ -9996,11 +10152,37 @@ function Invoke-MetadataAuditOrRepair {
         Write-Log -Message "MetadataRepair without -Apply runs as DryRun. No files will be changed." -Phase $phase
     }
 
-    if ($Apply -and $MetadataRepair -and (-not $script:ProcessedRecords -or $script:ProcessedRecords.Count -eq 0)) {
+    if (-not $script:ProcessedRecords -or $script:ProcessedRecords.Count -eq 0) {
         Load-ProcessedIndexLight
     }
 
     $repairFiles = @(Get-RepairOnlyFiles -RootPath $OrganizedRoot)
+    $candidateBuilderTotal = $repairFiles.Count
+    $pathIndex = New-ProcessedRecordPathIndex
+    $candidateFiles = New-Object System.Collections.Generic.List[object]
+    $certifiedSkipped = 0
+    $certificationReasons = @{}
+    foreach ($file in $repairFiles) {
+        $record = Get-ProcessedRecordFromPathIndex -PathIndex $pathIndex -Path $file.FullName
+        $certification = Test-PhysicalMetadataCertificationCurrent -Record $record -File $file
+        if ($certification.Current) {
+            $certifiedSkipped++
+            continue
+        }
+        $reason = [string]$certification.Reason
+        if ([string]::IsNullOrWhiteSpace($reason)) { $reason = 'Unknown' }
+        if (-not $certificationReasons.ContainsKey($reason)) { $certificationReasons[$reason] = 0 }
+        $certificationReasons[$reason]++
+        $candidateFiles.Add($file)
+    }
+    $repairFiles = @($candidateFiles.ToArray())
+    $reasonSummary = if ($certificationReasons.Count -gt 0) {
+        (($certificationReasons.Keys | Sort-Object | ForEach-Object { "$_=$($certificationReasons[$_])" }) -join '; ')
+    }
+    else {
+        'none'
+    }
+    Write-Log -Message "Metadata materialization candidate builder: total=$candidateBuilderTotal; certifiedSkipped=$certifiedSkipped; inspect=$($repairFiles.Count); inspectReasons=$reasonSummary" -Phase $phase
     Write-Log -Message "Metadata materialization files found: $($repairFiles.Count). Cloud placeholders skipped: $($Stats.CloudPlaceholdersSkipped). Missing real: $($Stats.MissingReal)" -Phase $phase
     $reportRows = New-Object System.Collections.Generic.List[object]
     $BatchSize = [math]::Max(1, $BatchSize)
@@ -10030,7 +10212,7 @@ function Invoke-MetadataAuditOrRepair {
             }
             $item.DateInfo = Get-PrimaryDate -Item $item -IsVideo $item.IsVideo
             [void](Initialize-EmbeddedCaptureDateProbe -Item $item)
-            $processedRecordBeforeRepair = Find-ProcessedRecordByPath -Path $file.FullName
+            $processedRecordBeforeRepair = Get-ProcessedRecordFromPathIndex -PathIndex $pathIndex -Path $file.FullName
             $oldHashBeforeRepair = if ($processedRecordBeforeRepair -and $processedRecordBeforeRepair.hash) { [string]$processedRecordBeforeRepair.hash } else { '' }
             if (-not [string]::IsNullOrWhiteSpace($oldHashBeforeRepair)) { $item.Sha256 = $oldHashBeforeRepair }
             $materializationResult = Invoke-CaptureDateMaterialization -Item $item -RootPath $OrganizedRoot -MetadataBackupRoot $MetadataBackupRoot -ExifToolAvailable $ExifToolAvailable -UpdateProcessedIndex -Reason $phase
@@ -10559,6 +10741,84 @@ function Set-CaptureDateMaterializationProperties {
     $Item | Add-Member -NotePropertyName DateKnownButMetadataNotWritten -NotePropertyValue $DateKnownButMetadataNotWritten -Force
 }
 
+function Set-PhysicalMetadataCertificationProperties {
+    param(
+        [pscustomobject]$Item,
+        [string]$Status,
+        [string]$Reason,
+        [string]$CertifiedBy
+    )
+
+    if ($null -eq $Item) { return }
+
+    $statusValue = if ([string]::IsNullOrWhiteSpace($Status)) { 'NotCertified' } else { [string]$Status }
+    $isCertified = $statusValue -eq 'Certified'
+    $fileLength = -1
+    $lastWriteUtc = ''
+    if ($isCertified -and $Item.PSObject.Properties.Name -contains 'File' -and $null -ne $Item.File) {
+        try {
+            $fileLength = [int64]$Item.File.Length
+            $lastWriteUtc = $Item.File.LastWriteTimeUtc.ToString('o')
+        }
+        catch {
+            $fileLength = -1
+            $lastWriteUtc = ''
+        }
+    }
+
+    $hash = ''
+    if ($isCertified -and $Item.PSObject.Properties.Name -contains 'Sha256' -and -not [string]::IsNullOrWhiteSpace([string]$Item.Sha256)) {
+        $hash = ([string]$Item.Sha256).ToUpperInvariant()
+    }
+
+    $Item | Add-Member -NotePropertyName PhysicalMetadataCertificationStatus -NotePropertyValue $statusValue -Force
+    $Item | Add-Member -NotePropertyName PhysicalMetadataCertifiedAt -NotePropertyValue $(if ($isCertified) { (Get-Date).ToUniversalTime().ToString('o') } else { '' }) -Force
+    $Item | Add-Member -NotePropertyName PhysicalMetadataCertificationSchema -NotePropertyValue $(if ($isCertified) { [int]$script:PhysicalMetadataCertificationSchemaVersion } else { 0 }) -Force
+    $Item | Add-Member -NotePropertyName PhysicalMetadataCertifiedHash -NotePropertyValue $hash -Force
+    $Item | Add-Member -NotePropertyName PhysicalMetadataCertifiedLength -NotePropertyValue $fileLength -Force
+    $Item | Add-Member -NotePropertyName PhysicalMetadataCertifiedLastWriteTimeUtc -NotePropertyValue $lastWriteUtc -Force
+    $Item | Add-Member -NotePropertyName PhysicalMetadataCertifiedBy -NotePropertyValue $(if ($isCertified) { [string]$CertifiedBy } else { '' }) -Force
+    $Item | Add-Member -NotePropertyName PhysicalMetadataCertificationReason -NotePropertyValue $(if ($isCertified) { [string]$Reason } else { [string]$Reason }) -Force
+}
+
+function Update-ProcessedIndexPhysicalMetadataCertification {
+    param(
+        [string]$Path,
+        [pscustomobject]$Item
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Path) -or $null -eq $Item) {
+        return $false
+    }
+    if ($Item.PSObject.Properties.Name -notcontains 'PhysicalMetadataCertificationStatus') {
+        return $false
+    }
+
+    $record = Find-ProcessedRecordByPath -Path $Path
+    if ($null -eq $record) {
+        return $false
+    }
+
+    foreach ($name in @(
+            'PhysicalMetadataCertificationStatus',
+            'PhysicalMetadataCertifiedAt',
+            'PhysicalMetadataCertificationSchema',
+            'PhysicalMetadataCertifiedHash',
+            'PhysicalMetadataCertifiedLength',
+            'PhysicalMetadataCertifiedLastWriteTimeUtc',
+            'PhysicalMetadataCertifiedBy',
+            'PhysicalMetadataCertificationReason'
+        )) {
+        if ($Item.PSObject.Properties.Name -contains $name) {
+            $recordName = $name.Substring(0,1).ToLowerInvariant() + $name.Substring(1)
+            Set-ProcessedRecordProperty -Record $record -Name $recordName -Value $Item.$name
+        }
+    }
+
+    $script:ProcessedDirtyCount++
+    return $true
+}
+
 function Invoke-CaptureDateMaterialization {
     param(
         [pscustomobject]$Item,
@@ -10588,6 +10848,7 @@ function Invoke-CaptureDateMaterialization {
     if ($null -eq $Item -or -not (Test-DateInfoCanDriveVisibleDateMaterialization -DateInfo $Item.DateInfo)) {
         if ($null -ne $Item) {
             Set-CaptureDateMaterializationProperties -Item $Item -Status 'NoReliableCaptureDate' -EmbeddedWritten $false -FileSystemSynced $false -DateKnownButMetadataNotWritten $false
+            Set-PhysicalMetadataCertificationProperties -Item $Item -Status 'NotCertified' -Reason 'NoReliableCaptureDate' -CertifiedBy $Reason
         }
         $result.Status = 'NoReliableCaptureDate'
         return $result
@@ -10624,6 +10885,7 @@ function Invoke-CaptureDateMaterialization {
             $Stats.Errors++
             Write-Log -Message "Post-capture metadata hash recalculation failed for $($Item.File.FullName): $($_.Exception.Message)" -Phase 'JSON reconciliation'
         }
+        Set-PhysicalMetadataCertificationProperties -Item $Item -Status 'Certified' -Reason 'MaterializedCaptureDate' -CertifiedBy $Reason
     }
     elseif ($repairResult.Candidate -and -not $Apply) {
         $result.DateKnownButMetadataNotWritten = $true
@@ -10634,6 +10896,12 @@ function Invoke-CaptureDateMaterialization {
         $result.DateKnownButMetadataNotWritten = $true
         $Stats.DateKnownButMetadataNotWritten++
         Write-Log -Message "DateKnownButMetadataNotWritten: Path=$($Item.File.FullName); Date=$($Item.DateInfo.Date.ToString('yyyy-MM-dd HH:mm:ss')); Source=$($Item.DateInfo.Source); Reason=$($repairResult.Reason)" -Phase 'CaptureDateMaterialization'
+    }
+    elseif ($repairResult.Reason -eq 'ExistingEmbeddedDate') {
+        Set-PhysicalMetadataCertificationProperties -Item $Item -Status 'Certified' -Reason 'ExistingEmbeddedCaptureDate' -CertifiedBy $Reason
+    }
+    else {
+        Set-PhysicalMetadataCertificationProperties -Item $Item -Status 'NotCertified' -Reason $(if ([string]::IsNullOrWhiteSpace([string]$repairResult.Reason)) { 'NoCertificationConditionMatched' } else { [string]$repairResult.Reason }) -CertifiedBy $Reason
     }
 
     $materializationStateAllowsWrite = ([string]$embeddedDateProbe.State -eq 'Absent')
@@ -10661,6 +10929,9 @@ function Invoke-CaptureDateMaterialization {
     }
 
     Set-CaptureDateMaterializationProperties -Item $Item -Status $result.Status -EmbeddedWritten ([bool]$result.EmbeddedMetadataWritten) -FileSystemSynced ([bool]$result.FileSystemDatesSynced) -DateKnownButMetadataNotWritten ([bool]$result.DateKnownButMetadataNotWritten)
+    if ($UpdateProcessedIndex -and $Apply -and $Item.PSObject.Properties.Name -contains 'PhysicalMetadataCertificationStatus' -and [string]$Item.PhysicalMetadataCertificationStatus -eq 'Certified') {
+        [void](Update-ProcessedIndexPhysicalMetadataCertification -Path $Item.File.FullName -Item $Item)
+    }
     return $result
 }
 
