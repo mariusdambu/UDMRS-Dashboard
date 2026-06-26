@@ -36,4 +36,5 @@ Planned:
 - Cloud-only files are skipped until available locally.
 - Visual/near duplicate detection is not the same as exact duplicate cleanup.
 - A public license still needs to be chosen before formal open-source publication.
-
+- Healthy embedded metadata is preserved: provider dates never overwrite an existing valid embedded capture date.
+- PhysicalMetadataCertification supports conservative Materialize and Normalize optimizations without treating index presence as physical proof.

@@ -249,11 +249,11 @@
   "tip_reconcile_index": "Detectează rute vechi în ProcessedFiles.json, caută același hash în locațiile actuale, iar în Apply actualizează rute sau marchează intrări ca dispărute. Nu mută poze, nu atinge EXIF și nu reorganizează.",
   "tip_purge_missing": "Elimină doar intrările din index marcate deja ca dispărute. Nu șterge poze și nu schimbă foldere.",
   "tip_logs": "Deschide folderul unde se salvează logurile și progress.json.",
-  "advanced_metadata_repair": "Repară datele vizibile",
-  "action_hint_advanced_metadata_audit": "Audit date vizibile: detectează media cu dată sigură cunoscută, metadata embedită lipsă sau date de sistem incoerente. Nu scrie metadata, nu schimbă datele și generează raport CSV.",
-  "action_hint_advanced_metadata_repair": "MetadataRepair: corectează fișiere deja organizate pe care UDMRS le poate data cu încredere. În Simulare doar raportează; în Apply scrie metadata vizibilă, sincronizează CreationTime/LastWriteTime, recalculează hash-ul și actualizează ProcessedFiles.json.",
-  "advanced_metadata_audit": "Auditează datele vizibile",
-  "advanced_metadata_audit_desc": "Scanează biblioteca organizată și generează un CSV cu fișiere care au dată sigură, dar metadata vizibilă sau datele de sistem sunt încă de materializat. Rulează întotdeauna ca simulare; nu modifică fișiere.",
-  "advanced_metadata_repair_desc": "Materializează datele sigure în metadata embedită și în datele de sistem când lipsesc sau sunt accidentale. Creează backup, recalculează hash-ul și actualizează indexul.",
+  "advanced_metadata_repair": "Repară materializarea datei",
+  "action_hint_advanced_metadata_audit": "Audit materializare dată: detectează media cu dată sigură cunoscută, absență incorporată confirmată sau date de sistem incoerente. Nu scrie metadata incorporată, nu schimbă datele de sistem și generează raport CSV.",
+  "action_hint_advanced_metadata_repair": "MetadataRepair: corectează fișiere deja organizate numai când UDMRS confirmă că data de captură incorporată lipsește. În Simulare doar raportează; în Apply poate scrie metadata incorporată, sincroniza CreationTime/LastWriteTime, recalcula hash-ul și actualiza ProcessedFiles.json.",
+  "advanced_metadata_audit": "Auditează materializarea datei",
+  "advanced_metadata_audit_desc": "Scanează biblioteca organizată și generează un CSV cu fișiere care au dată sigură, absență incorporată confirmată sau sincronizare de date de sistem pending. Rulează întotdeauna ca simulare; nu modifică fișiere.",
+  "advanced_metadata_repair_desc": "Materializează date sigure numai când data de captură incorporată este confirmată ca absentă; sincronizarea datelor de sistem este raportată separat. Creează backup, recalculează hash-ul și actualizează indexul.",
   "external_run_active_msg": "Există deja o operațiune UDMRS activă pentru aceeași bibliotecă. Așteaptă să se termine înainte de a lansa altă operațiune."
 }

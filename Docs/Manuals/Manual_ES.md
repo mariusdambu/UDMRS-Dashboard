@@ -27,7 +27,7 @@ Ejecuta:
 Start-PhotoOrganizer.cmd
 ```
 
-Portabilidad: abre siempre el `.cmd` que está dentro de la carpeta actual de UDMRS Dashboard. Un acceso directo `.lnk` copiado desde otra carpeta puede seguir apuntando a la ruta antigua, porque Windows guarda rutas absolutas dentro del acceso directo. Al abrir `Start-PhotoOrganizer.cmd`, el lanzador actualiza el acceso directo local si existe.
+Portabilidad: abre siempre el `.cmd` que está dentro de la carpeta actual de UDMRS Dashboard. Un acceso directo `.lnk` copiado desde otra carpeta puede seguir apuntando a la ruta antigua, porque Windows guarda rutas absolutas dentro del acceso directo. Si mueves la instalación, abre `Start-PhotoOrganizer.cmd` desde la nueva carpeta o crea un acceso directo nuevo manualmente.
 
 El flujo oficial es:
 
@@ -159,8 +159,8 @@ Herramientas disponibles:
 - `Normalizar estructura`: reestructura visualmente a `Año\Trimestre` y limpia ramas vacías/junk/residuales.
 - `Limpieza de duplicados`: analiza duplicados exactos por hash y en Apply mueve confirmados a cuarentena.
 - `Reparar EXIF in-place`: repara EXIF dentro de la biblioteca organizada sin mover, deduplicar ni renombrar.
-- `Auditar fechas visibles`: detecta archivos con fecha fiable conocida pero metadata visible o fechas de sistema pendientes. Siempre es simulaci├│n.
-- `Reparar fechas visibles`: escribe metadata visible y fechas de sistema cuando falta una fecha de captura ├║til. Requiere Apply y confirmaci├│n espec├¡fica.
+- `Auditar materialización de fecha`: detecta archivos con fecha fiable conocida, ausencia embebida confirmada o fechas de sistema pendientes. Siempre es simulación.
+- `Reparar materialización de fecha`: escribe metadata embebida solo cuando falta una fecha de captura válida demostrada; también puede sincronizar fechas de sistema. Requiere Apply y confirmación específica.
 - `Migrar UDMRS a otro PC`: crea los ZIP necesarios para mover la instalación compartida y el estado del usuario actual a otro equipo. No migra logs ni runtime.
 
 Todas respetan `Simulación` por defecto. Si activas `Aplicar cambios reales`, el dashboard pide confirmación específica y muestra los switches que va a ejecutar.
@@ -376,7 +376,7 @@ En bibliotecas OneDrive u otros proveedores cloud-backed, `NormalizeExistingFold
 
 ## 11.1 Fechas visibles: MetadataAudit y MetadataRepair
 
-`NormalizeExistingFolders` arregla estructura. `MetadataRepair` arregla la fecha visible dentro del archivo.
+`NormalizeExistingFolders` arregla estructura. `MetadataRepair` gestiona la materialización de fecha: metadata embebida ausente confirmada y fechas del sistema reportadas aparte.
 
 UDMRS puede conocer una fecha fiable por EXIF, provider, sidecar o patrón de nombre. Esa fecha debe ser coherente en:
 
@@ -386,14 +386,42 @@ UDMRS puede conocer una fecha fiable por EXIF, provider, sidecar o patrón de no
 - `CreationTime` / `LastWriteTime` cuando son fechas accidentales
 - `ProcessedFiles.json` y reportes
 
-`MetadataAudit` revisa la biblioteca organizada y genera un CSV con candidatos. No modifica nada, incluso si el dashboard estuviera en Apply. Úsalo para saber cuántos archivos tienen fecha fiable conocida pero no visible para Windows, OneDrive o Microsoft Photos.
+`MetadataAudit` revisa la biblioteca organizada y genera un CSV con candidatos. No modifica nada, incluso si el dashboard estuviera en Apply. Úsalo para saber cuántos archivos tienen fecha fiable conocida pero todavía requieren materialización embebida o sincronización de fechas del sistema para Windows, OneDrive o Microsoft Photos.
 
-`MetadataRepair` actúa solo sobre candidatos seguros. `EmbeddedCaptureDateProbe` distingue `PresentValid`, `Absent`, `Conflict`, `Unreadable`, `Unsupported` y `NotChecked`. Solo `Absent`, confirmado por una lectura correcta, permite escribir metadata o sincronizar fechas de sistema. Crea backup, recalcula hash y actualiza el índice cuando modifica el archivo.
+`MetadataRepair` actúa solo sobre candidatos seguros. `EmbeddedCaptureDateProbe` distingue `PresentValid`, `Absent`, `Conflict`, `Unreadable`, `Unsupported` y `NotChecked`. Solo `Absent`, confirmado por una lectura correcta, permite escribir metadata embebida. La sincronización de `CreationTime` / `LastWriteTime` es una acción separada y queda reportada aparte. Crea backup, recalcula hash y actualiza el índice cuando modifica el archivo.
 
 En ImportProvider, `ProviderTrusted` puede evitar una lectura EXIF costosa para decidir fecha y destino, pero ese caso queda como `NotChecked`: no autoriza reescritura. `PresentValid`, `Conflict`, `Unreadable`, `Unsupported` y `NotChecked` se preservan. Esta infraestructura no cambia todavía la prioridad entre provider y metadata embebida.
 
 Formatos cubiertos por política de materialización: JPG/JPEG, HEIC/HEIF, MP4/MOV/M4V/3GP, PNG, TIFF, WEBP y GIF cuando exista forma segura de escribir metadata útil. Si el formato no permite escribir la fecha esperada o existe conflicto con metadata válida, el log/report debe dejarlo como `DateKnownButMetadataNotWritten` o warning equivalente.
 
+
+### Contrato de archivo sano
+
+Para UDMRS, un archivo sano significa:
+
+```text
+contenido legible
++
+fecha de captura embebida válida
++
+metadata embebida coherente
++
+sin necesidad real de reparación embebida
+```
+
+Si un archivo ya tiene fecha de captura embebida válida, esa fecha gana. UDMRS no reescribe EXIF, QuickTime, XMP ni PNG metadata sana, no sustituye esa fecha por la del provider y no inventa GPS, ciudad, país ni localidad.
+
+Un archivo sano sí puede organizarse, moverse, renombrarse, indexarse, certificarse o deduplicarse cuando corresponde. Eso afecta a la biblioteca o al índice, no a la metadata embebida sana del archivo.
+
+`CreationTime` y `LastWriteTime` son fechas del sistema de archivos, no metadata embebida. UDMRS puede sincronizarlas en modos que lo reportan explícitamente, sin tocar EXIF/QuickTime/XMP.
+
+### PhysicalMetadataCertification
+
+`PhysicalMetadataCertification` certifica que UDMRS ha comprobado físicamente la metadata de un archivo con una versión reciente del contrato. No significa simplemente que el archivo exista en el índice ni que venga de un provider fiable.
+
+El certificado queda ligado al estado físico esperado del archivo. Si cambia el archivo, falta información o la entrada es legacy, el certificado deja de ser suficiente y UDMRS vuelve a leer metadata física.
+
+`Materialize` puede usar este certificado para evitar inspecciones innecesarias. `NormalizeExistingFolders` sigue recorriendo físicamente la biblioteca, pero puede reutilizar la fecha certificada para no releer EXIF/QuickTime cuando el archivo no cambió.
 Reglas importantes:
 
 - no sobrescribe metadata válida existente

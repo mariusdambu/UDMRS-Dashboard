@@ -13,7 +13,7 @@ Estado: stable release candidate funcional para el ciclo actual de UDMRS Dashboa
 - Apple Photos / iCloud soporta exportaciones multiparte, `Photo Details.csv`, CSV de álbumes, papelera, vídeos y candidatos Live Photo.
 - Google Photos / Takeout usa sidecars JSON, álbumes, papelera, confianza de metadata y deduplicación exacta por SHA256.
 - XMP / Sidecar Library interpreta sidecars `.xmp`, `.json`, `.yaml` y `.yml` de forma conservadora, con fallback clásico.
-- CaptureDateMaterialization materializa fechas fiables en metadata visible, fechas de sistema e índice cuando es seguro.
+- CaptureDateMaterialization materializa fechas fiables en metadata embebida solo cuando la ausencia está demostrada; las fechas del sistema y el índice se tratan como estados separados.
 - MetadataAudit y MetadataRepair quedan disponibles desde mantenimiento avanzado.
 - Dashboard ajusta tamaño inicial a pantallas pequeñas y mantiene compatibilidad con Windows PowerShell 5.1 y PowerShell 7.
 
@@ -43,8 +43,15 @@ Estado: stable release candidate funcional para el ciclo actual de UDMRS Dashboa
 
 - `CaptureDateMaterialization` ya no interpreta metadata no leída como metadata ausente.
 - Se introduce `EmbeddedCaptureDateProbe` con estados `PresentValid`, `Absent`, `Conflict`, `Unreadable`, `Unsupported` y `NotChecked`.
-- Solo `Absent`, confirmado por una lectura correcta, permite escritura automática de fecha o sincronización de fechas de sistema.
+- Solo `Absent`, confirmado por una lectura correcta, permite escritura automática de metadata embebida. La sincronización de fechas de sistema se reporta por separado y no equivale a reescritura EXIF/QuickTime/XMP.
 - Los assets `ProviderTrusted` que omiten EXIF mantienen el rendimiento actual, quedan como `NotChecked` y se preservan sin reescritura.
 - No cambia todavía la política de prioridad entre Google, Apple, XMP y metadata embebida.
 
+## Contrato de archivo sano y certificación física - 2026-06-26
 
+- Un archivo sano se define como contenido legible con fecha de captura embebida válida, metadata embebida coherente y sin necesidad real de reparación embebida.
+- La consecuencia documental queda fijada: metadata embebida sana es intocable. ProviderTrusted puede organizar y clasificar, pero no sobrescribe una fecha embebida válida.
+- `CreationTime` y `LastWriteTime` son fechas del sistema de archivos y se documentan separadas de EXIF/QuickTime/XMP/PNG metadata.
+- `PhysicalMetadataCertification` certifica una comprobación física reciente de metadata; no sustituye al índice ni equivale a provider fiable.
+- `MetadataRepair` y `Materialize` pueden usar la certificación para evitar inspecciones innecesarias cuando sigue vigente.
+- `NormalizeExistingFolders` sigue recorriendo físicamente la biblioteca, pero puede reutilizar fechas certificadas para evitar lecturas EXIF/QuickTime innecesarias.

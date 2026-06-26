@@ -36,9 +36,16 @@ These can move, rename, copy, repair, quarantine or delete operational artifacts
 - NormalizeExistingFolders Apply
 - DedupeCleanup Apply
 - RepairOnlyExistingOrganizedLibrary Apply
+- MetadataRepair Apply
 - PurgeMissingFromProcessedDatabase Apply
 - RetentionCleanup Apply
 - Rename folder language modes with Apply
+
+## Healthy File Contract
+
+For UDMRS, a healthy file means readable content plus a valid embedded capture date and coherent embedded metadata. Healthy embedded metadata is not rewritten. UDMRS may still organize, move, rename, index, certify or deduplicate the file when appropriate, because those actions do not rewrite the file's embedded identity.
+
+Provider dates are allowed to help organize and fill missing information, but they do not overwrite an existing valid embedded capture date. Filesystem timestamps such as CreationTime and LastWriteTime are separate operational dates and may be synchronized only when a UDMRS mode explicitly reports that action.
 
 ## Safe by Default
 

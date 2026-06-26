@@ -36,7 +36,8 @@ UDMRS is intentionally conservative, but no media organizer can guarantee safety
 - Supports Apple Photos / iCloud Photos imports.
 - Supports lightweight Movistar Cloud Export imports with explicit Trash exclusion.
 - Supports generic XMP / JSON / YAML sidecar imports.
-- Separates provider date decisions from embedded-date verification: metadata that was not read is never treated as absent, and only a confirmed `Absent` state permits automatic date materialization.
+- Separates provider date decisions from embedded-date verification: metadata that was not read is never treated as absent, and only a confirmed `Absent` state permits automatic embedded-date materialization.
+- A healthy file keeps its embedded metadata intact: if a valid embedded capture date already exists, provider dates do not overwrite it.
 
 ## What It Does Not Do
 
@@ -46,6 +47,8 @@ UDMRS is intentionally conservative, but no media organizer can guarantee safety
 - It does not delete photos silently.
 - It does not treat probable visual duplicates as exact duplicates.
 - It does not clean `_Duplicados_Para_Revisar` / `_Duplicates_To_Review` automatically.
+- It does not rewrite healthy embedded EXIF, QuickTime or XMP capture dates.
+- It does not invent GPS, city, country or location metadata.
 
 ## Current Status
 

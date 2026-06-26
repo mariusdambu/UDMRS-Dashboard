@@ -39,7 +39,7 @@ Ejecuta:
 ```text
 Start-PhotoOrganizer.cmd
 ```
-La herramienta es portable cuando se abre desde el `.cmd` de la carpeta copiada. Si copias UDMRS Dashboard a otra ruta, no reutilices un acceso directo `.lnk` antiguo: Windows guarda dentro del acceso directo la ruta absoluta original. Abre primero `Start-PhotoOrganizer.cmd` desde la nueva carpeta; el lanzador reparará el acceso directo local si existe.
+La herramienta es portable cuando se abre desde el `.cmd` de la carpeta copiada. Si copias UDMRS Dashboard a otra ruta, no reutilices un acceso directo `.lnk` antiguo: Windows guarda dentro del acceso directo la ruta absoluta original. Abre `Start-PhotoOrganizer.cmd` desde la nueva carpeta o crea un acceso directo nuevo manualmente.
 
 El dashboard abre la ayuda correcta desde `Ajustes > Ayuda` según el idioma activo.
 
@@ -126,8 +126,8 @@ Ese panel expone modos del motor que antes requerían comandos PowerShell largos
 - `NormalizeExistingFolders`: reestructuración visual a año/trimestre y limpieza segura.
 - `DedupeCleanup`: duplicados exactos por hash; no limpia carpetas vacías.
 - `RepairOnlyExistingOrganizedLibrary`: reparación EXIF in-place dentro de la biblioteca organizada.
-- `MetadataAudit`: auditoría segura de fechas visibles. Genera reporte CSV; no escribe metadata aunque el dashboard esté en Apply.
-- `MetadataRepair`: materializa fechas fiables en metadata embebida y fechas de sistema. Crea backup, recalcula hash y actualiza el índice.
+- `MetadataAudit`: auditoría segura de materialización de fecha. Genera reporte CSV; no escribe metadata embebida ni cambia fechas del sistema aunque el dashboard esté en Apply.
+- `MetadataRepair`: materializa fechas fiables solo cuando falta una fecha embebida válida demostrada; también puede sincronizar `CreationTime` / `LastWriteTime` cuando procede. Crea backup, recalcula hash y actualiza el índice.
 - `Migrar UDMRS a otro PC`: crea un paquete con ZIP de instalación compartida, ZIP de estado del usuario actual y una guía de migración. No incluye logs ni runtime.
 
 Los botones avanzados respetan `Simulación` por defecto. Si activas `Aplicar cambios reales`, el dashboard pide confirmación específica y muestra los switches que lanzará.
@@ -156,17 +156,46 @@ organizar ruta/nombre
 ↓
 materializar fecha visible
 ```
-`CaptureDateMaterialization` es la capa común que usa esa fecha fiable para escribir metadata visible. Antes de cualquier escritura exige un estado explícito de `EmbeddedCaptureDateProbe`: `PresentValid`, `Absent`, `Conflict`, `Unreadable`, `Unsupported` o `NotChecked`. Solo `Absent`, confirmado por una lectura correcta, autoriza escritura embebida o sincronización de fechas de sistema.
+`CaptureDateMaterialization` es la capa común que separa tres acciones: decidir una fecha fiable, escribir metadata embebida si falta, y sincronizar fechas del sistema de archivos si procede. Antes de cualquier escritura exige un estado explícito de `EmbeddedCaptureDateProbe`: `PresentValid`, `Absent`, `Conflict`, `Unreadable`, `Unsupported` o `NotChecked`. Solo `Absent`, confirmado por una lectura correcta, autoriza escritura embebida; los estados `PresentValid`, `Conflict`, `Unreadable`, `Unsupported` y `NotChecked` preservan la metadata embebida.
 
 En ImportProvider, una lectura EXIF omitida por confianza del provider queda como `NotChecked`, no como metadata ausente. El provider puede seguir decidiendo fecha, clasificación y destino, pero la copia permanece sin reescritura automática hasta que una lectura confirme `Absent`. Los estados se registran en reportes e índice. Esta separación no decide todavía si Google, Apple, XMP o EXIF debe ganar un conflicto.
 
-- `MetadataAudit`: revisa la biblioteca organizada y genera un CSV con candidatos. Siempre es auditoría; no escribe metadata ni cambia fechas de sistema.
-- `MetadataRepair`: actúa solo sobre candidatos con fecha fiable y ausencia embebida confirmada. Escribe metadata, sincroniza fechas de sistema, crea backup, recalcula hash y actualiza `ProcessedFiles.json`.
+- `MetadataAudit`: revisa la biblioteca organizada y genera un CSV con candidatos. Siempre es auditoría; no escribe metadata embebida ni cambia fechas de sistema.
+- `MetadataRepair`: actúa solo sobre candidatos con fecha fiable y ausencia embebida confirmada. Puede escribir metadata embebida, sincronizar fechas de sistema, crear backup, recalcular hash y actualizar `ProcessedFiles.json`. Si ya existe fecha embebida válida, la preserva.
 - `NormalizeExistingFolders`: no sustituye a MetadataRepair. Normalize arregla estructura; MetadataRepair arregla visibilidad temporal dentro del archivo.
-- `RepairExif`: sigue existiendo como opción de organización/reparación, pero la política madura de fechas visibles se centraliza en CaptureDateMaterialization.
+- `RepairExif`: sigue existiendo como opción de organización/reparación, pero la política madura de materialización de fecha se centraliza en CaptureDateMaterialization.
 
 Este flujo ayuda especialmente cuando Microsoft Photos, OneDrive o Windows muestran recuerdos antiguos en una fecha de sistema reciente porque el archivo no contiene una fecha de captura visible.
 
+
+## Contrato de archivo sano
+
+Para UDMRS, un archivo sano significa:
+
+```text
+contenido legible
++
+fecha de captura embebida válida
++
+metadata embebida coherente
++
+sin necesidad real de reparación embebida
+```
+
+Consecuencia práctica: si existe una fecha de captura embebida válida, esa fecha gana. UDMRS no reescribe EXIF, QuickTime, XMP ni PNG metadata sana, no sustituye una fecha válida por la fecha de un provider, y no inventa GPS, ciudad, país ni localidad.
+
+Esto no impide organizar el archivo: mover, copiar, renombrar, normalizar estructura, indexar, certificar o deduplicar siguen permitidos cuando el modo lo requiere. Tampoco convierte `CreationTime` y `LastWriteTime` en metadata embebida; son fechas del sistema de archivos y se reportan por separado cuando se sincronizan.
+
+## PhysicalMetadataCertification
+
+`PhysicalMetadataCertification` no sustituye a `ProcessedFiles.json` ni significa solamente que el archivo existe en el índice. Es un certificado físico: una versión reciente de UDMRS leyó o materializó la metadata del archivo, verificó el estado embebido y guardó una certificación ligada al hash/tamaño/fecha de modificación esperados.
+
+Ese certificado permite optimizaciones conservadoras:
+
+- `Materialize` / `MetadataRepair` puede evitar inspecciones innecesarias cuando el certificado sigue vigente.
+- `NormalizeExistingFolders` sigue recorriendo físicamente la biblioteca, pero puede reutilizar la fecha certificada para no releer EXIF/QuickTime si el archivo no cambió.
+
+Si cambia el archivo, falta información, el certificado es legacy, el provider solo está `NotChecked`, o hay inconsistencia de tamaño/fecha/hash, UDMRS vuelve al comportamiento físico tradicional.
 ## Arquitectura RC madura
 
 La estructura oficial única es:
@@ -181,7 +210,7 @@ El perfil oficial es `QuarterlyFolders`. El modelo estructural anterior queda re
 Responsabilidades actuales:
 
 - `Organize`: construye o reconstruye la biblioteca, clasifica, deduplica, repara EXIF si se pide y registra el índice.
-- `NormalizeExistingFolders`: reestructuración visual y limpieza. Mueve/renombra a año/trimestre, limpia carpetas vacías, junk-only y ramas residuales.
+- `NormalizeExistingFolders`: reestructuración visual y limpieza. Recorre físicamente la biblioteca, mueve/renombra a año/trimestre, limpia carpetas vacías, junk-only y ramas residuales. Puede reutilizar fechas certificadas para evitar lecturas EXIF innecesarias, pero no deja de validar la estructura real.
 - `ReconcileProcessedDatabase`: sincroniza y repara `ProcessedFiles.json`. Es la herramienta principal para arreglar rutas tras movimientos manuales o Normalize.
 - `PurgeMissingFromProcessedDatabase`: acción avanzada para purgar historial desaparecido después de revalidar.
 - `DedupeCleanup`: deduplicación por hash. No limpia carpetas vacías.

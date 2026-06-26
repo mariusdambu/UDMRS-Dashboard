@@ -64,11 +64,12 @@
     <table>
       <tr><th>Componente</th><th>Rol actual</th></tr>
       <tr><td><code>Organize</code></td><td>Construye/reconstruye biblioteca, clasifica, deduplica, repara EXIF si se pide y registra el índice.</td></tr>
-      <tr><td><code>NormalizeExistingFolders</code></td><td>Reestructuración visual y limpieza: año/trimestre, carpetas vacías, junk-only y ramas residuales.</td></tr>
+      <tr><td><code>NormalizeExistingFolders</code></td><td>Reestructuración visual y limpieza: recorre físicamente la biblioteca, valida estructura real, usa año/trimestre y puede reutilizar fechas certificadas para evitar lecturas EXIF innecesarias.</td></tr>
       <tr><td><code>ReconcileProcessedDatabase</code></td><td>Herramienta principal para sincronizar/reparar <code>ProcessedFiles.json</code>.</td></tr>
       <tr><td><code>PurgeMissingFromProcessedDatabase</code></td><td>Avanzado. Purga historial desaparecido después de revalidar.</td></tr>
       <tr><td><code>DedupeCleanup</code></td><td>Duplicados por hash. No limpia carpetas vacías.</td></tr>
     </table>
+    <div class="note"><strong>Contrato de archivo sano.</strong> Un archivo sano tiene contenido legible, fecha de captura embebida valida, metadata embebida coherente y ninguna reparacion embebida pendiente. UDMRS puede organizarlo, moverlo, renombrarlo, indexarlo, certificarlo o deduplicarlo, pero no reescribe EXIF, QuickTime, XMP ni PNG metadata sana. ProviderTrusted ayuda a decidir destino; no sobrescribe una fecha embebida valida. <code>CreationTime</code> y <code>LastWriteTime</code> son fechas del sistema de archivos y se tratan/reportan por separado.</div>
     <div class="warning">
       <strong><code>-KeepEmptyFolders</code> no limpia carpetas.</strong>
       Hace lo contrario: conserva carpetas vacías. Para permitir limpieza durante Normalize usa <code>-KeepEmptyFolders:$false</code> o no pases el parámetro.
@@ -89,8 +90,8 @@
       <tr><td>Normalizar estructura</td><td><code>-NormalizeExistingFolders</code></td><td>Reestructura visualmente a Año/Trimestre y limpia ramas vacías/junk/residuales.</td></tr>
       <tr><td>Limpieza de duplicados</td><td><code>-DedupeCleanup</code></td><td>Duplicados exactos por SHA256; no limpia carpetas vacías.</td></tr>
       <tr><td>Reparar EXIF in-place</td><td><code>-RepairOnlyExistingOrganizedLibrary -RepairExif</code></td><td>Reparación EXIF dentro de la biblioteca organizada; no mueve ni deduplica.</td></tr>
-      <tr><td>Auditar fechas visibles</td><td><code>-MetadataAudit</code></td><td>Audita candidatos con fecha fiable no visible; no escribe cambios.</td></tr>
-      <tr><td>Reparar fechas visibles</td><td><code>-MetadataRepair</code></td><td>Materializa fechas fiables en metadata/fechas de sistema; requiere Apply y confirmación.</td></tr>
+      <tr><td>Auditar materialización de fecha</td><td><code>-MetadataAudit</code></td><td>Audita candidatos con fecha fiable, ausencia embebida confirmada o fechas de sistema pendientes; no escribe cambios.</td></tr>
+      <tr><td>Reparar materialización de fecha</td><td><code>-MetadataRepair</code></td><td>Escribe metadata embebida solo si falta una fecha válida demostrada; puede sincronizar fechas de sistema; requiere Apply y confirmación.</td></tr>
       <tr><td>Migrar UDMRS a otro PC</td><td>Dashboard helper</td><td>Crea ZIP de instalación compartida, ZIP de estado de usuario y <code>MigrationGuide.txt</code>. No incluye logs ni runtime.</td></tr>
     </table>
     <div class="warning">Los botones avanzados respetan Simulación por defecto. Si activas Apply real, el dashboard pide confirmación específica y muestra los switches que va a lanzar.</div>
@@ -111,7 +112,7 @@
       <tr><td>Immich</td><td class="advanced">Próximamente · requiere muestra/export</td><td>Deshabilitado en UI. No lanza proceso.</td></tr>
       <tr><td>XMP / Sidecar Library</td><td class="safe">Disponible</td><td><code>-ImportProvider XmpSidecarLibrary -ImportProviderPath &lt;RutaGaleria&gt;</code></td></tr>
     </table>
-    <div class="note"><strong>Fuentes ImportProvider.</strong> La ruta siempre la selecciona el usuario. No uses rutas fijas. En DryRun genera reporte sin copiar; en Apply copia assets limpios al destino y registra el índice común. `ProviderTrusted` puede omitir EXIF para decidir la organización, pero queda como `NotChecked` y no autoriza escritura. Solo `EmbeddedCaptureDateProbe=Absent`, confirmado por lectura, permite materializar. Tras un Apply correcto, la carpeta de exportación seleccionada puede eliminarse solo si el usuario lo confirma explícitamente.</div>
+    <div class="note"><strong>Fuentes ImportProvider.</strong> La ruta siempre la selecciona el usuario. No uses rutas fijas. En DryRun genera reporte sin copiar; en Apply copia assets limpios al destino y registra el índice común. <code>ProviderTrusted</code> puede omitir EXIF para decidir organización, clasificación e índice, pero queda como <code>NotChecked</code> y no autoriza escritura embebida. Solo <code>EmbeddedCaptureDateProbe=Absent</code>, confirmado por lectura, permite materializar metadata embebida. Tras un Apply correcto, la carpeta de exportación seleccionada puede eliminarse solo si el usuario lo confirma explícitamente.</div>
     <div class="note"><strong>Apple Photos / iCloud.</strong> Interpreta exportaciones iCloud con <code>Photo Details.csv</code>, CSV de álbumes, flags de papelera, fechas de proveedor, vídeos y candidatos Live Photo. No depende del nombre visible de la carpeta raíz.</div>
     <div class="note"><strong>Movistar Cloud Export.</strong> Reconoce la firma <code>profile.json</code>, procesa contenido activo de <code>Pictures</code> y <code>Videos</code>, y omite <code>Trash</code>. No utiliza los datos personales del perfil como metadata de assets ni los publica en reportes.</div>
     <div class="note"><strong>XMP / Sidecar Library.</strong> Intenta asociar media con sidecars <code>.xmp</code>, <code>.json</code>, <code>.yaml</code> o <code>.yml</code>. Si la relación es clara usa fecha, título, descripción, tags, rating o ubicación cuando existan. Si es ambigua, manda a revisión. Si no hay metadata útil, usa fallback clásico.</div>
@@ -353,7 +354,7 @@
 
 
     <h3>14.1 MetadataAudit DryRun</h3>
-    <p class="safe">Audita fechas visibles dentro de la biblioteca organizada. Siempre es DryRun: genera reporte CSV y no modifica archivos aunque se pase <code>-Apply</code>.</p>
+    <p class="safe">Audita materialización de fecha dentro de la biblioteca organizada. Siempre es DryRun: genera reporte CSV y no modifica metadata embebida, fechas de sistema ni archivos aunque se pase <code>-Apply</code>.</p>
 <pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
   -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
   -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
@@ -361,14 +362,14 @@
   -Language es</code></pre>
 
     <h3>14.2 MetadataRepair Apply</h3>
-    <p class="dangerText">Materializa fechas fiables en metadata embebida y fechas de sistema. Crea backup, recalcula hash y actualiza <code>ProcessedFiles.json</code>. No mueve ni reorganiza.</p>
+    <p class="dangerText">Materializa fechas fiables solo cuando falta una fecha embebida válida demostrada; también puede sincronizar <code>CreationTime</code> / <code>LastWriteTime</code>. Crea backup, recalcula hash y actualiza <code>ProcessedFiles.json</code>. No mueve ni reorganiza.</p>
 <pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `
   -SourcePath "%USERPROFILE%\OneDrive\Imágenes" `
   -DestinationPath "%USERPROFILE%\OneDrive\Imágenes\Fotos_Organizadas" `
   -MetadataRepair `
   -Language es `
   -Apply</code></pre>
-    <div class="note"><strong>Normalize vs MetadataRepair:</strong> Normalize cambia estructura/rutas/nombres/carpetas. MetadataRepair materializa visibilidad temporal únicamente cuando existe fecha fiable y `EmbeddedCaptureDateProbe` confirma `Absent`; los estados `PresentValid`, `Conflict`, `Unreadable`, `Unsupported` y `NotChecked` se preservan.</div>
+    <div class="note"><strong>Normalize vs MetadataRepair:</strong> Normalize cambia estructura/rutas/nombres/carpetas y puede reutilizar fechas certificadas sin dejar de recorrer la biblioteca. MetadataRepair materializa metadata embebida únicamente cuando existe fecha fiable y <code>EmbeddedCaptureDateProbe</code> confirma <code>Absent</code>; los estados <code>PresentValid</code>, <code>Conflict</code>, <code>Unreadable</code>, <code>Unsupported</code> y <code>NotChecked</code> preservan la metadata embebida. Las fechas del sistema de archivos se reportan aparte.</div>
     <h3>15. RecoverFromWrongDuplicateMove DryRun</h3>
     <p class="safe">Recuperación específica para movimientos erróneos a duplicados. Primero siempre DryRun.</p>
 <pre><code>pwsh -ExecutionPolicy Bypass -NoProfile -File "&lt;CarpetaUDMRS&gt;\App\PhotoOrganizer.ps1" `

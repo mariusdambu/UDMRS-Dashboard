@@ -161,8 +161,8 @@ Instrumente disponibile:
 - `Normalizeaza structura`: restructureaza vizual la `An\Trimestru` si curata ramuri goale/junk/reziduale.
 - `Curatare duplicate`: analizeaza duplicate exacte dupa hash si in Apply muta confirmatele in carantina.
 - `Repara EXIF in-place`: repara EXIF in biblioteca organizata fara sa mute, deduplice sau redenumeasca.
-- `Auditeaza datele vizibile`: detecteaza fisiere cu data fiabila cunoscuta, dar metadate vizibile sau date de sistem lipsa/incoerente. Este intotdeauna simulare.
-- `Repara datele vizibile`: scrie metadate vizibile si date de sistem atunci cand lipseste o data de captura utila. Necesita Apply si confirmare specifica.
+- `Audit materializare data`: detecteaza fisiere cu data fiabila cunoscuta, absenta incorporata confirmata sau date de sistem incoerente. Este intotdeauna simulare.
+- `Repara materializare data`: scrie metadata incorporata numai cand lipseste o data de captura valida confirmata; poate sincroniza si datele de sistem. Necesita Apply si confirmare specifica.
 - `Migreaza UDMRS pe alt PC`: creeaza ZIP-urile necesare pentru a muta instalarea partajata si starea utilizatorului curent pe alt calculator. Nu migreaza loguri sau runtime.
 
 Toate respecta `Simulare` implicit. Daca activezi modificari reale, dashboard-ul cere confirmare specifica si arata switch-urile care vor fi lansate.
@@ -373,7 +373,7 @@ In biblioteci OneDrive sau alti furnizori cloud-backed, `NormalizeExistingFolder
 
 ## 11.1 Date vizibile: MetadataAudit si MetadataRepair
 
-`NormalizeExistingFolders` repara structura. `MetadataRepair` repara data vizibila din fisier.
+`NormalizeExistingFolders` repara structura. `MetadataRepair` gestioneaza materializarea datei: absenta incorporata confirmata si date de sistem raportate separat.
 
 UDMRS poate cunoaste o data fiabila din EXIF, provider, sidecar sau model de nume. Acea data trebuie sa fie coerenta in:
 
@@ -383,14 +383,42 @@ UDMRS poate cunoaste o data fiabila din EXIF, provider, sidecar sau model de num
 - `CreationTime` / `LastWriteTime` cand sunt date accidentale
 - `ProcessedFiles.json` si rapoarte
 
-`MetadataAudit` verifica biblioteca organizata si genereaza un CSV cu candidati. Nu modifica nimic, chiar daca dashboard-ul este in Apply. Foloseste-l ca sa vezi cate fisiere au data fiabila cunoscuta, dar nu vizibila pentru Windows, OneDrive sau Microsoft Photos.
+`MetadataAudit` verifica biblioteca organizata si genereaza un CSV cu candidati. Nu modifica nimic, chiar daca dashboard-ul este in Apply. Foloseste-l ca sa vezi cate fisiere au data fiabila cunoscuta, dar inca necesita materializare incorporata sau sincronizarea datelor de sistem pentru Windows, OneDrive sau Microsoft Photos.
 
-`MetadataRepair` actioneaza doar asupra candidatilor siguri. `EmbeddedCaptureDateProbe` distinge `PresentValid`, `Absent`, `Conflict`, `Unreadable`, `Unsupported` si `NotChecked`. Numai `Absent`, confirmat printr-o citire corecta, permite scrierea metadatelor sau sincronizarea datelor de sistem. Creeaza backup, recalculeaza hash-ul si actualizeaza indexul cand modifica fisierul.
+`MetadataRepair` actioneaza doar asupra candidatilor siguri. `EmbeddedCaptureDateProbe` distinge `PresentValid`, `Absent`, `Conflict`, `Unreadable`, `Unsupported` si `NotChecked`. Numai `Absent`, confirmat printr-o citire corecta, permite scrierea metadatelor incorporate. Sincronizarea `CreationTime` / `LastWriteTime` este o actiune separata si este raportata separat. Creeaza backup, recalculeaza hash-ul si actualizeaza indexul cand modifica fisierul.
 
 In ImportProvider, `ProviderTrusted` poate evita o citire EXIF costisitoare pentru a decide data si destinatia, dar acel caz ramane `NotChecked`: nu autorizeaza rescrierea. `PresentValid`, `Conflict`, `Unreadable`, `Unsupported` si `NotChecked` sunt pastrate. Aceasta infrastructura nu schimba inca prioritatea dintre provider si metadata incorporata.
 
 Formate acoperite de politica de materializare: JPG/JPEG, HEIC/HEIF, MP4/MOV/M4V/3GP, PNG, TIFF, WEBP si GIF atunci cand exista o metoda sigura de scriere a datei utile. Daca formatul nu permite data asteptata sau exista conflict cu metadata valida, logul/raportul trebuie sa marcheze `DateKnownButMetadataNotWritten` sau un warning echivalent.
 
+
+### Contractul pentru fisier sanatos
+
+Pentru UDMRS, un fisier sanatos inseamna:
+
+```text
+continut lizibil
++
+data de captura incorporata valida
++
+metadata incorporata coerenta
++
+fara nevoie reala de reparatie incorporata
+```
+
+Daca fisierul are deja o data de captura incorporata valida, acea data castiga. UDMRS nu rescrie metadata EXIF, QuickTime, XMP sau PNG sanatoasa, nu inlocuieste acea data cu data providerului si nu inventeaza GPS, oras, tara sau locatie.
+
+Un fisier sanatos poate fi in continuare organizat, mutat, redenumit, indexat, certificat sau deduplicat atunci cand modul o cere. Aceste actiuni afecteaza biblioteca sau indexul, nu metadata incorporata sanatoasa.
+
+`CreationTime` si `LastWriteTime` sunt date ale sistemului de fisiere, nu metadata incorporata. UDMRS le poate sincroniza in moduri care raporteaza explicit aceasta actiune, fara sa atinga EXIF/QuickTime/XMP.
+
+### PhysicalMetadataCertification
+
+`PhysicalMetadataCertification` certifica faptul ca UDMRS a verificat fizic metadata unui fisier cu o versiune recenta a contractului. Nu inseamna doar ca fisierul exista in index si nu este echivalent cu provider de incredere.
+
+Certificatul este legat de starea fizica asteptata a fisierului. Daca fisierul se schimba, lipsesc informatii sau intrarea este legacy, certificatul nu mai este suficient si UDMRS revine la citirea fizica a metadatelor.
+
+`Materialize` poate folosi acest certificat pentru a evita inspectii inutile. `NormalizeExistingFolders` continua sa parcurga fizic biblioteca, dar poate reutiliza data certificata pentru a evita recitirea EXIF/QuickTime cand fisierul nu s-a schimbat.
 Reguli importante:
 
 - nu suprascrie metadata valida existenta
