@@ -2956,6 +2956,14 @@ function Load-ProcessedDatabase {
                     importProvider = if (($recordProperties -contains 'importProvider') -and $record.importProvider) { [string]$record.importProvider } else { '' }
                     providerSourceHash = if (($recordProperties -contains 'providerSourceHash') -and $record.providerSourceHash) { ([string]$record.providerSourceHash).ToUpperInvariant() } else { '' }
                     providerSourceHashes = if ($recordProperties -contains 'providerSourceHashes') { @($record.providerSourceHashes | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) } | ForEach-Object { ([string]$_).ToUpperInvariant() } | Select-Object -Unique) } else { @() }
+                    captureDate = if (($recordProperties -contains 'captureDate') -and $record.captureDate) { if ($record.captureDate -is [datetime]) { ([datetime]$record.captureDate).ToUniversalTime().ToString('o') } else { [string]$record.captureDate } } else { '' }
+                    captureDateSource = if (($recordProperties -contains 'captureDateSource') -and $record.captureDateSource) { [string]$record.captureDateSource } else { '' }
+                    captureDateConfidence = if (($recordProperties -contains 'captureDateConfidence') -and $null -ne $record.captureDateConfidence) { [int]$record.captureDateConfidence } else { 0 }
+                    embeddedCaptureDateState = if (($recordProperties -contains 'embeddedCaptureDateState') -and $record.embeddedCaptureDateState) { [string]$record.embeddedCaptureDateState } else { 'NotChecked' }
+                    captureDateMaterializationStatus = if (($recordProperties -contains 'captureDateMaterializationStatus') -and $record.captureDateMaterializationStatus) { [string]$record.captureDateMaterializationStatus } else { '' }
+                    embeddedCaptureMetadataWritten = if ($recordProperties -contains 'embeddedCaptureMetadataWritten') { [bool]$record.embeddedCaptureMetadataWritten } else { $false }
+                    fileSystemDatesSynced = if ($recordProperties -contains 'fileSystemDatesSynced') { [bool]$record.fileSystemDatesSynced } else { $false }
+                    dateKnownButMetadataNotWritten = if ($recordProperties -contains 'dateKnownButMetadataNotWritten') { [bool]$record.dateKnownButMetadataNotWritten } else { $false }
                     physicalMetadataCertificationStatus = if (($recordProperties -contains 'physicalMetadataCertificationStatus') -and $record.physicalMetadataCertificationStatus) { [string]$record.physicalMetadataCertificationStatus } else { 'NotCertified' }
                     physicalMetadataCertifiedAt = if (($recordProperties -contains 'physicalMetadataCertifiedAt') -and $record.physicalMetadataCertifiedAt) { if ($record.physicalMetadataCertifiedAt -is [datetime]) { ([datetime]$record.physicalMetadataCertifiedAt).ToUniversalTime().ToString('o') } else { [string]$record.physicalMetadataCertifiedAt } } else { '' }
                     physicalMetadataCertificationSchema = if (($recordProperties -contains 'physicalMetadataCertificationSchema') -and $record.physicalMetadataCertificationSchema) { [int]$record.physicalMetadataCertificationSchema } else { 0 }
@@ -3100,6 +3108,14 @@ function Load-ProcessedIndexLight {
                 importProvider = if (($recordProperties -contains 'importProvider') -and $record.importProvider) { [string]$record.importProvider } else { '' }
                 providerSourceHash = if (($recordProperties -contains 'providerSourceHash') -and $record.providerSourceHash) { ([string]$record.providerSourceHash).ToUpperInvariant() } else { '' }
                 providerSourceHashes = if ($recordProperties -contains 'providerSourceHashes') { @($record.providerSourceHashes | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) } | ForEach-Object { ([string]$_).ToUpperInvariant() } | Select-Object -Unique) } else { @() }
+                captureDate = if (($recordProperties -contains 'captureDate') -and $record.captureDate) { if ($record.captureDate -is [datetime]) { ([datetime]$record.captureDate).ToUniversalTime().ToString('o') } else { [string]$record.captureDate } } else { '' }
+                captureDateSource = if (($recordProperties -contains 'captureDateSource') -and $record.captureDateSource) { [string]$record.captureDateSource } else { '' }
+                captureDateConfidence = if (($recordProperties -contains 'captureDateConfidence') -and $null -ne $record.captureDateConfidence) { [int]$record.captureDateConfidence } else { 0 }
+                embeddedCaptureDateState = if (($recordProperties -contains 'embeddedCaptureDateState') -and $record.embeddedCaptureDateState) { [string]$record.embeddedCaptureDateState } else { 'NotChecked' }
+                captureDateMaterializationStatus = if (($recordProperties -contains 'captureDateMaterializationStatus') -and $record.captureDateMaterializationStatus) { [string]$record.captureDateMaterializationStatus } else { '' }
+                embeddedCaptureMetadataWritten = if ($recordProperties -contains 'embeddedCaptureMetadataWritten') { [bool]$record.embeddedCaptureMetadataWritten } else { $false }
+                fileSystemDatesSynced = if ($recordProperties -contains 'fileSystemDatesSynced') { [bool]$record.fileSystemDatesSynced } else { $false }
+                dateKnownButMetadataNotWritten = if ($recordProperties -contains 'dateKnownButMetadataNotWritten') { [bool]$record.dateKnownButMetadataNotWritten } else { $false }
                 physicalMetadataCertificationStatus = if (($recordProperties -contains 'physicalMetadataCertificationStatus') -and $record.physicalMetadataCertificationStatus) { [string]$record.physicalMetadataCertificationStatus } else { 'NotCertified' }
                 physicalMetadataCertifiedAt = if (($recordProperties -contains 'physicalMetadataCertifiedAt') -and $record.physicalMetadataCertifiedAt) { if ($record.physicalMetadataCertifiedAt -is [datetime]) { ([datetime]$record.physicalMetadataCertifiedAt).ToUniversalTime().ToString('o') } else { [string]$record.physicalMetadataCertifiedAt } } else { '' }
                 physicalMetadataCertificationSchema = if (($recordProperties -contains 'physicalMetadataCertificationSchema') -and $record.physicalMetadataCertificationSchema) { [int]$record.physicalMetadataCertificationSchema } else { 0 }
@@ -9464,10 +9480,54 @@ function Get-NormalizeQuarterlyDateFromProcessedFiles {
     return $null
 }
 
+function Get-NormalizeQuarterlyDateFromCertifiedIndex {
+    param(
+        [System.IO.FileInfo]$File,
+        [hashtable]$PathIndex
+    )
+
+    if ($null -eq $File -or $null -eq $PathIndex) {
+        return $null
+    }
+
+    $record = Get-ProcessedRecordFromPathIndex -PathIndex $PathIndex -Path $File.FullName
+    $certification = Test-PhysicalMetadataCertificationCurrent -Record $record -File $File
+    if (-not $certification.Current) {
+        return $null
+    }
+
+    $recordProperties = @($record.PSObject.Properties.Name)
+    if ($recordProperties -notcontains 'captureDate' -or [string]::IsNullOrWhiteSpace([string]$record.captureDate)) {
+        return $null
+    }
+
+    $captureDate = [datetime]::MinValue
+    if (-not [datetime]::TryParse(
+            [string]$record.captureDate,
+            [System.Globalization.CultureInfo]::InvariantCulture,
+            [System.Globalization.DateTimeStyles]::RoundtripKind,
+            [ref]$captureDate)) {
+        return $null
+    }
+
+    $confidence = if ($recordProperties -contains 'captureDateConfidence') { [int]$record.captureDateConfidence } else { 0 }
+    $source = if ($recordProperties -contains 'captureDateSource') { [string]$record.captureDateSource } else { 'PhysicalMetadataCertification' }
+    if ($confidence -lt 90 -or [string]$source -eq 'WindowsLastWriteTime') {
+        return $null
+    }
+
+    return [pscustomobject]@{
+        Date = $captureDate
+        Confidence = [math]::Max($confidence, 98)
+        Source = "PhysicalMetadataCertification: $source"
+    }
+}
+
 function Get-NormalizeQuarterlyDateInfo {
     param(
         [System.IO.FileInfo]$File,
-        [string]$OrganizedRoot
+        [string]$OrganizedRoot,
+        [hashtable]$PathIndex
     )
 
     $fromPath = Get-NormalizeQuarterlyDateFromPath -File $File -OrganizedRoot $OrganizedRoot
@@ -9480,6 +9540,9 @@ function Get-NormalizeQuarterlyDateInfo {
     if ($fromName) {
         return [pscustomobject]@{ Date = $fromName; Confidence = 96; Source = 'File name' }
     }
+
+    $fromCertifiedIndex = Get-NormalizeQuarterlyDateFromCertifiedIndex -File $File -PathIndex $PathIndex
+    if ($fromCertifiedIndex) { return $fromCertifiedIndex }
 
     if ($ExifToolAvailable) {
         Write-DiagnosticLog "Normalize falling back to EXIF for date only: $($File.FullName)"
@@ -9522,6 +9585,8 @@ function Invoke-NormalizeExistingFoldersQuarterly {
     $rootFileSets = New-Object System.Collections.Generic.List[object]
     $totalFilesToInspect = 0
     $actualNormalizeMoves = 0
+    $certifiedDateHits = 0
+    $pathIndex = New-ProcessedRecordPathIndex
 
     foreach ($root in @($OrganizedRoots)) {
         Write-Log -Message "NormalizeExistingFolders scanning organized root: $root" -Phase 'NormalizeExistingFolders'
@@ -9575,7 +9640,10 @@ function Invoke-NormalizeExistingFoldersQuarterly {
                 }
 
                 $Stats.LocalFilesDetected++
-                $dateInfo = Get-NormalizeQuarterlyDateInfo -File $file -OrganizedRoot $root
+                $dateInfo = Get-NormalizeQuarterlyDateInfo -File $file -OrganizedRoot $root -PathIndex $pathIndex
+                if ($dateInfo -and [string]$dateInfo.Source -like 'PhysicalMetadataCertification:*') {
+                    $certifiedDateHits++
+                }
                 Write-DateInfoDiagnostic -File $file -DateInfo $dateInfo -Context 'NormalizeExistingFolders'
                 if ($null -eq $dateInfo -or $dateInfo.Confidence -lt 90) {
                     $skippedUncertain++
@@ -9656,7 +9724,7 @@ function Invoke-NormalizeExistingFoldersQuarterly {
         Invoke-PostMutationProcessedDatabaseValidation -Roots $OrganizedRoots -Reason 'NormalizeExistingFolders QuarterlyFolders post-Apply'
         Save-ProcessedDatabase
     }
-    Write-Log -Message ("NormalizeExistingFolders summary: profile=QuarterlyFolders; scannedFiles={0}; plannedMoves={1}; cloudPlaceholdersSkipped={2}; missingReal={3}; foldersReduced={4}; zombieBranchesRemoved={5}; junkOnlyFoldersRemoved={6}; junkOnlySmallMarkerFoldersRemoved={7}; jsonPathsUpdated={8}; skippedUncertainNames={9}; errors={10}; report={11}" -f $scannedFiles, $actions.Count, $Stats.CloudPlaceholdersSkipped, $Stats.MissingReal, $Stats.FoldersReduced, $Stats.ZombieNormalizeFoldersRemoved, $Stats.JunkOnlyFoldersRemoved, $Stats.JunkOnlySmallMarkerFoldersRemoved, $Stats.JsonPathsUpdated, $Stats.SkippedUncertainNames, $errors, $reportPath) -Phase 'Complete' -Status 'Completed'
+    Write-Log -Message ("NormalizeExistingFolders summary: profile=QuarterlyFolders; scannedFiles={0}; plannedMoves={1}; cloudPlaceholdersSkipped={2}; missingReal={3}; foldersReduced={4}; zombieBranchesRemoved={5}; junkOnlyFoldersRemoved={6}; junkOnlySmallMarkerFoldersRemoved={7}; jsonPathsUpdated={8}; skippedUncertainNames={9}; certifiedDateHits={10}; errors={11}; report={12}" -f $scannedFiles, $actions.Count, $Stats.CloudPlaceholdersSkipped, $Stats.MissingReal, $Stats.FoldersReduced, $Stats.ZombieNormalizeFoldersRemoved, $Stats.JunkOnlyFoldersRemoved, $Stats.JunkOnlySmallMarkerFoldersRemoved, $Stats.JsonPathsUpdated, $Stats.SkippedUncertainNames, $certifiedDateHits, $errors, $reportPath) -Phase 'Complete' -Status 'Completed'
     Close-Logging
     exit 0
 }
