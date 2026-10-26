@@ -134,7 +134,6 @@ Available providers:
 
 Planned / sample-gated providers:
 
-- Samsung Gallery
 - Immich
 
 ### Maintenance

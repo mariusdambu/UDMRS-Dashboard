@@ -6140,15 +6140,6 @@ function Get-ImportProviderRegistry {
             Notes = 'Conservative importer based on real iCloud Photos export structure.'
         },
         [pscustomobject]@{
-            Id = 'SamsungGallery'
-            Aliases = @('SamsungGallery', 'Samsung')
-            DisplayName = 'Samsung Gallery'
-            Status = 'Planned'
-            Gate = 'SampleGated'
-            SemanticSignals = @('albums', 'stories', 'trash', 'device/cloud gallery context')
-            Notes = 'Officially planned because of adoption, but disabled until a real export proves recoverable semantics.'
-        },
-        [pscustomobject]@{
             Id = 'MovistarCloud'
             Aliases = @('MovistarCloud', 'MovistarCloudExport', 'Movistar')
             DisplayName = 'Movistar Cloud Export'

@@ -19,7 +19,7 @@ Estado: stable release candidate funcional para el ciclo actual de UDMRS Dashboa
 
 ## Límites conocidos
 
-- Samsung Gallery e Immich permanecen planificados/deshabilitados hasta disponer de muestras reales suficientes.
+- Immich permanece planificado/deshabilitado hasta disponer de muestras reales suficientes.
 - PNG/GIF y ciertos formatos con metadata no estándar requieren auditorías futuras específicas antes de ampliar reglas de escritura.
 - Los conflictos de provider frente a metadata embebida se envían a revisión en lugar de resolverse automáticamente.
 - Las galerías cloud-only siguen procesándose de forma conservadora: placeholders se omiten para evitar hidratación automática.

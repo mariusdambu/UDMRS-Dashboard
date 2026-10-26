@@ -184,8 +184,6 @@
   "import_provider_apple": "Apple Photos / iCloud",
   "import_provider_apple_desc": "Importă o exportare Apple Photos / iCloud. Folosește Photo Details CSV, CSV-uri de albume, marcaje de coș, date provider și candidați Live Photo.",
   "action_hint_import_provider_apple": "Apple Photos / iCloud: selectează o exportare iCloud, verifică mai întâi în Simulare, apoi importă asset-uri curate în destinația An\\Trimestru folosind indexul comun.",
-  "import_provider_samsung": "Samsung Gallery",
-  "import_provider_samsung_desc": "Planificat și blocat până când o exportare reală demonstrează albume, stories, coș sau altă semantică recuperabilă.",
   "import_provider_movistar": "Movistar Cloud Export",
   "import_provider_movistar_desc": "Importă o exportare Movistar Cloud recunoscută. Procesează Pictures și Videos, omite Trash și folosește EXIF, QuickTime, nume de fișier fiabile și SHA256.",
   "action_hint_import_provider_movistar": "Movistar Cloud Export: selectează rădăcina care conține profile.json. Verifică mai întâi în Simulare; coșul este numărat, dar nu este importat.",

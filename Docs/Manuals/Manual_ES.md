@@ -135,7 +135,6 @@ Disponible:
 
 Planificados y deshabilitados:
 
-- `Samsung Gallery`: bloqueado hasta disponer de exportación real.
 - `Immich`: requiere muestras/export adecuados.
 
 Para cualquier provider, trata la carpeta exportada como fuente temporal: primero ejecuta Simulación, revisa el reporte HTML/JSON y después Apply. Al terminar un Apply correcto, el dashboard puede pedir confirmación para eliminar la carpeta de exportación seleccionada. No se elimina en Simulación ni si el import falla.

@@ -30,7 +30,6 @@ Roadmap oficial inicial:
 ```text
 Google Photos / Google Takeout
 Apple Photos / iCloud Photos
-Samsung Gallery
 Immich
 Generic XMP / Sidecar Library
 ```
@@ -55,11 +54,8 @@ Para esos casos se usa `Organize` clasico.
 |---|---|---|---|
 | `GoogleTakeout` | Available | Implemented | Sidecars JSON, albumes, papelera, timestamps provider y duplicados fisicos por album. |
 | `ApplePhotos` | Available | Implemented | Exportaciones iCloud con Photo Details CSV, CSV de albumes, papelera, fechas provider, videos y candidatos Live Photo. |
-| `SamsungGallery` | Planned | SampleGated | Adopcion enorme y posible semantica de albumes/stories/trash, pero requiere exportacion real antes de implementar. |
 | `Immich` | Planned | SampleRequired | XMP sidecars, tags, ratings, descripciones, albumes y metadata de biblioteca. |
 | `XmpSidecarLibrary` | Available | Implemented | Provider generico y conservador para bibliotecas desconocidas con sidecars XMP/JSON/YAML. |
-
-`SamsungGallery` queda contemplado oficialmente, pero deshabilitado hasta disponer de una muestra real adecuada.
 
 ## Estado Google Takeout
 
@@ -142,7 +138,6 @@ El objetivo es construir un modelo interno de interpretacion por proveedor, por 
 ```text
 GoogleTakeout
 ApplePhotos
-Samsung Gallery
 Immich
 XmpSidecarLibrary
 UnknownProvider

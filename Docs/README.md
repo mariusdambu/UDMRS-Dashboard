@@ -14,7 +14,7 @@ Validacion final: sintaxis PS5.1/PS7, dashboard, providers disponibles y flujos 
 
 Esta release congela el flujo clasico estable y la entrada `Importar galeria` como segunda entrada productiva.
 
-Estado actual: `Google Photos / Takeout`, `Apple Photos / iCloud`, `Movistar Cloud Export` y `XMP / Sidecar Library` estan disponibles. `Samsung Gallery` e `Immich` aparecen como providers planificados y deshabilitados hasta disponer de muestras reales.
+Estado actual: `Google Photos / Takeout`, `Apple Photos / iCloud`, `Movistar Cloud Export` y `XMP / Sidecar Library` estan disponibles. `Immich` aparece como provider planificado y deshabilitado hasta disponer de muestras reales.
 
 ## Branding visual
 
@@ -66,7 +66,7 @@ Incluye Test Scan, Organize, Normalize, Reconcile, Purge, DedupeCleanup, RepairO
 - Română: `Docs\Manuals\Manual_RO.md`
 - Arquitectura futura: `Docs\Future\UDMRS-Future-ImportProviders.md`
 
-Roadmap de la segunda entrada: `GoogleTakeout`, `ApplePhotos` y `XmpSidecarLibrary` disponibles; `SamsungGallery` e `Immich` definidos como planned/sample-gated. Servicios que solo entregan carpetas normales de archivos multimedia siguen usando `Organize`.
+Roadmap de la segunda entrada: `GoogleTakeout`, `ApplePhotos` y `XmpSidecarLibrary` disponibles; `Immich` definido como planned/sample-gated. Servicios que solo entregan carpetas normales de archivos multimedia siguen usando `Organize`.
 
 `README-OrganizePhotoLibrary.md` pertenece al script antiguo `Organize-PhotoLibrary.ps1` y no describe el flujo actual.
 
@@ -106,7 +106,6 @@ Disponible actualmente:
 
 Planificados y deshabilitados:
 
-- `Samsung Gallery`: sample-gated hasta disponer de exportación real.
 - `Immich`: requiere muestras/export adecuados.
 
 Las exportaciones de provider se consideran fuentes temporales. Tras un `Apply` correcto, el dashboard puede preguntar si quieres eliminar la carpeta de exportación seleccionada. Esa eliminación es opcional, requiere confirmación explícita, nunca ocurre en DryRun y queda registrada en log/reporte.

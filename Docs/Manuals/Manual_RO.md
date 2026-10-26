@@ -137,7 +137,6 @@ Disponibil:
 
 Planificate si dezactivate:
 
-- `Samsung Gallery`: blocat pana exista o exportare reala.
 - `Immich`: necesita mostre/exporturi potrivite.
 
 Pentru orice provider, trateaza folderul exportat ca sursa temporara: ruleaza mai intai Simulare, verifica raportul HTML/JSON si apoi Apply. Dupa un Apply reusit, dashboard-ul poate cere confirmare pentru stergerea folderului de export selectat. Nu se sterge in Simulare si nu se sterge daca importul esueaza.
